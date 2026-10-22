@@ -38,8 +38,8 @@
     { code: "es", flag: "🇪🇸", name: "Español" },
     { code: "fr", flag: "🇫🇷", name: "Français" },
     { code: "de", flag: "🇩🇪", name: "Deutsch" },
-    // Interface pilot: course explanations and answer keys use English.
-    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en" }
+    // Partial course pilot: English baseline plus explicitly declared lessons.
+    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en", courseOverrides: { "a1-01.js": ["lesson:a1-u01-l1"] } }
   ];
 
   /* ═══════════════════════════════════════════════════════════
@@ -130,6 +130,12 @@
     return entry && entry.contentLanguage || lang;
   }
 
+  /** Explicit complete lesson overlays; all unlisted course content uses the base. */
+  function courseOverrides(lang) {
+    var entry = LANGS.filter(function (l) { return l.code === lang; })[0];
+    return entry && entry.courseOverrides || {};
+  }
+
   /**
    * The course language for a browser's preference list (navigator.languages),
    * by primary subtag: "fr-CA" -> "fr". Null when none of them is offered,
@@ -152,6 +158,7 @@
     missing: missing,
     locale: locale,
     contentLanguage: contentLanguage,
+    courseOverrides: courseOverrides,
     pickLang: pickLang,
     LANGS: LANGS,
     // exposed so that scripts/parity.mjs reads the map from here instead of

@@ -76,14 +76,16 @@ for (const width of [1440, 390]) {
       }
       const before = await page.evaluate(() => {
         const l = window.Core.getLesson("a1-u01-l1").lesson;
-        return { title: l.titleIt, italian: l.dialogue.lines.map(x => x.it), exercises: l.exercises, gloss: l.vocab[0].tr };
+        return { title: l.titleIt, italian: l.dialogue.lines.map(x => x.it), exercises: l.exercises.map(({t,a,it,verb,tense,persons,tokens}) => ({t,a,it,verb,tense,persons,tokens})), gloss: l.vocab[0].tr };
       });
       await language(page, "en");
       const english = await page.evaluate(() => {
         const l = window.Core.getLesson("a1-u01-l1").lesson;
-        return { title: l.titleIt, italian: l.dialogue.lines.map(x => x.it), exercises: l.exercises, gloss: l.vocab[0].tr };
+        return { title: l.titleIt, italian: l.dialogue.lines.map(x => x.it), exercises: l.exercises.map(({t,a,it,verb,tense,persons,tokens}) => ({t,a,it,verb,tense,persons,tokens})), gloss: l.vocab[0].tr };
       });
-      expect(before).toEqual(english);
+      expect(before.gloss).not.toBe(english.gloss);
+      expect(before.gloss).toMatch(/[\u0600-\u06ff]/);
+      expect({ ...before, gloss: null }).toEqual({ ...english, gloss: null });
       await language(page, "ar");
       // Real lesson choice and validation, using its original answer index.
       const correct = await page.evaluate(() => window.Core.getLesson("a1-u01-l1").lesson.exercises[0].a);

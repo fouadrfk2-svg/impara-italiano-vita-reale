@@ -23,6 +23,7 @@
 
   function set(html) {
     var m = el();
+    m.removeAttribute("data-lesson-language");
     m.innerHTML = html;
     Ex.wireSpeakers(m);
     wireGuide(m);

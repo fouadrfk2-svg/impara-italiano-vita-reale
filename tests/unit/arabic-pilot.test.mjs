@@ -72,10 +72,10 @@ describe("Arabic interface pilot", () => {
     assert.equal(I.t("stats.lessons", { n: 2 }), "درسان");
   });
 
-  test("Arabic loads only real English overlay paths and caches them normally", () => {
+  test("Arabic loads the English base plus only declared lesson files and caches both", () => {
     const box = setup(), R = box.sandbox.Registry;
-    assert.deepEqual(R.i18nPaths("ar", ["a1-01.js"]), ["data/i18n/en/a1-01.js"]);
-    R.markI18n(["data/i18n/en/a1-01.js"], []);
+    assert.deepEqual(R.i18nPaths("ar", ["a1-01.js"]), ["data/i18n/en/a1-01.js", "data/i18n/ar/a1-01.js"]);
+    R.markI18n(["data/i18n/en/a1-01.js", "data/i18n/ar/a1-01.js"], []);
     assert.deepEqual(R.i18nPaths("ar", ["a1-01.js"]), []);
     R.setLanguage("ar", () => {});
     box.settleScripts();

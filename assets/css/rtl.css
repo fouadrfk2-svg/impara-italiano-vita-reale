@@ -36,3 +36,11 @@ html[dir="rtl"] :is(.chip--cefr,.level-pill__code,.lesson-top__hearts,.rail__bra
   html[dir="rtl"] .rail-toggle { left:auto; right:14px; }
   html[dir="rtl"] .path::before { right:30px; }
 }
+
+/* Actual Arabic lesson overlays; untranslated lessons retain English LTR. */
+html[dir="rtl"] #main[data-lesson-language="ar"] :is(.prose,.pl,.nb,.vocab-card__pl,.dlg__pl,.gram-box__rule,.gram-box__note,.exq__prompt,.exq__sub,.fb__why,.voice-pl,.gt th,.gt td:last-child,.match-col.js-r) {
+  direction:rtl; unicode-bidi:isolate; text-align:right;
+}
+html[dir="rtl"] #main[data-lesson-language="ar"] :is(.opts,.conj-grid,.match-col.js-l) {
+  direction:ltr; unicode-bidi:isolate; text-align:left;
+}

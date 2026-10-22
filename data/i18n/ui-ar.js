@@ -1,6 +1,6 @@
-/* Arabic interface pilot. Keys not translated here deliberately use ui-en.js.
-   Course explanations, exercises and answer keys use the complete English overlay.
-   This is not an Arabic course translation. Italian and audio stay unchanged. */
+/* Arabic interface pilot. Missing UI keys use ui-en.js.
+   The course uses English plus explicitly declared Arabic lesson translations.
+   Italian, answer keys and audio stay unchanged. */
 LINGUAI.addUI("ar", {
   "app.title": "Impara l'Italiano — تعلّم الإيطالية",
   "app.description": "تعلّم الإيطالية مع واجهة عربية تجريبية. محتوى الدروس غير المترجم متاح بالإنجليزية.",
@@ -73,7 +73,7 @@ LINGUAI.addUI("ar", {
   "lesson.objectives": "في نهاية هذا الدرس ستتمكّن من:",
   "lesson.theory": "الشرح",
   "lesson.trapLabel": "انتبه:",
-  "lesson.contrastLabel": "ملاحظة باللغة الإنجليزية:",
+  "lesson.contrastLabel": "ملاحظة لغوية:",
   "lesson.tipLabel": "نصيحة:",
   "lesson.grammar": "القواعد",
   "lesson.vocab": "المفردات",
@@ -128,7 +128,7 @@ LINGUAI.addUI("ar", {
   "ex.order.yourSentence": "جملتك",
   "ex.order.clear": "امسح",
   "ex.order.empty": "كوّن الجملة باستخدام الكلمات.",
-  "ex.match.prompt": "وصّل العبارات الإيطالية بمعانيها الإنجليزية.",
+  "ex.match.prompt": "صِل كل عبارة بمعناها.",
   "ex.match.mistakes": "الأخطاء: {n}.",
   "ex.listen.prompt": "استمع واكتب ما تسمعه.",
   "ex.listen.play": "🔊 استمع",
@@ -194,5 +194,34 @@ LINGUAI.addUI("ar", {
   "set.imported": "تمّ استيراد التقدّم.",
   "a11y.listen": "استمع",
   "a11y.listenTo": "استمع إلى {what}",
-  "privacy.title": "الخصوصية"
+  "privacy.title": "الخصوصية",
+  "ex.conj.prompt": "صرّف الفعل: <bdi lang=\"it\" dir=\"ltr\">{verb}</bdi> — {tense}",
+  "tense.pres": "المضارع",
+  "lesson.starAdd": "+ أضف للمراجعة",
+  "lesson.starIn": "في المراجعة",
+  "lesson.stepDialogue": "الحوار",
+  "lesson.end.recap": "راجع هذه التمارين:",
+  "ex.speak.hint": "اضغط على الميكروفون واقرأ الجملة.",
+  "ex.speak.noStt": "متصفّحك لا يدعم التعرّف على الكلام. استمع إلى النموذج، وكرّر الجملة بصوتك، ثم اكتبها من الذاكرة.",
+  "ex.speak.recordFirst": "سجّل إجابتك أولًا.",
+  "ex.speak.ok": "تعرّف النظام على نطقك بشكل صحيح.",
+  "ex.speak.retry": "قد لا يتعرّف النظام جيدًا على اللكنة الأجنبية. استمع إلى النموذج ثم حاول مجدّدًا بهدوء.",
+  "ex.stt.listening": "جارٍ الاستماع…",
+  "ex.stt.denied": "لم يُسمح باستخدام الميكروفون. يمكنك السماح به من إعدادات المتصفّح.",
+  "ex.stt.noConsent": "من دون موافقتك يبقى التعرّف على الكلام معطّلًا. اكتب إجابتك في الحقل أدناه.",
+  "ex.stt.failed": "تعذّر التسجيل. حاول مجدّدًا.",
+  "ex.stt.nothing": "لم ألتقط أي كلام. حاول مجدّدًا.",
+  "ex.stt.heard": "سمعت: {text}",
+  "lesson.exOpen": {"zero":"تمارين لم تُجب عنها بعد: {n}","one":"تمارين لم تُجب عنها بعد: {n}","two":"تمارين لم تُجب عنها بعد: {n}","few":"تمارين لم تُجب عنها بعد: {n}","many":"تمارين لم تُجب عنها بعد: {n}","other":"تمارين لم تُجب عنها بعد: {n}"},
+  "lesson.savedVocab": {"zero":"أُضيف إلى قائمة المراجعة {n} من مفردات الدرس.","one":"أُضيف إلى قائمة المراجعة {n} من مفردات الدرس.","two":"أُضيف إلى قائمة المراجعة {n} من مفردات الدرس.","few":"أُضيف إلى قائمة المراجعة {n} من مفردات الدرس.","many":"أُضيف إلى قائمة المراجعة {n} من مفردات الدرس.","other":"أُضيف إلى قائمة المراجعة {n} من مفردات الدرس."},
+  "lesson.end.vocabIn": {"zero":"أُضيف إلى مراجعاتك {n} من مفردات هذا الدرس.","one":"أُضيف إلى مراجعاتك {n} من مفردات هذا الدرس.","two":"أُضيف إلى مراجعاتك {n} من مفردات هذا الدرس.","few":"أُضيف إلى مراجعاتك {n} من مفردات هذا الدرس.","many":"أُضيف إلى مراجعاتك {n} من مفردات هذا الدرس.","other":"أُضيف إلى مراجعاتك {n} من مفردات هذا الدرس."},
+  "talk.checking": "جارٍ التحقّق…",
+  "lesson.chipOpen": "التمرين {i}: لم تُجب عنه بعد",
+  "lesson.chipOk": "التمرين {i}: إجابة صحيحة",
+  "lesson.chipKo": "التمرين {i}: إجابة غير صحيحة",
+  "stt.consentTitle": "سيُرسل صوتك خارج المتصفّح",
+  "stt.consentBody": "لا يعمل التعرّف على الكلام على جهازك نفسه: يرسل المتصفّح تسجيلًا لصوتك إلى خادم الجهة المزوّدة للخدمة ثم يستعيد النص. لا نتحكّم في هذا الإرسال، ولا يمكننا توفير بديل من دون خادم خاص بنا. ينطبق ذلك على تمارين الميكروفون فقط؛ أمّا بقية الدورة فتبقى على جهازك.",
+  "stt.consentYes": "أوافق",
+  "stt.consentNo": "لا، شكرًا",
+  "stt.consentLater": "إذا لم توافق، تتحوّل هذه التمارين إلى تمارين كتابية."
 });

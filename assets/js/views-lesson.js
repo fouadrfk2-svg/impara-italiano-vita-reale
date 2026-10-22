@@ -178,6 +178,8 @@
     }
 
     set(parts.join(""));
+    var contentLang = LINGUAI.lessonLanguage(I18n.lang, L.id);
+    el().setAttribute("data-lesson-language", contentLang);
 
     /* --- wiring --- */
     el().querySelector(".js-back").addEventListener("click", function () { Audio2.stop(); App.go("percorso"); });
@@ -252,6 +254,18 @@
       });
       drawRun();
     }
+    // Give screen readers the actual language of each explanation block.
+    var translated = ".view-head > p,.prose,.gram-box__rule,.gram-box__note,.pl,.nb,.vocab-card__pl,.dlg__pl,.exq__prompt,.exq__sub,.voice-pl,.gt th";
+    el().querySelectorAll(translated).forEach(function (node) {
+      node.setAttribute("lang", contentLang);
+      node.setAttribute("dir", contentLang === "ar" ? "rtl" : "ltr");
+    });
+    if (contentLang === "ar") el().querySelectorAll(".gt td:last-child,.match-col.js-r").forEach(function (node) {
+      node.setAttribute("lang", "ar"); node.setAttribute("dir", "rtl");
+    });
+    el().querySelectorAll(".it,.dlg__it,.vocab-card__it,.vocab-card__ex,.opts,.tok-bank,.tok-target,.match-col.js-l,.conj-grid,input,.voice-target").forEach(function (node) {
+      node.setAttribute("lang", "it"); node.setAttribute("dir", "ltr");
+    });
   };
 
   function showEx(i) {

@@ -82,6 +82,49 @@
     objByIndex(g.examples, p.examples, ["tr", "note"]);
   }
 
+  /* A declared lesson is atomic: malformed/short overlays fall back in full.
+     Theory is authored for the learner's language, not merged by index. */
+  function completePatch(base, patch, key) {
+    if (key === "theory") return Array.isArray(patch) && patch.length > 0;
+    if (Array.isArray(base)) return Array.isArray(patch) && base.length === patch.length && base.every(function (v, i) { return completePatch(v, patch[i]); });
+    if (base && typeof base === "object") {
+      return !!patch && typeof patch === "object" && !Array.isArray(patch) &&
+        Object.keys(base).length === Object.keys(patch).length &&
+        Object.keys(base).every(function (k) { return completePatch(base[k], patch[k], k); });
+    }
+    return typeof patch === typeof base;
+  }
+
+  function lessonLanguage(lang, id) {
+    var base = global.I18n && global.I18n.contentLanguage ? global.I18n.contentLanguage(lang) : lang;
+    if (base === lang) return lang;
+    var manifest = global.I18n.courseOverrides(lang);
+    var key = "lesson:" + id;
+    var declared = Object.keys(manifest).some(function (file) { return manifest[file].indexOf(key) >= 0; });
+    var fallback = get(base, key), patch = get(lang, key);
+    return declared && fallback && patch && completePatch(fallback, patch) ? lang : base;
+  }
+
+  /** Dictionary/reading saves may carry a gloss without its lesson id.
+      Resolve its actual overlay, rather than recording Arabic under English. */
+  function glossLanguage(lang, it, tr, source) {
+    var actual = lessonLanguage(lang, source);
+    if (actual === lang || !tr) return actual;
+    var manifest = global.I18n.courseOverrides(lang);
+    var index = global.Core && global.Core.registry.lessonIndex || {};
+    var translated = Object.keys(manifest).some(function (file) {
+      return manifest[file].some(function (key) {
+        var id = key.slice("lesson:".length), found = index[id];
+        if (!found || lessonLanguage(lang, id) !== lang) return false;
+        var patch = get(lang, key);
+        return (found.lesson.vocab || []).some(function (v, i) {
+          return global.Txt.norm(v.it) === global.Txt.norm(it) && patch.vocab[i] === tr;
+        });
+      });
+    });
+    return translated ? lang : actual;
+  }
+
   function applyLesson(L, lang) {
     var p = L && get(lang, "lesson:" + L.id);
     if (!p) return;
@@ -206,7 +249,7 @@
    * Safe to call repeatedly and to switch languages on the fly.
    */
   function applyStrings(lang) {
-    // Arabic is an interface pilot. Always reapply the full English overlay.
+    var selected = lang;
     if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
     var reg = global.Core && global.Core.registry;
     if (reg) reg.levels.forEach(function (lv) { applyLevel(lv, lang); });
@@ -216,10 +259,21 @@
     applyReadings(lang);
     applyWriting(lang);
     applyInterference(lang);
+    // Only declared, complete lessons override the freshly reapplied base.
+    // Do not reapply other families: missing false-friend entries clear fields.
+    if (reg && selected !== lang) reg.levels.forEach(function (lv) {
+      (lv.units || []).forEach(function (u) {
+        (u.lessons || []).concat(u.test ? [u.test] : []).forEach(function (lesson) {
+          if (lessonLanguage(selected, lesson.id) === selected) applyLesson(lesson, selected);
+        });
+      });
+    });
   }
 
   LINGUAI.addStrings = addStrings;
   LINGUAI.applyStrings = applyStrings;
   LINGUAI.hasStrings = hasLang;
+  LINGUAI.lessonLanguage = lessonLanguage;
+  LINGUAI.glossLanguage = glossLanguage;
 
 })(window);

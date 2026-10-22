@@ -14,7 +14,7 @@
    It exits with code 1 on any difference — suitable for CI.
    ============================================================ */
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 import vm from "node:vm";
 
@@ -28,24 +28,31 @@ const MAX_SHOWN = process.env.PARITY_MAX === undefined
   : (Number(process.env.PARITY_MAX) || Infinity);
 
 /** The code -> locale map read from the engine, so as not to keep a second copy. */
-function engineLocales() {
+function engineI18n() {
   const sandbox = { window: {}, console, Intl, document: { documentElement: { setAttribute() {} }, querySelectorAll: () => [] } };
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(readFileSync(join(ROOT, "assets", "js", "i18n.js"), "utf8"), sandbox, { filename: "i18n.js" });
-  return sandbox.I18n.LOCALE;
+  return sandbox.I18n;
 }
 
 /* ---------------- Loading one language's overlays ---------------- */
 
-function loadLang(lang) {
+function loadLang(lang, byFile) {
   const bag = {};
-  const sandbox = { window: {}, console, LINGUAI: { addStrings(_l, map) { Object.assign(bag, map); } } };
+  let currentFile;
+  const sandbox = { window: {}, console, LINGUAI: { addStrings(_l, map) {
+    if (_l !== lang) throw new Error(`${lang}/${currentFile}: wrong registration language ${_l}`);
+    Object.assign(bag, map);
+    if (byFile) byFile[currentFile] = Object.assign(byFile[currentFile] || {}, map);
+  } } };
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   const dir = join(I18N, lang);
   const files = readdirSync(dir).filter(f => f.endsWith(".js")).sort();
   for (const f of files) {
+    currentFile = f;
+    if (byFile) byFile[f] = {};
     vm.runInContext(readFileSync(join(dir, f), "utf8"), sandbox, { filename: `${lang}/${f}` });
   }
   return bag;
@@ -74,14 +81,20 @@ function pluralCategories(locale) {
   return new Intl.PluralRules(locale).resolvedOptions().pluralCategories;
 }
 
-function checkUI(lang, locale, ref, out) {
+function checkUI(lang, locale, ref, out, fallback) {
   const bag = loadUI(lang);
   if (!bag) { out.push(`ui-${lang}.js: brak pliku`); return; }
+  checkUIBag(bag, locale, ref, out, fallback);
+}
+
+export function checkUIBag(bag, locale, ref, out, fallback) {
+  const own = bag;
+  bag = Object.assign({}, fallback || {}, bag);
   const refKeys = Object.keys(ref).sort();
   refKeys.filter(k => !(k in bag)).forEach(k => out.push(`ui.${k}: brak klucza`));
   Object.keys(bag).filter(k => !(k in ref)).forEach(k => out.push(`ui.${k}: klucz nadmiarowy`));
 
-  const needed = pluralCategories(locale);
+  // Fallback plurals use the fallback language; native Arabic must have all six.
   refKeys.filter(k => k in bag).forEach(k => {
     const isPluralRef = ref[k] && typeof ref[k] === "object";
     const isPluralHere = bag[k] && typeof bag[k] === "object";
@@ -89,7 +102,11 @@ function checkUI(lang, locale, ref, out) {
       out.push(`ui.${k}: ${isPluralRef ? "formy liczby" : "napis"} w ${REFERENCE}, ${isPluralHere ? "formy liczby" : "napis"} tutaj`);
       return;
     }
-    if (!isPluralRef) return;
+    if (!isPluralRef) {
+      if (typeof bag[k] !== typeof ref[k]) out.push("ui." + k + ": wrong value type");
+      return;
+    }
+    const needed = pluralCategories(fallback && !(k in own) ? "en-US" : locale);
     needed.filter(c => !(c in bag[k])).forEach(c => out.push(`ui.${k}: brak formy „${c}" wymaganej przez ${locale}`));
   });
 }
@@ -151,11 +168,34 @@ function diff(a, b, path, out) {
     ka.filter(k => !(k in b)).forEach(k => out.push(`${path}.${k}: brakuje`));
     kb.filter(k => !(k in a)).forEach(k => out.push(`${path}.${k}: jest tutaj, nie ma w ${REFERENCE}`));
     ka.filter(k => k in b).forEach(k => diff(a[k], b[k], `${path}.${k}`, out));
-  }
+  } else if (a !== b) out.push(`${path}: type ${a} vs ${b}`);
   return out;
 }
 
+/** Complete entries only: fallback may cover other lessons, never a hole in a
+ * declared translation. File membership is checked as well as every key/index. */
+export function checkPartialCourse(manifest, byFile, reference, out) {
+  const seen = new Set();
+  Object.keys(byFile).filter(f => !(f in manifest)).forEach(f => out.push(f + ": undeclared partial file"));
+  Object.entries(manifest).forEach(([file, keys]) => {
+    const bag = byFile[file];
+    if (!bag) { out.push(file + ": missing declared partial file"); return; }
+    Object.keys(bag).filter(k => !keys.includes(k)).forEach(k => out.push(file + ": undeclared entry " + k));
+    keys.forEach(key => {
+      if (seen.has(key)) out.push(key + ": duplicate declaration");
+      seen.add(key);
+      if (!key.startsWith("lesson:") || !(key in reference)) out.push(key + ": unknown lesson");
+      else if (!(key in bag)) out.push(key + ": missing declared translation");
+      else {
+        diff(shape(withoutFreeFields(reference[key])), shape(withoutFreeFields(bag[key])), key, out);
+        if (!Array.isArray(bag[key].theory) || !bag[key].theory.length) out.push(key + ": empty theory");
+      }
+    });
+  });
+}
+
 /* ---------------- The run ---------------- */
+function main() {
 
 const wanted = process.argv.slice(2);
 const langs = (wanted.length ? wanted : readdirSync(I18N).filter(f => statSync(join(I18N, f)).isDirectory()))
@@ -197,12 +237,19 @@ function oczekiwany(klucz, lang) {
 const ref = loadLang(REFERENCE);
 const refKeys = Object.keys(ref).sort();
 const refUI = loadUI(REFERENCE);
-const LOCALES = engineLocales();
+const ENGINE = engineI18n();
+const LOCALES = ENGINE.LOCALE;
 let bad = 0;
 
 for (const lang of langs) {
-  const bag = loadLang(lang);
+  const byFile = {};
+  const own = loadLang(lang, byFile);
   const problems = [];
+  const manifest = ENGINE.courseOverrides(lang);
+  const partial = Object.keys(manifest).length > 0;
+  const base = partial ? ENGINE.contentLanguage(lang) : lang;
+  if (partial) checkPartialCourse(manifest, byFile, ref, problems);
+  const bag = partial ? Object.assign(loadLang(base), own) : own;
 
   /* The "int:" keys take a separate path: presence is decided by `for`, not by Polish. */
   const zwykle = refKeys.filter(k => !INT.has(k));
@@ -215,7 +262,7 @@ for (const lang of langs) {
 
   for (const [klucz] of INT) {
     const jest = klucz in bag;
-    const ma = oczekiwany(klucz, lang);
+    const ma = oczekiwany(klucz, base);
     if (ma && !jest) problems.push(`${klucz}: brak wyjaśnienia, choć „for" wymienia ${lang}`);
     if (!ma && jest) problems.push(`${klucz}: wyjaśnienie jest, ale „for" nie wymienia ${lang}`);
     if (ma && jest) {
@@ -226,8 +273,9 @@ for (const lang of langs) {
   }
 
   if (!LOCALES[lang]) problems.push(`ui-${lang}.js: brak wpisu w LOCALE w assets/js/i18n.js`);
-  else checkUI(lang, LOCALES[lang], refUI, problems);
+  else checkUI(lang, LOCALES[lang], refUI, problems, partial ? loadUI(base) : null);
 
+  if (partial) console.log(`  Partial: ${Object.keys(own).length} declared translation(s); remaining content: ${base}`);
   const covered = refKeys.filter(k => k in bag).length;
   console.log(`\n=== ${lang} ===  ${covered}/${refKeys.length} wpisów, ${problems.length} różnic`);
   if (problems.length) {
@@ -240,4 +288,7 @@ for (const lang of langs) {
 }
 
 if (!langs.length) console.log("Brak innych języków do porównania.");
-process.exit(bad ? 1 : 0);
+process.exitCode = bad ? 1 : 0;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

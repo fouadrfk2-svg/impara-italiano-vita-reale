@@ -93,9 +93,14 @@
   var I18N_DIR = "data/i18n/";
 
   function i18nPaths(lang, files) {
-    if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
-    return files.filter(function (f) { return !i18nLoaded[lang + "/" + f]; })
-      .map(function (f) { return I18N_DIR + lang + "/" + f; });
+    var base = global.I18n && global.I18n.contentLanguage ? global.I18n.contentLanguage(lang) : lang;
+    var overrides = global.I18n && global.I18n.courseOverrides ? global.I18n.courseOverrides(lang) : {};
+    var paths = files.filter(function (f) { return !i18nLoaded[base + "/" + f]; })
+      .map(function (f) { return I18N_DIR + base + "/" + f; });
+    if (base !== lang) files.forEach(function (f) {
+      if (overrides[f] && !i18nLoaded[lang + "/" + f]) paths.push(I18N_DIR + lang + "/" + f);
+    });
+    return paths;
   }
 
   /** Remembers only what actually loaded: a failure must be retried. */
