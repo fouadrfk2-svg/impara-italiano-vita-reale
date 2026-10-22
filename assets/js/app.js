@@ -109,7 +109,7 @@
       ' aria-label="' + Core.esc(I18n.t("lang.group")) + '">' +
       I18n.LANGS.map(function (l) {
         return '<li role="option" tabindex="-1" data-lang="' + l.code + '"' +
-          ' aria-selected="' + (l.code === I18n.lang) + '" class="rail__lang-opt">' +
+          ' aria-selected="' + (l.code === I18n.lang) + '" lang="' + l.code + '" dir="auto" class="rail__lang-opt">' +
           '<span aria-hidden="true">' + l.flag + "</span><span>" + Core.esc(l.name) + "</span></li>";
       }).join("") + "</ul>";
 

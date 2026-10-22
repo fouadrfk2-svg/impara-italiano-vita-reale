@@ -1,0 +1,38 @@
+/* Arabic pilot: mirror the interface, never Italian learning material.
+   Loaded after app.css; all changes are scoped to RTL. No external fonts. */
+html[dir="rtl"] body { font-family: var(--sans), Tahoma, Arial, sans-serif; }
+html[dir="rtl"] :is(h1,h2,h3,h4,.rail__tag,.rail__group-title) { letter-spacing:normal; line-height:1.55; }
+html[dir="rtl"] :is(.rail__item,.rail__search,.list-row) { text-align:start; }
+html[dir="rtl"] .rail__lang-list { left:auto; right:0; }
+html[dir="rtl"] .rail__badge { margin-left:0; margin-right:auto; }
+html[dir="rtl"] .unit__count { margin-left:0; margin-right:auto; text-align:end; }
+html[dir="rtl"] .node:nth-child(4n+1) { padding-left:0; padding-right:6%; }
+html[dir="rtl"] .node:nth-child(4n+2) { padding-left:0; padding-right:26%; }
+html[dir="rtl"] .node:nth-child(4n+3) { padding-left:0; padding-right:46%; }
+html[dir="rtl"] .node:nth-child(4n+4) { padding-left:0; padding-right:26%; }
+html[dir="rtl"] .prose ul { padding-left:0; padding-right:20px; }
+html[dir="rtl"] .callout { border-left:0; border-right:5px solid var(--oro-deep); }
+html[dir="rtl"] .callout--trap { border-right-color:var(--rosa-deep); }
+html[dir="rtl"] :is(.callout--pl,.callout--info) { border-right-color:var(--lavanda-deep); }
+/* English course fallback and Italian tasks keep their reading order.
+   Isolate inline phrases so punctuation cannot reorder neighbouring Arabic. */
+html[dir="rtl"] :is(.it,.vocab-card__it,.vocab-card__ex,.dlg__it,.fa-it,.fa-ex,.tok-bank,.tok-target,.gt,.ex-list,.exq,.prose,.lk-text,.sh-it,.sp-it,.voice-target,.cils-consegna,.cils-titolo,.cils-testo,.cils-items,.cils-tracce,.node__txt b,.unit__titles h3,#lexList .list-row__main,.js-model-box p,.field-row input,textarea,input[type="text"],input[type="search"],input[type="email"],input[type="url"],input[type="password"]) {
+  direction:ltr; unicode-bidi:isolate; text-align:left;
+}
+html[dir="rtl"] :is(.pl,.vocab-card__pl,.dlg__pl,.gram-box__rule,.gram-box__note) {
+  direction:ltr; unicode-bidi:isolate; text-align:left;
+}
+html[dir="rtl"] .view-head h1 { unicode-bidi:plaintext; }
+html[dir="rtl"] :is(.exq__num,.exq .js-check,.exq .js-clear,.exq .fb) { direction:rtl; text-align:start; }
+html[dir="rtl"] :is(.chip--cefr,.level-pill__code,.lesson-top__hearts,.rail__brand) { direction:ltr; unicode-bidi:isolate; }
+@media (max-width:1000px) {
+  html[dir="rtl"] .path::before { left:auto; right:34px; }
+  html[dir="rtl"] .node:nth-child(n) { padding-left:0; padding-right:0; }
+}
+@media (max-width:880px) {
+  html[dir="rtl"] .rail { left:auto; right:0; transform:translateX(100%); }
+  html[dir="rtl"] .rail.is-open { transform:none; }
+  html[dir="rtl"] .rail__head { padding-left:22px; padding-right:76px; }
+  html[dir="rtl"] .rail-toggle { left:auto; right:14px; }
+  html[dir="rtl"] .path::before { right:30px; }
+}

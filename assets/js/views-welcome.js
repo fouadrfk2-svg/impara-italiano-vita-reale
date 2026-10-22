@@ -39,7 +39,7 @@
       '<span class="welcome-lang__label">' + esc(t("welcome.langLabel")) + "</span>" +
       I18n.LANGS.map(function (l) {
         return '<button type="button" class="chip welcome-lang__opt" data-lang="' + esc(l.code) + '" aria-pressed="' +
-          (l.code === I18n.lang) + '" lang="' + esc(l.code) + '">' + esc(l.name) + "</button>";
+          (l.code === I18n.lang) + '" lang="' + esc(l.code) + '" dir="auto">' + esc(l.name) + "</button>";
       }).join("") + "</div>";
   }
 

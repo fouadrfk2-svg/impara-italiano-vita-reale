@@ -59,6 +59,7 @@
     var k = cardKey(it);
     if (!k || isForbidden(k)) return null;
     var lang = Store.state.settings.lang;
+    if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
     var card = Store.state.srs[k];
     if (!card) {
       card = Store.state.srs[k] = { it: it, tr: {}, src: src || "", ef: 2.5, reps: 0, interval: 0, due: Date.now(), lapses: 0 };
@@ -83,6 +84,7 @@
   function cardTr(card) {
     if (!card || !card.tr) return "";
     var lang = Store.state.settings.lang;
+    if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
     if (card.tr[lang]) return card.tr[lang];
 
     var fromCourse = registry.vocabIndex[norm(card.it)];

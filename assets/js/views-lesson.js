@@ -70,7 +70,7 @@
       (L.theme ? '<span class="chip chip--green">' + esc(L.theme) + "</span>" : "") +
       "</div>");
 
-    parts.push('<header class="view-head"><h1>' + esc(L.titleIt) + "</h1><p>" + esc(L.title) + "</p></header>");
+    parts.push('<header class="view-head"><h1 lang="it" dir="ltr">' + esc(L.titleIt) + "</h1><p>" + esc(L.title) + "</p></header>");
     parts.push(steps(L));
 
     if (L.objectives && L.objectives.length) {

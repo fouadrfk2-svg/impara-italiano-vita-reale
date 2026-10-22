@@ -206,6 +206,8 @@
    * Safe to call repeatedly and to switch languages on the fly.
    */
   function applyStrings(lang) {
+    // Arabic is an interface pilot. Always reapply the full English overlay.
+    if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
     var reg = global.Core && global.Core.registry;
     if (reg) reg.levels.forEach(function (lv) { applyLevel(lv, lang); });
     (global.CONVERSATIONS || []).forEach(function (c) { applyConversation(c, lang); });

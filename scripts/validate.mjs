@@ -105,11 +105,12 @@ const neutralneDane = JSON.parse(JSON.stringify({
   chat: sandbox.CHAT_SCENARIOS || []
 }));
 
-ALL.forEach(f => run(join("data", "i18n", LANG, f)));
+const CONTENT_LANG = sandbox.I18n.contentLanguage(LANG);
+ALL.forEach(f => run(join("data", "i18n", CONTENT_LANG, f)));
 /* …and the library's own overlays, by the same names as its neutral files.
    Without them every long text reports a missing title, which is what this
    gate is for: the same complaint a student would see as an empty heading. */
-biblioteka.forEach(f => run(join("data", "i18n", LANG, f)));
+biblioteka.forEach(f => run(join("data", "i18n", CONTENT_LANG, f)));
 sandbox.LINGUAI.applyStrings(LANG);
 
 /* ---------------- Validation ---------------- */

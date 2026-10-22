@@ -23,7 +23,7 @@
   var LINGUAI = global.LINGUAI = global.LINGUAI || {};
 
   /* Language code -> BCP-47 locale. "en" means American English. */
-  var LOCALE = { pl: "pl-PL", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE" };
+  var LOCALE = { pl: "pl-PL", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE", ar: "ar" };
   var FALLBACK = "en";
 
   /**
@@ -37,7 +37,9 @@
     { code: "en", flag: "🇺🇸", name: "English" },
     { code: "es", flag: "🇪🇸", name: "Español" },
     { code: "fr", flag: "🇫🇷", name: "Français" },
-    { code: "de", flag: "🇩🇪", name: "Deutsch" }
+    { code: "de", flag: "🇩🇪", name: "Deutsch" },
+    // Interface pilot: course explanations and answer keys use English.
+    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en" }
   ];
 
   /* ═══════════════════════════════════════════════════════════
@@ -81,6 +83,7 @@
     if (v === undefined) {
       absent[key] = true;
       v = ui[FALLBACK] && ui[FALLBACK][key];
+      lang = FALLBACK; // English fallback plurals follow English, not Arabic rules.
     }
     if (v === undefined) return key;
     if (typeof v === "object") v = plural(v, vars && vars.n, lang);
@@ -115,10 +118,17 @@
   function setLang(lang) {
     current = lang;
     document.documentElement.setAttribute("lang", LOCALE[lang] || lang);
+    document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
     apply();
   }
 
   function locale() { return LOCALE[current] || current; }
+
+  /** Pilot languages reuse a complete content overlay, never the previous selection. */
+  function contentLanguage(lang) {
+    var entry = LANGS.filter(function (l) { return l.code === lang; })[0];
+    return entry && entry.contentLanguage || lang;
+  }
 
   /**
    * The course language for a browser's preference list (navigator.languages),
@@ -141,6 +151,7 @@
     set: setLang,
     missing: missing,
     locale: locale,
+    contentLanguage: contentLanguage,
     pickLang: pickLang,
     LANGS: LANGS,
     // exposed so that scripts/parity.mjs reads the map from here instead of

@@ -93,6 +93,7 @@
   var I18N_DIR = "data/i18n/";
 
   function i18nPaths(lang, files) {
+    if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
     return files.filter(function (f) { return !i18nLoaded[lang + "/" + f]; })
       .map(function (f) { return I18N_DIR + lang + "/" + f; });
   }
