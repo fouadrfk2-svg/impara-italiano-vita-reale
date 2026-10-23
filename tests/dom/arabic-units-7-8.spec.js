@@ -323,11 +323,12 @@ for(const width of [1440,390])test.describe('Arabic units seven and eight at '+w
    await page.waitForFunction(id=>JSON.parse(localStorage.getItem('linguai.italiano.v2')).lessons[id].best===1,lesson.id);await page.reload();await ready(page);expect((await state()).lessons[lesson.id]).toEqual(before.lessons[lesson.id]);expect(errors).toEqual([]);
   });
  }
- test('both new Arabic unit summaries restore across English and unit nine stays English',async({page})=>{
+ test('both new Arabic unit summaries restore across English and A2 stays English',async({page})=>{
   await page.goto('/index.html#/lezione?id=a1-u07-l1');await ready(page);await page.evaluate(()=>window.App.go('percorso'));
   const headings=page.locator('.unit__titles p');await expect(headings.nth(6)).toContainText('في المطعم: من حجز الطاولة إلى الحساب');await expect(headings.nth(7)).toContainText('الأشخاص من حولنا: العائلة والصفات والمقارنة');await expect(headings.nth(7)).toContainText('المقارنة والتفضيل');await audit(page);
   await page.evaluate(()=>window.App.go('lezione',{id:'a1-u08-test'}));await ready(page);await language(page,'en');await language(page,'ar');await page.evaluate(()=>window.App.go('percorso'));await expect(headings.nth(6)).toContainText('في المطعم: من حجز الطاولة إلى الحساب');await expect(headings.nth(7)).toContainText('الأشخاص من حولنا: العائلة والصفات والمقارنة');
-  const english=await page.evaluate(()=>window.Core.getLesson('a1-u09-l1').lesson.title);await page.evaluate(()=>window.App.go('lezione',{id:'a1-u09-l1'}));await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');await expect(page.locator('.view-head > p')).toHaveText(english);expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
+  await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('A2',resolve)));
+      const english=await page.evaluate(()=>window.Core.getLesson('a2-u01-l1').lesson.title);await page.evaluate(()=>window.App.go('lezione',{id:'a2-u01-l1'}));await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');await expect(page.locator('.view-head > p')).toHaveText(english);expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
  });
  test('new dialogue wrong choice, retry and Arabic feedback preserve Italian LTR choices',async({page})=>{
   await page.goto('/index.html#/lezione?id=a1-u07-l2');await ready(page);await page.locator('.ex-chip[data-go="7"]').click();const current=page.locator(active);

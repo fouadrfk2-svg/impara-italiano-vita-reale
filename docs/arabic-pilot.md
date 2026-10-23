@@ -1,17 +1,17 @@
-# Arabic interface and first eight A1 units
+# Arabic interface and complete A1 translation
 
 Arabic (العربية) is available from the welcome screen and language selector.
-The partial Arabic course covers all thirty-two lessons and eight assessments in
-units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07** and **a1-u08**, including their unit titles and descriptions.
-All other course and supporting content continues to use English fallback.
+The partial Arabic course covers all forty lessons and ten assessments in
+units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
+All A2–C2 and other supporting content continues to use English fallback.
 
 ## Partial course contract
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly forty-eight entries across a1-01.js (units 1–3),
-  a1-02.js (units 4–7) and a1-03.js (unit 8): thirty-two lessons, eight lesson-form
-  unit tests and eight unit summaries.
+- I18n.courseOverrides("ar") declares exactly sixty entries across a1-01.js (units 1–3),
+  a1-02.js (units 4–7) and a1-03.js (units 8–10): forty lessons, ten lesson-form
+  unit tests and ten unit summaries.
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
 - Lessons and assessments are atomic. Missing keys, incorrect types, empty
@@ -76,6 +76,23 @@ with cara; the inherited alternate caro answer remains unchanged. The source's
 Hai figli? — Ne ho una is explained as referring to an understood una figlia.
 No Italian answer, source recording, scoring rule or other-language wording changes.
 
+Units 9–10 cover activities, weather, current actions and passato prossimo.
+Arabic distinguishes weather from personal sensations, ongoing actions from future
+appointments, and auxiliary choice from a simplistic motion/intransitivity rule.
+The avere agreement rule is qualified for the active examples in this lesson;
+essere examples explain -o/-a/-i/-e with explicit role gender where fixed keys require it.
+Mentre aspettavo is identified as an A2 imperfetto preview, not an unintroduced task.
+The inherited In primavera è la stagione migliore model remains in Italian;
+Arabic supplies the natural La primavera è la stagione migliore in the explanation.
+The final exam's Buongiorno recording is translated as a daytime/morning greeting,
+following the Italian rather than the English "Good evening" gloss.
+
+Two Unit 10 article exercises contain sparse, absent glossary slots in every
+original language (four slots for five Italian nouns, three for four). Arabic
+retains those empty slots exactly and adds no glossary properties, preserving
+exact language restoration without changing other-language files or validators.
+The Italian nouns and all existing source answer keys remain unchanged.
+
 ## Direction and learner state
 
 Arabic explanations, meanings, prompts and feedback are RTL. Italian sentences,
@@ -107,7 +124,7 @@ a saved attempt, so finish an answer before changing language.
 - npm run test:dom
 - npm run test:mutations and node scripts/coverage.mjs --min 99
 
-Focused tests verify the 68 Unit 1–2 exercise mappings and all 100 Unit 3–4 mappings and all 100 Unit 5–6 mappings and all 99 Unit 7–8 mappings, complete text, unit metadata,
+Focused tests verify the 68 Unit 1–2 exercise mappings and all 100 Unit 3–4 mappings and all 100 Unit 5–6 mappings and all 99 Unit 7–8 mappings and all 104 Unit 9–10 mappings, complete text, unit metadata,
 unchanged neutral Italian/answers, atomic failure, Arabic-English-Arabic and
 all existing language restoration, gloss storage and learner state. Browser
 tests exercise all new lessons and assessments at 1440px and 390px, including
