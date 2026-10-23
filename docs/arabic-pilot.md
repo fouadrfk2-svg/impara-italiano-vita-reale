@@ -1,15 +1,16 @@
 # Arabic interface and first-lesson pilot
 
 Arabic (العربية) is available from the welcome screen and language selector.
-Only **a1-u01-l1**, “Buongiorno, un caffè”, has an Arabic course translation.
+Arabic course translations cover only **a1-u01-l1**, **a1-u01-l2** and **a1-u01-l3**.
+Their Italian titles are “Buongiorno, un caffè”, “Maschile o femminile?” and “Il, lo, la, un, una”.
 All other lessons and supporting course content continue to use English.
 
 ## Partial course contract
 
 - I18n.contentLanguage("ar") remains "en": the complete English overlay is
   always reapplied first, even after switching from Spanish or another language.
-- I18n.courseOverrides("ar") explicitly declares the file a1-01.js and the single
-  key lesson:a1-u01-l1. Registry requests only declared Arabic files, after English.
+- I18n.courseOverrides("ar") explicitly declares the file a1-01.js and the three
+  keys lesson:a1-u01-l1, lesson:a1-u01-l2 and lesson:a1-u01-l3. Registry requests only declared Arabic files, after English.
   Failed files are reported and remain retryable; no nonexistent Arabic files
   are requested for other levels.
 - Each declared lesson must be complete. The merger checks its keys, types and
@@ -36,11 +37,14 @@ All other lessons and supporting course content continue to use English.
 
 ## Direction and progress
 
-Arabic explanations, grammar meanings, dialogue translations and matching
+Arabic explanations, grammar meanings, translated choices, dialogue translations and matching
 meanings use RTL. Italian sentences, choices, conjugations, token banks, audio
 and answer inputs remain LTR. Inline Italian in Arabic prose uses isolated bdi
 elements. Actual explanation blocks carry lang/dir. The active lesson language
-is scoped to #main and removed on navigation; English fallback stays LTR.
+is scoped to #main and removed on navigation; English fallback stays LTR. Grammar
+cell direction follows its actual text, rather than assuming the final column is
+Arabic. Italian table examples and Italian options stay LTR; Arabic meanings and
+Arabic options use RTL. No answer-index/order or grading changes are involved.
 
 Progress remains under linguai.italiano.v2, schema 2. Lesson IDs, scores, Italian
 card keys, review schedules and drafts are unchanged. Vocabulary from the Arabic

@@ -39,7 +39,7 @@
     { code: "fr", flag: "🇫🇷", name: "Français" },
     { code: "de", flag: "🇩🇪", name: "Deutsch" },
     // Partial course pilot: English baseline plus explicitly declared lessons.
-    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en", courseOverrides: { "a1-01.js": ["lesson:a1-u01-l1"] } }
+    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en", courseOverrides: { "a1-01.js": ["lesson:a1-u01-l1", "lesson:a1-u01-l2", "lesson:a1-u01-l3"] } }
   ];
 
   /* ═══════════════════════════════════════════════════════════

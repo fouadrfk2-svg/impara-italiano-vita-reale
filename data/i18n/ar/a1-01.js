@@ -1,4 +1,4 @@
-/* Arabic course pilot: only this declared lesson is translated.
+/* Arabic course pilot: only the declared lessons in this file are translated.
    Italian, answer keys and recordings remain in data/core/a1-01.js. */
 LINGUAI.addStrings("ar", {
   "lesson:a1-u01-l1": {
@@ -120,6 +120,198 @@ LINGUAI.addStrings("ar", {
         tr: "صباح الخير، قهوة من فضلك.",
         why: "يقع النبر في <bdi lang=\"it\" dir=\"ltr\">caffè</bdi> على المقطع الأخير، لا الأول: <bdi lang=\"it\" dir=\"ltr\">kaf-FEH</bdi>."
       }
+    ]
+  },
+  "lesson:a1-u01-l2": {
+    theme: "أساسيات القواعد",
+    title: "مذكّر أم مؤنّث؟",
+    objectives: [
+      "الاستدلال على جنس الاسم من نهايته في الأنماط الشائعة",
+      "تكوين الجمع بتغيير النهايات: o إلى i، وa إلى e، وe إلى i",
+      "استعمال أسماء لا تتغيّر في الجمع، مثل il bar وla città"
+    ],
+    theory: [
+      {
+        h: "للأسماء في الإيطالية مذكّر ومؤنّث",
+        p: "لكل اسم إيطالي جنس نحوي: مذكّر أو مؤنّث، حتى أسماء الأشياء. مثلًا، <bdi lang=\"it\" dir=\"ltr\"><em>il tavolo</em></bdi> (الطاولة) مذكّر، و<bdi lang=\"it\" dir=\"ltr\"><em>la sedia</em></bdi> (الكرسي) مؤنّث. لا تستنتج الجنس من معنى الشيء وحده؛ انتبه إلى نهاية الاسم وتعلّمه مع أداة التعريف."
+      },
+      {
+        h: "ثلاثة أنماط شائعة للمفرد والجمع",
+        list: [
+          "الاسم المنتهي بـ<bdi lang=\"it\" dir=\"ltr\"><b>-o</b></bdi> غالبًا مذكّر، وتصبح نهايته في الجمع <bdi lang=\"it\" dir=\"ltr\"><b>-i</b></bdi>: <bdi lang=\"it\" dir=\"ltr\"><em>il libro → i libri</em></bdi> (الكتاب ← الكتب).",
+          "الاسم المنتهي بـ<bdi lang=\"it\" dir=\"ltr\"><b>-a</b></bdi> غالبًا مؤنّث، وتصبح نهايته في الجمع <bdi lang=\"it\" dir=\"ltr\"><b>-e</b></bdi>: <bdi lang=\"it\" dir=\"ltr\"><em>la casa → le case</em></bdi> (البيت ← البيوت).",
+          "الاسم المنتهي بـ<bdi lang=\"it\" dir=\"ltr\"><b>-e</b></bdi> قد يكون مذكّرًا أو مؤنّثًا، وتصبح نهايته في الجمع عادةً <bdi lang=\"it\" dir=\"ltr\"><b>-i</b></bdi>: <bdi lang=\"it\" dir=\"ltr\"><em>il fiore → i fiori</em></bdi> (الزهرة ← الزهور)، و<bdi lang=\"it\" dir=\"ltr\"><em>la chiave → le chiavi</em></bdi> (المفتاح ← المفاتيح)."
+        ]
+      },
+      {
+        trap: "هذه أنماط شائعة ولها استثناءات. خصوصًا مع نهاية <bdi lang=\"it\" dir=\"ltr\"><b>-e</b></bdi>، لا تكشف النهاية وحدها جنس الاسم. احفظ أداة التعريف معه: تعلّم <bdi lang=\"it\" dir=\"ltr\"><b>il fiore</b></bdi>، لا الكلمة وحدها."
+      },
+      {
+        h: "أسماء تبقى كما هي في المفرد والجمع",
+        p: "الأسماء التي تنتهي بحرف متحرّك عليه نبر مكتوب، مثل <bdi lang=\"it\" dir=\"ltr\"><em>la città</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>il caffè</em></bdi>، وكلمات دخيلة مثل <bdi lang=\"it\" dir=\"ltr\"><em>il bar</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>lo sport</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>il film</em></bdi>، لا تتغيّر في الجمع. تساعدك الأداة أو كلمة العدد على فهم المقصود: <bdi lang=\"it\" dir=\"ltr\"><em>la città → le città</em></bdi> (المدينة ← المدن)."
+      },
+      {
+        contrast: "العربية والإيطالية تميّزان المذكّر والمؤنّث، لكن جنس الكلمة قد يختلف بينهما. «طاولة» مؤنّثة بالعربية، أمّا <bdi lang=\"it\" dir=\"ltr\"><em>il tavolo</em></bdi> فمذكّر بالإيطالية. و«مفتاح» مذكّر بالعربية، أمّا <bdi lang=\"it\" dir=\"ltr\"><em>la chiave</em></bdi> فمؤنّث. لذلك لا تنقل الجنس من العربية؛ تعلّم كل اسم مع أداته. كذلك لا توجد صيغة خاصّة للمثنّى في الإيطالية؛ نستخدم الجمع لاثنين فأكثر."
+      }
+    ],
+    grammar: {
+      title: "جنس الاسم وجمعه",
+      table: {
+        head: ["النمط", "المفرد", "الجمع", "المعنى بالعربية"],
+        rows: [
+          ["مذكّر: <bdi lang=\"it\" dir=\"ltr\">-o → -i</bdi>", "il libro", "i libri", "الكتاب / الكتب"],
+          ["مؤنّث: <bdi lang=\"it\" dir=\"ltr\">-a → -e</bdi>", "la ragazza", "le ragazze", "الفتاة / الفتيات"],
+          ["مذكّر: <bdi lang=\"it\" dir=\"ltr\">-e → -i</bdi>", "il ristorante", "i ristoranti", "المطعم / المطاعم"],
+          ["مؤنّث: <bdi lang=\"it\" dir=\"ltr\">-e → -i</bdi>", "la stazione", "le stazioni", "المحطة / المحطات"],
+          ["اسم لا تتغيّر صيغته", "la città", "le città", "المدينة / المدن"],
+          ["كلمة دخيلة لا تتغيّر صيغتها", "il bar", "i bar", "المقهى / المقاهي"]
+        ]
+      },
+      examples: [
+        { tr: "الكرواسون لذيذ." },
+        { tr: "قطع الكرواسون لذيذة.", note: "تتغيّر نهاية الصفة الإيطالية أيضًا عند الجمع." },
+        { tr: "المحطة قريبة.", note: "الاسم stazione مؤنّث، مع أنّ نهايته e؛ أداة la تدلّ على ذلك." },
+        { tr: "فنجانا قهوة، من فضلك.", note: "تبقى كلمة caffè كما هي؛ العدد يوضّح أننا نطلب فنجانين." }
+      ]
+    },
+    vocab: [
+      "كتاب", "بيت", "طاولة", "كرسي", "مطعم", "محطة", "مفتاح", "زهرة", "مدينة",
+      "قهوة؛ وقد تعني مقهى بحسب السياق", "رياضة", "فيلم", "ليل", "يوم / نهار"
+    ],
+    exercises: [
+      {
+        q: "أيّ اسم من هذه الأسماء مؤنّث في الإيطالية؟",
+        opts: ["il tavolo", "la chiave", "il fiore"],
+        why: "الجواب هو <bdi lang=\"it\" dir=\"ltr\"><i>la chiave</i></bdi>. نعرف الجنس من الأداة؛ فنهاية <bdi lang=\"it\" dir=\"ltr\">-e</bdi> وحدها لا تخبرنا هل الاسم مذكّر أم مؤنّث."
+      },
+      {
+        q: "أكمل أداة التعريف في الجمع: <bdi lang=\"it\" dir=\"ltr\">la ragazza → ___ ragazze</bdi> (الفتاة ← الفتيات).",
+        why: "أداة التعريف لجمع المؤنّث هي <bdi lang=\"it\" dir=\"ltr\"><b>le</b></bdi>."
+      },
+      {
+        q: "حوّل الاسم إلى الجمع: <bdi lang=\"it\" dir=\"ltr\">il ristorante → i ___</bdi> (المطعم ← المطاعم).",
+        hint: "غيّر النهاية e إلى i.",
+        why: "هنا تتغيّر نهاية الاسم من <bdi lang=\"it\" dir=\"ltr\">-e</bdi> إلى <bdi lang=\"it\" dir=\"ltr\">-i</bdi>، فيصبح <bdi lang=\"it\" dir=\"ltr\">ristoranti</bdi>. هذا هو النمط الشائع للأسماء المنتهية بـe، سواء أكانت مذكّرة أم مؤنّثة."
+      },
+      {
+        q: "اختر أداة التعريف الصحيحة لكل اسم مفرد.",
+        why: "احفظ جنس الاسم مع أداته، خصوصًا الأسماء المنتهية بـ<bdi lang=\"it\" dir=\"ltr\">-e</bdi>؛ فالنهاية وحدها لا تكفي لتحديد الجنس.",
+        items: ["كتاب", "بيت", "محطة", "مطعم", "مفتاح", "يوم"]
+      },
+      {
+        q: "كم فنجان قهوة تطلب عندما تقول <bdi lang=\"it\" dir=\"ltr\">due caffè</bdi>؟",
+        opts: ["فنجان واحد", "فنجانان", "لا يمكن تحديد العدد"],
+        why: "كلمة <bdi lang=\"it\" dir=\"ltr\">caffè</bdi> لا تتغيّر في الجمع؛ وكلمة <bdi lang=\"it\" dir=\"ltr\">due</bdi> تعني «اثنين». ويمكن للأداة أيضًا أن توضّح العدد: <bdi lang=\"it\" dir=\"ltr\"><i>il caffè / i caffè</i></bdi>."
+      },
+      {
+        q: "اختر كل الأسماء التي تبقى صيغتها كما هي في الجمع.",
+        opts: ["la città", "il libro", "il bar", "la sedia", "lo sport"],
+        why: "لا تتغيّر <bdi lang=\"it\" dir=\"ltr\">città</bdi> لأنها تنتهي بحرف متحرّك منبور، ولا تتغيّر الكلمتان الدخيلتان <bdi lang=\"it\" dir=\"ltr\">bar</bdi> و<bdi lang=\"it\" dir=\"ltr\">sport</bdi>."
+      },
+      { tr: "المطعم مغلق.", why: "ترتيب هذه الجملة: أداة تعريف، ثم اسم، ثم فعل، ثم صفة." },
+      { tr: "المفاتيح على الطاولة." },
+      { tr: "المدينة جميلة جدًا.", why: "يقع النبر في <bdi lang=\"it\" dir=\"ltr\">città</bdi> على المقطع الأخير: <bdi lang=\"it\" dir=\"ltr\">chee-TAH</bdi>." }
+    ]
+  },
+  "lesson:a1-u01-l3": {
+    theme: "أساسيات القواعد",
+    title: "أدوات التعريف والتنكير",
+    objectives: [
+      "اختيار أداة التعريف المناسبة بحسب جنس الاسم وعدده وبداية نطقه",
+      "التمييز بين شيء محدّد وشيء غير محدّد باستعمال il وun",
+      "استعمال lo وgli في المواضع المناسبة"
+    ],
+    theory: [
+      {
+        h: "أداة قصيرة تعطيك أكثر من معلومة",
+        p: "تأتي الأداة قبل الاسم. وتبيّن هل الاسم مذكّر أم مؤنّث، ومفرد أم جمع، وهل المقصود شيء محدّد يعرفه المتحدّث والسامع. في <bdi lang=\"it\" dir=\"ltr\"><em>Vorrei un caffè</em></bdi> نطلب قهوة غير محدّدة. أمّا <bdi lang=\"it\" dir=\"ltr\"><em>Dov'è il caffè?</em></bdi> فالسؤال عن قهوة معيّنة نعرف أيّها المقصود. تشبه أداة التعريف «الـ» في العربية، لكن صورتها في الإيطالية تتغيّر مع الاسم."
+      },
+      {
+        h: "أداة المذكّر تتغيّر بحسب بداية الاسم",
+        p: "نستعمل <bdi lang=\"it\" dir=\"ltr\"><strong>il</strong></bdi> قبل الاسم المذكّر الذي يبدأ بحرف ساكن عادي. ونستعمل <bdi lang=\"it\" dir=\"ltr\"><strong>lo</strong></bdi> قبل <bdi lang=\"it\" dir=\"ltr\"><em>s</em></bdi> متبوعة بحرف ساكن، مثل <bdi lang=\"it\" dir=\"ltr\"><em>lo studente</em></bdi>، وكذلك قبل بدايات مثل <bdi lang=\"it\" dir=\"ltr\"><em>z, gn, ps, y, x</em></bdi>. وقبل حرف متحرّك نستعمل <bdi lang=\"it\" dir=\"ltr\"><strong>l'</strong></bdi>. الحروف المتحرّكة هي <bdi lang=\"it\" dir=\"ltr\">a, e, i, o, u</bdi>. هذه صيغ مختلفة للأداة بحسب نطق بداية الاسم؛ فلا نختار بينها عشوائيًا."
+      },
+      {
+        h: "أدوات التعريف في الجمع",
+        list: [
+          "للمذكّر: <bdi lang=\"it\" dir=\"ltr\"><b>il → i</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>il libro → i libri</em></bdi>.",
+          "للمذكّر: <bdi lang=\"it\" dir=\"ltr\"><b>lo / l' → gli</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>lo studente → gli studenti</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>l'amico → gli amici</em></bdi>.",
+          "للمؤنّث: <bdi lang=\"it\" dir=\"ltr\"><b>la / l' → le</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>la casa → le case</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>l'amica → le amiche</em></bdi>."
+        ]
+      },
+      {
+        h: "أداة التنكير: شيء غير محدّد",
+        p: "للمذكّر نستخدم <bdi lang=\"it\" dir=\"ltr\"><strong>un</strong></bdi> قبل حرف ساكن عادي أو حرف متحرّك: <bdi lang=\"it\" dir=\"ltr\"><em>un libro</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>un amico</em></bdi>، بلا فاصلة عليا. ونستخدم <bdi lang=\"it\" dir=\"ltr\"><strong>uno</strong></bdi> في المواضع التي تستعمل فيها <bdi lang=\"it\" dir=\"ltr\"><em>lo</em></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>uno studente</em></bdi>. وللمؤنّث نستخدم <bdi lang=\"it\" dir=\"ltr\"><strong>una</strong></bdi> قبل حرف ساكن، و<bdi lang=\"it\" dir=\"ltr\"><strong>un'</strong></bdi> قبل حرف متحرّك، مثل <bdi lang=\"it\" dir=\"ltr\"><em>un'amica</em></bdi>."
+      },
+      {
+        trap: "قارن بين <bdi lang=\"it\" dir=\"ltr\"><b>un amico</b></bdi> (صديق، بلا فاصلة عليا) و<bdi lang=\"it\" dir=\"ltr\"><b>un'amica</b></bdi> (صديقة، مع فاصلة عليا). لاحظ نهاية الاسم أيضًا: <bdi lang=\"it\" dir=\"ltr\">-o</bdi> للمذكّر هنا و<bdi lang=\"it\" dir=\"ltr\">-a</bdi> للمؤنّث؛ فالفاصلة ليست الفرق الوحيد. في العربية نقول «صديق» و«صديقة» بلا كلمة منفصلة للتنكير، لكن الإيطالية تحتاج هنا إلى <bdi lang=\"it\" dir=\"ltr\">un</bdi> أو <bdi lang=\"it\" dir=\"ltr\">un'</bdi>. احفظ الأداة مع الاسم، ولا تكتب فاصلة عليا بعد <bdi lang=\"it\" dir=\"ltr\">un</bdi> المذكّرة."
+      }
+    ],
+    grammar: {
+      title: "جدول أدوات التعريف والتنكير",
+      table: {
+        head: ["بداية الاسم وجنسه", "المفرد المعرّف", "الجمع المعرّف", "المفرد النكرة"],
+        rows: [
+          ["مذكّر + حرف ساكن عادي", "il treno", "i treni", "un treno"],
+          ["مذكّر + s ثم ساكن، أو z أو gn أو ps", "lo studente, lo zaino", "gli studenti", "uno studente"],
+          ["مذكّر + حرف متحرّك", "l'amico", "gli amici", "un amico"],
+          ["مؤنّث + حرف ساكن", "la casa", "le case", "una casa"],
+          ["مؤنّث + حرف متحرّك", "l'amica", "le amiche", "un'amica"]
+        ]
+      },
+      examples: [
+        { tr: "أودّ قهوة.", note: "طلب قهوة غير محدّدة؛ لذلك نستخدم أداة التنكير un." },
+        { tr: "القهوة باردة.", note: "نتحدّث عن قهوة محدّدة؛ لذلك نستخدم أداة التعريف il." },
+        { tr: "حقيبة الظهر ثقيلة.", note: "الاسم مذكّر ويبدأ بـz، لذلك نستخدم lo." },
+        { tr: "الطلاب متأخّرون." },
+        { tr: "صديقة من روما.", note: "اسم مؤنّث يبدأ بحرف متحرّك؛ لذلك نستخدم un' مع الفاصلة العليا." }
+      ]
+    },
+    vocab: [
+      "طالب / طالبة", "حقيبة ظهر", "صديق / صديقة", "قطار", "مرآة", "سكّر", "ماء", "كوب", "زجاجة", "فندق", "أخصّائي نفسي", "الناس (اسم مفرد مؤنّث في الإيطالية، ويأخذ فعلًا مفردًا)"
+    ],
+    exercises: [
+      {
+        q: "أيّ أداة تعريف تناسب <bdi lang=\"it\" dir=\"ltr\">zucchero</bdi> (سكّر)؟",
+        opts: ["il", "lo", "l'"],
+        why: "الاسم مذكّر ويبدأ بـ<bdi lang=\"it\" dir=\"ltr\"><b>z</b></bdi>، لذلك نستخدم <bdi lang=\"it\" dir=\"ltr\">lo</bdi>: <bdi lang=\"it\" dir=\"ltr\"><i>lo zucchero</i></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><i>lo zaino</i></bdi>."
+      },
+      {
+        q: "ما جمع <bdi lang=\"it\" dir=\"ltr\">lo specchio</bdi> (المرآة)؟",
+        opts: ["i specchi", "gli specchi", "le specchie"],
+        why: "تتحوّل أداة التعريف <bdi lang=\"it\" dir=\"ltr\">lo</bdi> في الجمع إلى <bdi lang=\"it\" dir=\"ltr\"><b>gli</b></bdi>."
+      },
+      {
+        q: "اختر أداة التعريف الصحيحة لكل اسم.",
+        why: "يعتمد الاختيار على جنس الاسم وبداية نطقه معًا.",
+        items: ["قطار", "طالب", "صديقة", "ماء", "زجاجة", "حقيبة ظهر"]
+      },
+      {
+        q: "أكمل: <bdi lang=\"it\" dir=\"ltr\">Ho ___ amica a Milano.</bdi> (لديّ صديقة في ميلانو.)",
+        hint: "أداة تنكير لمؤنّث يبدأ بحرف متحرّك؛ انتبه إلى الفاصلة العليا.",
+        why: "نكتب <bdi lang=\"it\" dir=\"ltr\">un'amica</bdi> مع الفاصلة العليا. أمّا <bdi lang=\"it\" dir=\"ltr\"><i>un amico</i></bdi> فهو صديق مذكّر، بلا فاصلة؛ وتتغيّر نهاية الاسم أيضًا."
+      },
+      {
+        q: "أكمل: <bdi lang=\"it\" dir=\"ltr\">___ studenti sono bravi.</bdi> (الطلاب مجتهدون.)",
+        why: "الأداة في المفرد هي <bdi lang=\"it\" dir=\"ltr\">lo</bdi>، وفي الجمع نستعمل <bdi lang=\"it\" dir=\"ltr\">gli studenti</bdi>."
+      },
+      {
+        q: "ما الفرق بين <bdi lang=\"it\" dir=\"ltr\">Vorrei il caffè</bdi> و<bdi lang=\"it\" dir=\"ltr\">Vorrei un caffè</bdi>؟",
+        opts: [
+          "لا فرق؛ العبارتان بالمعنى نفسه.",
+          "<bdi lang=\"it\" dir=\"ltr\">Il</bdi> = قهوة معيّنة سبق ذكرها؛ <bdi lang=\"it\" dir=\"ltr\">un</bdi> = قهوة غير محدّدة.",
+          "<bdi lang=\"it\" dir=\"ltr\">Il</bdi> أكثر تهذيبًا."
+        ],
+        why: "أداة التعريف تفترض أن السامع يعرف أيّ قهوة تقصد. أمّا عند طلب قهوة في المقهى فنقول عادةً <bdi lang=\"it\" dir=\"ltr\"><i>un caffè</i></bdi>."
+      },
+      {
+        q: "صِل كل مثال بسبب اختيار أداة التعريف فيه.",
+        pairs: ["اسم مذكّر يبدأ بـps", "اسم مذكّر يبدأ بحرف متحرّك", "اسم مذكّر يبدأ بحرف ساكن عادي", "اسم مؤنّث"]
+      },
+      {
+        tr: "حقيبة ظهر الطالب ثقيلة.",
+        why: "الصيغة <bdi lang=\"it\" dir=\"ltr\">Dello</bdi> تجمع <bdi lang=\"it\" dir=\"ltr\">di + lo</bdi>. هنا تدلّ على أن الحقيبة للطالب؛ فحرف الجر يندمج مع أداة التعريف أيضًا."
+      },
+      { tr: "الطلاب في الجامعة." }
     ]
   }
 });

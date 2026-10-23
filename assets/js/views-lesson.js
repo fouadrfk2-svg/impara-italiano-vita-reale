@@ -260,11 +260,18 @@
       node.setAttribute("lang", contentLang);
       node.setAttribute("dir", contentLang === "ar" ? "rtl" : "ltr");
     });
-    if (contentLang === "ar") el().querySelectorAll(".gt td:last-child,.match-col.js-r").forEach(function (node) {
+    if (contentLang === "ar") el().querySelectorAll(".match-col.js-r").forEach(function (node) {
       node.setAttribute("lang", "ar"); node.setAttribute("dir", "rtl");
     });
-    el().querySelectorAll(".it,.dlg__it,.vocab-card__it,.vocab-card__ex,.opts,.tok-bank,.tok-target,.match-col.js-l,.conj-grid,input,.voice-target").forEach(function (node) {
+    el().querySelectorAll(".it,.dlg__it,.vocab-card__it,.vocab-card__ex,.opts,.tok-bank,.tok-target,.match-col.js-l,.conj-grid,input,.field-row > b,.field-row select,.voice-target").forEach(function (node) {
       node.setAttribute("lang", "it"); node.setAttribute("dir", "ltr");
+    });
+    // Arabic overlays can mix explanation cells and Italian examples in any
+    // column. Choices may likewise be Arabic meanings or Italian forms.
+    if (contentLang === "ar") el().querySelectorAll(".gt td,.opts,.field-row > span").forEach(function (node) {
+      var isArabic = /[\u0600-\u06ff]/.test(node.textContent);
+      node.setAttribute("lang", isArabic ? "ar" : "it");
+      node.setAttribute("dir", isArabic ? "rtl" : "ltr");
     });
   };
 

@@ -156,7 +156,7 @@
       '<p class="exq__prompt">' + esc(ex.q || t("ex.gender.prompt")) + "</p>" +
       '<div class="stack">' + items.map(function (it, i) {
         return '<div class="field-row" data-row="' + i + '">' +
-          '<select class="field js-sel" data-i="' + i + '" style="max-width:130px;">' +
+          '<select class="field js-sel" data-i="' + i + '" aria-label="' + esc(it.it) + '" style="max-width:130px;">' +
           '<option value="">—</option>' +
           opts.map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + "</option>"; }).join("") +
           "</select>" +
