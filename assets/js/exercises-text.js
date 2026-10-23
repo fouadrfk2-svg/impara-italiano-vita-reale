@@ -78,6 +78,7 @@
     for (var i = 0; i < parts.length; i++) {
       if (i % 2 === 0) htmlBody += esc(parts[i]);
       else htmlBody += '<input type="text" class="field js-gap" data-gap="' + (parseInt(parts[i], 10) - 1) + '" ' +
+        'aria-label="' + esc(t("ex.ph.answer")) + ' ' + parseInt(parts[i], 10) + '" ' +
         'style="display:inline-block;width:auto;min-width:130px;max-width:220px;margin:2px 4px;" autocomplete="off" spellcheck="false">';
     }
     var html = '<div class="exq" data-idx="' + idx + '">' + head(idx, ex) +

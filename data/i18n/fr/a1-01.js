@@ -468,7 +468,7 @@ LINGUAI.addStrings("fr", {
       },
       { q: "« Noi ___ in ritardo. » (Nous sommes en retard.)", why: "essere, la forme de noi." },
       { q: "« Come ___ ? » en demandant à une amie comment elle va.", why: "stare, la forme de tu." },
-      { q: "Choisis l'article défini.", items: [, , , ] },
+      { q: "Choisis l'article défini.", items: ["", "", "", ""] },
       {
         q: "Le pluriel de « l'amico » :",
         opts: ["gli amici", "i amici", "le amiche"],

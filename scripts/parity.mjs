@@ -184,11 +184,11 @@ export function checkPartialCourse(manifest, byFile, reference, out) {
     keys.forEach(key => {
       if (seen.has(key)) out.push(key + ": duplicate declaration");
       seen.add(key);
-      if (!key.startsWith("lesson:") || !(key in reference)) out.push(key + ": unknown lesson");
+      if (!/^(lesson|unit):/.test(key) || !(key in reference)) out.push(key + ": unknown lesson or unit");
       else if (!(key in bag)) out.push(key + ": missing declared translation");
       else {
         diff(shape(withoutFreeFields(reference[key])), shape(withoutFreeFields(bag[key])), key, out);
-        if (!Array.isArray(bag[key].theory) || !bag[key].theory.length) out.push(key + ": empty theory");
+        if (key.startsWith("lesson:") && (!Array.isArray(bag[key].theory) || !bag[key].theory.length)) out.push(key + ": empty theory");
       }
     });
   });

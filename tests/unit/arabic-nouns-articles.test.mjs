@@ -22,11 +22,11 @@ function setup() {
 function select(box, lang) { box.Core.state.settings.lang = lang; box.sandbox.LINGUAI.applyStrings(lang); box.sandbox.Registry.reindex(); }
 const arabic = (value, label) => assert.match(value, /[\u0600-\u06ff]/, label);
 
-test("Arabic manifest and strict parity include exactly the first three complete lessons", () => {
+test("Arabic manifest and strict parity retain both complete noun and article lessons", () => {
   const box = setup(), ar = overlays("ar"), en = overlays("en");
-  const keys = ["lesson:a1-u01-l1", ...ids.map(id => "lesson:" + id)];
-  assert.deepEqual(Object.keys(ar), keys);
-  assert.deepEqual(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": keys });
+  const keys = plain(box.sandbox.I18n.courseOverrides("ar"))["a1-01.js"];
+  assert.deepEqual(Object.keys(ar).sort(), keys.slice().sort());
+  for (const id of ids) assert.ok(keys.includes("lesson:" + id));
   const problems = [];
   checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar }, overlays("pl"), problems);
   assert.deepEqual(problems, []);
@@ -120,16 +120,16 @@ test("contrast notes explain Arabic gender differences and avoid the source's ap
   assert.match(ar["lesson:" + ids[1]].exercises[6].pairs[0], /يبدأ بـps$/);
 });
 
-test("Arabic-English-Arabic restores both whole lessons exactly; lesson 4 and the unit test keep English", () => {
+test("Arabic-English-Arabic restores both whole lessons exactly; unit 3 keeps English", () => {
   const box = setup();
   const snapshot = () => plain(box.Core.registry.byCode.A1.units[0]);
-  select(box, "en"); const en = snapshot();
+  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A1.units[2]);
   select(box, "ar"); const ar = snapshot();
   for (const lang of ["en", "ar", "en", "ar"]) {
     select(box, lang); assert.deepEqual(snapshot(), lang === "ar" ? ar : en);
-    assert.deepEqual(plain(box.Core.getLesson("a1-u01-l4").lesson), en.lessons[3]);
-    assert.deepEqual(snapshot().test, en.test);
-    assert.equal(snapshot().title, en.title);
+    assert.deepEqual(plain(box.Core.registry.byCode.A1.units[2]), fallback);
+    assert.deepEqual(plain(box.Core.getLesson("a1-u03-l1").lesson), fallback.lessons[0]);
+    assert.deepEqual(plain(box.Core.getLesson("a1-u03-test").lesson), fallback.test);
   }
 });
 

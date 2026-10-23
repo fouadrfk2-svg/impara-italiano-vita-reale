@@ -468,7 +468,7 @@ LINGUAI.addStrings("en", {
       },
       { q: "\"Noi ___ in ritardo.\" (We're late.)", why: "essere, the noi form." },
       { q: "\"Come ___?\" asking a friend how she is.", why: "stare, the tu form." },
-      { q: "Choose the definite article.", items: [, , , ] },
+      { q: "Choose the definite article.", items: ["", "", "", ""] },
       {
         q: "The plural of \"l'amico\":",
         opts: ["gli amici", "i amici", "le amiche"],

@@ -95,15 +95,16 @@
     return typeof patch === typeof base;
   }
 
-  function lessonLanguage(lang, id) {
+  function entryLanguage(lang, key) {
     var base = global.I18n && global.I18n.contentLanguage ? global.I18n.contentLanguage(lang) : lang;
     if (base === lang) return lang;
     var manifest = global.I18n.courseOverrides(lang);
-    var key = "lesson:" + id;
     var declared = Object.keys(manifest).some(function (file) { return manifest[file].indexOf(key) >= 0; });
     var fallback = get(base, key), patch = get(lang, key);
     return declared && fallback && patch && completePatch(fallback, patch) ? lang : base;
   }
+
+  function lessonLanguage(lang, id) { return entryLanguage(lang, "lesson:" + id); }
 
   /** Dictionary/reading saves may carry a gloss without its lesson id.
       Resolve its actual overlay, rather than recording Arabic under English. */
@@ -114,6 +115,7 @@
     var index = global.Core && global.Core.registry.lessonIndex || {};
     var translated = Object.keys(manifest).some(function (file) {
       return manifest[file].some(function (key) {
+        if (key.indexOf("lesson:") !== 0) return false;
         var id = key.slice("lesson:".length), found = index[id];
         if (!found || lessonLanguage(lang, id) !== lang) return false;
         var patch = get(lang, key);
@@ -259,10 +261,12 @@
     applyReadings(lang);
     applyWriting(lang);
     applyInterference(lang);
-    // Only declared, complete lessons override the freshly reapplied base.
+    // Only declared, complete lesson/test and unit entries override the base.
     // Do not reapply other families: missing false-friend entries clear fields.
     if (reg && selected !== lang) reg.levels.forEach(function (lv) {
       (lv.units || []).forEach(function (u) {
+        var unitKey = "unit:" + u.id;
+        if (entryLanguage(selected, unitKey) === selected) copy(u, get(selected, unitKey), ["title", "grammarNote"]);
         (u.lessons || []).concat(u.test ? [u.test] : []).forEach(function (lesson) {
           if (lessonLanguage(selected, lesson.id) === selected) applyLesson(lesson, selected);
         });

@@ -313,5 +313,984 @@ LINGUAI.addStrings("ar", {
       },
       { tr: "الطلاب في الجامعة." }
     ]
+  },
+  "unit:a1-u01": {
+    "title": "التحية وحديث المقهى",
+    "grammarNote": "التحية والسؤال عن الحال · الفعلان essere وstare · جنس الاسم وجمعه وأدواته"
+  },
+  "lesson:a1-u01-l4": {
+    "theme": "الحياة اليومية",
+    "title": "كيف حالك؟ المخاطبة الودّية والمهذّبة",
+    "objectives": [
+      "السؤال عن الحال والردّ بطريقة ودّية أو رسمية",
+      "تصريف الفعل stare في الحاضر",
+      "التمييز بين المخاطبة بـtu والمخاطبة بـLei"
+    ],
+    "theory": [
+      {
+        "h": "طريقتان لمخاطبة شخص واحد",
+        "p": "نستخدم <bdi lang=\"it\" dir=\"ltr\"><b>tu</b></bdi> مع الأصدقاء ومن نخاطبهم بودّ، ونستخدم <bdi lang=\"it\" dir=\"ltr\"><b>Lei</b></bdi> للمخاطبة الرسمية أو المهذّبة. تُستعمل <bdi lang=\"it\" dir=\"ltr\">Lei</bdi> مع الرجل والمرأة معًا، ويأتي فعلها بصيغة الغائب المفرد: <bdi lang=\"it\" dir=\"ltr\"><em>Come sta?</em></bdi> أي «كيف حال حضرتك؟». وقد تُكتب بحرف كبير لتمييزها عن <bdi lang=\"it\" dir=\"ltr\">lei</bdi> بمعنى «هي». ليست <bdi lang=\"it\" dir=\"ltr\">Lei</bdi> جمعًا."
+      },
+      {
+        "h": "متى ننتقل إلى tu؟",
+        "p": "عند مقابلة شخص لا تعرفه في مكتب أو مصرف أو عيادة، البدء بـ<bdi lang=\"it\" dir=\"ltr\">Lei</bdi> اختيار مهذّب. وبين الأصدقاء أو الزملاء قد تكون <bdi lang=\"it\" dir=\"ltr\">tu</bdi> أنسب. يمكنك أن تسأل: <bdi lang=\"it\" dir=\"ltr\"><em>Possiamo darci del tu?</em></bdi> أي «هل يمكننا أن نتخاطب بطريقة غير رسمية؟». غالبًا يبادر الشخص الأكبر سنًّا أو الأعلى منصبًا، لكن الأمر يتغيّر بحسب العلاقة والمكان."
+      },
+      {
+        "h": "احفظ السؤال والجواب معًا",
+        "p": "للسؤال عن الحال نقول <bdi lang=\"it\" dir=\"ltr\"><b>Come stai?</b></bdi>، وللردّ «أنا بخير» نقول <bdi lang=\"it\" dir=\"ltr\"><b>Sto bene.</b></bdi>. الفعل هنا هو <bdi lang=\"it\" dir=\"ltr\">stare</bdi>، لا <bdi lang=\"it\" dir=\"ltr\">essere</bdi>؛ فلا تقل <bdi lang=\"it\" dir=\"ltr\"><em>Sono bene.</em></bdi>. ومن الردود المفيدة <bdi lang=\"it\" dir=\"ltr\"><em>Non c’è male.</em></bdi> «لا بأس» و<bdi lang=\"it\" dir=\"ltr\"><em>Così così.</em></bdi> «حالتي متوسّطة»."
+      },
+      {
+        "contrast": "نقول في العربية «أنا بخير» دون فعل في الحاضر، لكن الإيطالية تحتاج هنا إلى فعل مصرّف: <bdi lang=\"it\" dir=\"ltr\"><b>sto bene</b></bdi>. اربط الصيغتين: <bdi lang=\"it\" dir=\"ltr\">tu → stai</bdi> و<bdi lang=\"it\" dir=\"ltr\">Lei → sta</bdi>. ولا تعمّم ذلك على كل وصف للحالة؛ فمثلًا «أنا متعب» هي <bdi lang=\"it\" dir=\"ltr\"><em>Sono stanco.</em></bdi> للرجل، و<bdi lang=\"it\" dir=\"ltr\"><em>Sono stanca.</em></bdi> للمرأة."
+      }
+    ],
+    "grammar": {
+      "title": "الفعل stare: الحال والبقاء — الحاضر",
+      "table": {
+        "head": [
+          "الضمير",
+          "التصريف",
+          "مثال"
+        ],
+        "rows": [
+          [
+            "io",
+            "sto",
+            "Sto bene, grazie."
+          ],
+          [
+            "tu",
+            "stai",
+            "Come stai?"
+          ],
+          [
+            "lui / lei / Lei",
+            "sta",
+            "Come sta, signora?"
+          ],
+          [
+            "noi",
+            "stiamo",
+            "Stiamo bene."
+          ],
+          [
+            "voi",
+            "state",
+            "Come state?"
+          ],
+          [
+            "loro",
+            "stanno",
+            "Stanno male."
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "أهلًا ماركو، كيف حالك؟",
+          "note": "مخاطبة غير رسمية"
+        },
+        {
+          "tr": "صباح الخير، كيف حال حضرتك؟",
+          "note": "مخاطبة مهذّبة"
+        },
+        {
+          "tr": "أنا بخير، شكرًا. وأنت؟"
+        },
+        {
+          "tr": "لا بأس.",
+          "note": "ردّ شائع على السؤال عن الحال"
+        },
+        {
+          "tr": "حالتي متوسّطة؛ لست بخير تمامًا ولا بسوء."
+        },
+        {
+          "tr": "هل يمكننا أن نتخاطب بطريقة غير رسمية؟"
+        }
+      ]
+    },
+    "vocab": [
+      "كيف حالك؟ (غير رسمي)",
+      "كيف حال حضرتك؟ (رسمي)",
+      "أنا بخير",
+      "لست بخير",
+      "لا بأس",
+      "حالتي متوسّطة",
+      "وأنت؟ / وحضرتك؟",
+      "بخير جدًا",
+      "متعب قليلًا / متعبة قليلًا",
+      "السيّد / السيّدة",
+      "إلى لقاء قريب",
+      "أراك لاحقًا"
+    ],
+    "dialogue": [
+      "أهلًا جوليا! كيف حالك؟",
+      "أهلًا! بخير جدًا، وأنت؟",
+      "متعب قليلًا، لكنني بخير. أراك لاحقًا!",
+      "صباح الخير سيّدتي، كيف حال حضرتك؟",
+      "لا بأس، شكرًا. وحضرتك؟"
+    ],
+    "exercises": [
+      {
+        "q": "تسأل شخصًا عن حاله وتخاطبه بـLei. أيّ جملة صحيحة؟",
+        "opts": [
+          "Come stai?",
+          "Come sta?",
+          "Come state?"
+        ],
+        "why": "نستخدم مع <bdi lang=\"it\" dir=\"ltr\">Lei</bdi> صيغة الغائب المفرد: <bdi lang=\"it\" dir=\"ltr\"><i>Come sta?</i></bdi>."
+      },
+      {
+        "q": "أيّ جملة من هذه الجمل غير صحيحة؟",
+        "opts": [
+          "Sto bene.",
+          "Sono bene.",
+          "Non c'è male."
+        ],
+        "why": "للقول «أنا بخير» نستخدم <bdi lang=\"it\" dir=\"ltr\"><b>Sto bene.</b></bdi>، ولا نقول <bdi lang=\"it\" dir=\"ltr\"><i>Sono bene.</i></bdi>."
+      },
+      {
+        "tr": "صرّف stare مع: أنا، أنت، هو/هي، أنتم.",
+        "why": "الفعل <bdi lang=\"it\" dir=\"ltr\">stare</bdi> غير منتظم في المفرد وفي صيغة <bdi lang=\"it\" dir=\"ltr\">loro: stanno</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Come ___, ragazzi?</bdi> (كيف حالكم يا شباب؟)",
+        "why": "نخاطب مجموعة، لذلك نستخدم صيغة <bdi lang=\"it\" dir=\"ltr\">voi: state</bdi>."
+      },
+      {
+        "q": "ترجم إلى الإيطالية مخاطبًا صديقًا: «أنا بخير، شكرًا. وأنت؟»",
+        "why": "للردّ على صديق نقول <bdi lang=\"it\" dir=\"ltr\">Sto bene, grazie. E tu?</bdi>."
+      },
+      {
+        "q": "أنت في مقهى الحيّ. النادل يعرفك منذ سنوات ويحيّيك أولًا.",
+        "setting": "مقهى الحيّ، الساعة الثامنة صباحًا.",
+        "lines": [
+          {
+            "tr": "أهلًا! كيف حالك هذا الصباح؟"
+          },
+          {
+            "tr": "قل إنك بخير، ثم اسأله عن حاله.",
+            "answerTr": "أنا بخير، وأنت؟"
+          },
+          {
+            "tr": "بخير جدًا! قهوتك المعتادة؟"
+          },
+          {
+            "tr": "وافق واشكره.",
+            "answerTr": "نعم، شكرًا!"
+          }
+        ]
+      },
+      {
+        "q": "صِل كل ردّ بمعناه.",
+        "pairs": [
+          "بخير جدًا",
+          "لا بأس",
+          "حالتي متوسّطة",
+          "لست بخير"
+        ]
+      },
+      {
+        "tr": "مساء الخير سيّدتي، كيف حال حضرتك؟"
+      },
+      {
+        "tr": "لا بأس، شكرًا. وحضرتك؟"
+      }
+    ]
+  },
+  "lesson:a1-u01-test": {
+    "theme": "اختبار",
+    "title": "اختبار الوحدة الأولى",
+    "objectives": [
+      "مراجعة التحية والفعلين essere وstare وجنس الاسم وأدوات التعريف"
+    ],
+    "theory": [
+      {
+        "p": "عشرة أسئلة على موضوعات الوحدة. تنجح عند الإجابة الصحيحة عن 70٪ على الأقل. جرّب من الذاكرة؛ وإذا نسيت شيئًا، فارجع إلى شرحه وراجعه."
+      }
+    ],
+    "exercises": [
+      {
+        "q": "تدخل متجرًا في السادسة والنصف مساءً. ماذا تقول؟",
+        "opts": [
+          "Buongiorno",
+          "Buonasera",
+          "Buonanotte"
+        ],
+        "why": "في هذا الوقت نقول <bdi lang=\"it\" dir=\"ltr\">Buonasera</bdi>. يبدأ استعمالها عادةً في فترة بعد الظهر أو نحو الرابعة أو الخامسة، بحسب المنطقة."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Noi ___ in ritardo.</bdi> (نحن متأخّرون.)",
+        "why": "نحتاج إلى تصريف <bdi lang=\"it\" dir=\"ltr\">essere</bdi> مع <bdi lang=\"it\" dir=\"ltr\">noi: siamo</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Come ___?</bdi> وأنت تسأل صديقتك عن حالها.",
+        "why": "نخاطب صديقة بـ<bdi lang=\"it\" dir=\"ltr\">tu</bdi>، فتصريف <bdi lang=\"it\" dir=\"ltr\">stare</bdi> هو <bdi lang=\"it\" dir=\"ltr\">stai</bdi>."
+      },
+      {
+        "q": "اختر أداة التعريف المناسبة لكل اسم.",
+        "items": [
+          "حقيبة ظهر",
+          "صديقة",
+          "محطة",
+          "قطار"
+        ]
+      },
+      {
+        "q": "ما جمع <bdi lang=\"it\" dir=\"ltr\">l’amico</bdi> (الصديق)؟",
+        "opts": [
+          "gli amici",
+          "i amici",
+          "le amiche"
+        ],
+        "why": "تتحوّل <bdi lang=\"it\" dir=\"ltr\">l’</bdi> المذكّرة في الجمع إلى <bdi lang=\"it\" dir=\"ltr\">gli</bdi>: <bdi lang=\"it\" dir=\"ltr\">gli amici</bdi>."
+      },
+      {
+        "q": "اختر كل الأسماء التي لا تتغيّر صيغتها في الجمع.",
+        "opts": [
+          "il caffè",
+          "la sedia",
+          "il bar",
+          "la città"
+        ]
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «ماء، من فضلك.»",
+        "why": "يمكن أن نقول <bdi lang=\"it\" dir=\"ltr\">Un’acqua, per favore.</bdi>؛ فكلمة <bdi lang=\"it\" dir=\"ltr\">acqua</bdi> مؤنّثة وتبدأ بحرف متحرّك، لذلك نكتب <bdi lang=\"it\" dir=\"ltr\">un’</bdi> مع الفاصلة العليا."
+      },
+      {
+        "tr": "الطلاب في المقهى."
+      },
+      {
+        "tr": "فنجانا قهوة وكرواسون، من فضلك."
+      },
+      {
+        "tr": "صباح الخير، كيف حال حضرتك؟"
+      }
+    ]
+  },
+  "unit:a1-u02": {
+    "title": "التعارف والتعريف بالنفس",
+    "grammarNote": "الاسم والأصل والسكن · العمر والأعداد · المهن والأفعال المنتهية بـ\u2066-are\u2069"
+  },
+  "lesson:a1-u02-l1": {
+    "theme": "التعارف",
+    "title": "اسمي… التعريف بالنفس",
+    "objectives": [
+      "ذكر اسمك والمدينة التي تنحدر منها ومكان سكنك",
+      "استعمال الفعل chiamarsi مع الضمير المناسب",
+      "سؤال شخص آخر عن اسمه وأصله وسكنه"
+    ],
+    "theory": [
+      {
+        "h": "كيف تقول «اسمي»؟",
+        "p": "الصيغة <bdi lang=\"it\" dir=\"ltr\"><b>Mi chiamo…</b></bdi> تعني «اسمي…»، وحرفيًا «أُسمّي نفسي…». الفعل هو <bdi lang=\"it\" dir=\"ltr\">chiamarsi</bdi>، ويأتي معه ضمير قصير <b>قبل الفعل</b>: <bdi lang=\"it\" dir=\"ltr\">mi, ti, si, ci, vi, si</bdi>. احفظ <bdi lang=\"it\" dir=\"ltr\"><em>Come ti chiami? — Mi chiamo Anna.</em></bdi> أي «ما اسمك؟ — اسمي آنا»."
+      },
+      {
+        "h": "مدينة الأصل وبلد الأصل",
+        "p": "مع مدينة الأصل نستخدم <bdi lang=\"it\" dir=\"ltr\"><b>essere di</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>Sono di Cracovia.</em></bdi> «أنا من كراكوف». ومع البلد يمكنك استعمال <bdi lang=\"it\" dir=\"ltr\"><b>venire da</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>Vengo dalla Polonia.</em></bdi> «أنا من بولندا»، أو ذكر الجنسية: <bdi lang=\"it\" dir=\"ltr\"><em>Sono polacca.</em></bdi> «أنا بولندية». تأتي أسماء بلدان كثيرة مع أداة، مثل <bdi lang=\"it\" dir=\"ltr\">l’Italia, la Polonia</bdi>، بينما أسماء المدن في هذه الأمثلة بلا أداة."
+      },
+      {
+        "trap": "تُكتب صفات الجنسية في الإيطالية بحرف صغير: <bdi lang=\"it\" dir=\"ltr\"><em>sono polacca</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>un ragazzo italiano</em></bdi>. لا يوجد في العربية فرق بين حروف كبيرة وصغيرة، فانتبه إلى هذا عند الكتابة بالإيطالية. وبعد <bdi lang=\"it\" dir=\"ltr\">essere</bdi> في جملة مثل «أنا إيطالي» لا نحتاج إلى أداة: <bdi lang=\"it\" dir=\"ltr\"><em>Sono italiano.</em></bdi>."
+      },
+      {
+        "h": "أين تسكن؟",
+        "p": "نقول <bdi lang=\"it\" dir=\"ltr\"><b>abito a + مدينة</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>Abito a Roma.</em></bdi> «أسكن في روما»، و<bdi lang=\"it\" dir=\"ltr\"><b>abito in + بلد</b></bdi>، مثل <bdi lang=\"it\" dir=\"ltr\"><em>Abito in Italia.</em></bdi> «أسكن في إيطاليا». تستعمل العربية «في» في الحالتين، أمّا الإيطالية فتميّز هنا بين <bdi lang=\"it\" dir=\"ltr\">a</bdi> و<bdi lang=\"it\" dir=\"ltr\">in</bdi>."
+      }
+    ],
+    "grammar": {
+      "title": "الفعل chiamarsi والسؤال عن شخص",
+      "table": {
+        "head": [
+          "الضمير",
+          "تصريف chiamarsi",
+          "مثال"
+        ],
+        "rows": [
+          [
+            "io",
+            "mi chiamo",
+            "Mi chiamo Anna."
+          ],
+          [
+            "tu",
+            "ti chiami",
+            "Come ti chiami?"
+          ],
+          [
+            "lui / lei / Lei",
+            "si chiama",
+            "Come si chiama, scusi?"
+          ],
+          [
+            "noi",
+            "ci chiamiamo",
+            "Ci chiamiamo Rossi."
+          ],
+          [
+            "voi",
+            "vi chiamate",
+            "Come vi chiamate?"
+          ],
+          [
+            "loro",
+            "si chiamano",
+            "Si chiamano Marco e Luca."
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "ما اسمك؟ — اسمي إيفا."
+        },
+        {
+          "tr": "من أين أنت؟ — أنا من كراكوف."
+        },
+        {
+          "tr": "أنا بولندية، لكنني أسكن في ميلانو.",
+          "note": "تُكتب صفة الجنسية بحرف صغير."
+        },
+        {
+          "tr": "كم عمرك؟ — عمري ثمانية وعشرون عامًا.",
+          "note": "لذكر العمر نستخدم الفعل avere؛ ستتدرّب عليه في درس الأعداد."
+        },
+        {
+          "tr": "تشرّفت بمعرفتك يا ماركو. — وأنا أيضًا."
+        }
+      ]
+    },
+    "vocab": [
+      "يكون",
+      "اسمي…",
+      "ما اسمك؟",
+      "من أين أنت؟",
+      "أنا من… (مدينة)",
+      "أسكن في… (مدينة)",
+      "بولندي / بولندية",
+      "إيطالي / إيطالية",
+      "الاسم الشخصي",
+      "اسم العائلة",
+      "تشرّفت بمعرفتك",
+      "أنا أيضًا",
+      "حقًّا؟"
+    ],
+    "exercises": [
+      {
+        "q": "كيف تسأل شخصًا عن اسمه بطريقة غير رسمية؟",
+        "opts": [
+          "Come si chiama?",
+          "Come ti chiami?",
+          "Come vi chiamate?"
+        ],
+        "why": "مع <bdi lang=\"it\" dir=\"ltr\">tu</bdi> نقول <bdi lang=\"it\" dir=\"ltr\"><i>Come ti chiami?</i></bdi>؛ وللمخاطبة المهذّبة بـ<bdi lang=\"it\" dir=\"ltr\">Lei</bdi> نقول <bdi lang=\"it\" dir=\"ltr\"><i>Come si chiama?</i></bdi>."
+      },
+      {
+        "q": "أيّ جملة مكتوبة بصورة صحيحة؟",
+        "opts": [
+          "Sono Americana.",
+          "Sono americana.",
+          "Sono la americana."
+        ],
+        "why": "تُكتب الجنسية بحرف صغير، ولا نضع أداة قبلها في جملة مثل <bdi lang=\"it\" dir=\"ltr\">Sono americana.</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">___ chiamo Marta.</bdi> (اسمي مارتا.)",
+        "why": "مع «أنا» نستخدم <bdi lang=\"it\" dir=\"ltr\">mi</bdi>: <bdi lang=\"it\" dir=\"ltr\">mi chiamo</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Abito ___ Roma.</bdi> (أسكن في روما.)",
+        "why": "مع المدينة نستخدم <bdi lang=\"it\" dir=\"ltr\">a</bdi>، ومع البلد نستخدم <bdi lang=\"it\" dir=\"ltr\">in</bdi>: <bdi lang=\"it\" dir=\"ltr\">abito a Roma / abito in Italia</bdi>."
+      },
+      {
+        "q": "أكمل جمل التعريف بالنفس.",
+        "tr": "أهلًا! اسمي كاشيا، وأنا من غدانسك وأسكن في بولونيا.",
+        "why": "الأفعال المطلوبة هنا هي «أُدعى»، و«أكون من»، و«أسكن»: <bdi lang=\"it\" dir=\"ltr\">mi chiamo, sono di, abito a</bdi>."
+      },
+      {
+        "tr": "تشرّفت بمعرفتك، اسمي لوكا."
+      },
+      {
+        "q": "تتعرّف إلى شخص في مدرسة لغات. أدِّ دور إيفا في هذا الحوار التدريبي.",
+        "setting": "اليوم الأول في مدرسة لغات في فلورنسا؛ أسماء وأصول الشخصيات أمثلة تدريبية.",
+        "lines": [
+          {
+            "tr": "أهلًا! أنا جوليا. وأنت، ما اسمك؟"
+          },
+          {
+            "tr": "عرّف بنفسك باسم إيفا.",
+            "answerTr": "اسمي إيفا."
+          },
+          {
+            "tr": "تشرّفت بمعرفتك يا إيفا! من أين أنت؟"
+          },
+          {
+            "tr": "اختر من الردود ما يعني أنك من بولندا، كما في نموذج هذا التمرين.",
+            "answerTr": "أنا من بولندا."
+          }
+        ]
+      },
+      {
+        "tr": "اسمي إيلينا وأسكن في نابولي."
+      },
+      {
+        "tr": "تشرّفت بمعرفتك!"
+      }
+    ]
+  },
+  "lesson:a1-u02-l2": {
+    "theme": "أساسيات القواعد",
+    "title": "الفعل avere والأعداد من صفر إلى مئة",
+    "objectives": [
+      "تصريف الفعل avere في الحاضر",
+      "التعبير عن الجوع والعطش والعمر بصيغ مثل ho fame وho ventotto anni",
+      "فهم الأعداد حتى مئة وذكر سعر بسيط"
+    ],
+    "theory": [
+      {
+        "h": "فعل واحد للملكية ولتعبيرات يومية",
+        "p": "يعني <bdi lang=\"it\" dir=\"ltr\"><b>avere</b></bdi> «يملك / لديه»، لكنه يدخل أيضًا في تعبيرات مثل <bdi lang=\"it\" dir=\"ltr\"><em>ho fame</em></bdi> «أنا جائع»، و<bdi lang=\"it\" dir=\"ltr\"><em>ho sete</em></bdi> «أنا عطشان»، و<bdi lang=\"it\" dir=\"ltr\"><em>ho freddo</em></bdi> «أشعر بالبرد». احفظ التعبير كاملًا، ولا تترجم «أنا» إلى <bdi lang=\"it\" dir=\"ltr\">sono</bdi> في هذه العبارات. <bdi lang=\"it\" dir=\"ltr\"><em>Sono freddo.</em></bdi> قد يصف شخصًا ببرودة الطباع، ولا يعبّر عادةً عن شعوره بالبرد."
+      },
+      {
+        "h": "العمر: نستخدم avere أيضًا",
+        "p": "للقول «عمري ثلاثون عامًا» نقول <bdi lang=\"it\" dir=\"ltr\"><b>Ho trent’anni.</b></bdi>، وحرفيًا «لديّ ثلاثون عامًا». لا نقول <bdi lang=\"it\" dir=\"ltr\"><em>Sono trenta.</em></bdi> لذكر العمر. وقد يُحذف الحرف المتحرّك الأخير قبل <bdi lang=\"it\" dir=\"ltr\">anni</bdi> وتوضع الفاصلة العليا، كما في <bdi lang=\"it\" dir=\"ltr\"><em>vent’anni</em></bdi> و<bdi lang=\"it\" dir=\"ltr\"><em>trent’anni</em></bdi>."
+      },
+      {
+        "h": "حرف h مكتوب ولا يُنطق",
+        "p": "تبدأ الصيغ <bdi lang=\"it\" dir=\"ltr\"><b>ho, hai, ha, hanno</b></bdi> بحرف <bdi lang=\"it\" dir=\"ltr\">h</bdi> صامت. لا تضف له صوت الهاء العربية. يميّز في الكتابة <bdi lang=\"it\" dir=\"ltr\">ho</bdi> «لديّ» عن <bdi lang=\"it\" dir=\"ltr\">o</bdi> «أو»، و<bdi lang=\"it\" dir=\"ltr\">ha</bdi> «لديه / لديها» عن <bdi lang=\"it\" dir=\"ltr\">a</bdi> «إلى / في» بحسب السياق."
+      },
+      {
+        "h": "تركيب الأعداد بعد العشرين",
+        "p": "تُكتب العشرات والآحاد في كلمة واحدة، مثل <bdi lang=\"it\" dir=\"ltr\"><em>ventidue</em></bdi> «اثنان وعشرون» و<bdi lang=\"it\" dir=\"ltr\"><em>trentasei</em></bdi> «ستة وثلاثون». بخلاف العربية، تأتي العشرات أولًا. وقبل <bdi lang=\"it\" dir=\"ltr\">uno</bdi> و<bdi lang=\"it\" dir=\"ltr\">otto</bdi> نحذف الحرف الأخير من لفظ العشرات: <bdi lang=\"it\" dir=\"ltr\"><b>ventuno, ventotto, trentuno</b></bdi>. لاحظ النبر المكتوب في <bdi lang=\"it\" dir=\"ltr\">ventitré, novantatré</bdi>."
+      }
+    ],
+    "grammar": {
+      "title": "الفعل avere والأعداد",
+      "table": {
+        "head": [
+          "الضمير",
+          "تصريف avere",
+          "تعبير ومعناه"
+        ],
+        "rows": [
+          [
+            "io",
+            "ho",
+            "<bdi lang=\"it\" dir=\"ltr\">Ho fame.</bdi> (أنا جائع.)"
+          ],
+          [
+            "tu",
+            "hai",
+            "<bdi lang=\"it\" dir=\"ltr\">Hai freddo?</bdi> (هل تشعر بالبرد؟)"
+          ],
+          [
+            "lui / lei / Lei",
+            "ha",
+            "<bdi lang=\"it\" dir=\"ltr\">Ha ragione.</bdi> (هو / هي على حقّ.)"
+          ],
+          [
+            "noi",
+            "abbiamo",
+            "<bdi lang=\"it\" dir=\"ltr\">Abbiamo sete.</bdi> (نحن عطشانون.)"
+          ],
+          [
+            "voi",
+            "avete",
+            "<bdi lang=\"it\" dir=\"ltr\">Avete tempo?</bdi> (هل لديكم وقت؟)"
+          ],
+          [
+            "loro",
+            "hanno",
+            "<bdi lang=\"it\" dir=\"ltr\">Hanno paura.</bdi> (هم خائفون.)"
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "١، ٢، ٣، ٤، ٥"
+        },
+        {
+          "tr": "٦، ٧، ٨، ٩، ١٠"
+        },
+        {
+          "tr": "١١، ١٢، ١٣… ٢٠"
+        },
+        {
+          "tr": "٢١، ٢٢، ٢٨",
+          "note": "قبل uno وotto يسقط الحرف المتحرّك الأخير من لفظ العشرات."
+        },
+        {
+          "tr": "٣٠، ٤٠، ٥٠، ٦٠"
+        },
+        {
+          "tr": "٧٠، ٨٠، ٩٠، ١٠٠"
+        },
+        {
+          "tr": "عمري ثمانية وعشرون عامًا."
+        }
+      ]
+    },
+    "vocab": [
+      "يملك / لديه",
+      "أنا جائع",
+      "أنا عطشان",
+      "أشعر بالبرد / بالحرّ",
+      "أشعر بالنعاس",
+      "أنا خائف",
+      "أنا على حقّ",
+      "أحتاج إلى…",
+      "كم عمرك؟",
+      "كم سعره؟",
+      "يورو",
+      "عدد / رقم",
+      "رقم الهاتف"
+    ],
+    "exercises": [
+      {
+        "why": "تبدأ أربع صيغ بحرف <bdi lang=\"it\" dir=\"ltr\">h</bdi> الصامت: <bdi lang=\"it\" dir=\"ltr\">ho, hai, ha, hanno</bdi>."
+      },
+      {
+        "q": "كيف تقول «أنا جائع»؟",
+        "opts": [
+          "Sono fame",
+          "Ho fame",
+          "Sto fame"
+        ],
+        "why": "احفظ هذه التعبيرات مع <bdi lang=\"it\" dir=\"ltr\">avere</bdi>: <bdi lang=\"it\" dir=\"ltr\">ho fame, ho sete, ho freddo</bdi>."
+      },
+      {
+        "q": "ما العدد الذي تعنيه <bdi lang=\"it\" dir=\"ltr\">settantasei</bdi>؟",
+        "opts": [
+          "66",
+          "76",
+          "86"
+        ],
+        "why": "<bdi lang=\"it\" dir=\"ltr\">settanta</bdi> تعني 70 و<bdi lang=\"it\" dir=\"ltr\">sei</bdi> تعني 6، فالعدد 76."
+      },
+      {
+        "q": "اكتب بالأرقام: <bdi lang=\"it\" dir=\"ltr\">novantatré</bdi>. استخدم الأرقام 0–9 كما في لوحة المفاتيح الإيطالية.",
+        "why": "<bdi lang=\"it\" dir=\"ltr\">novanta</bdi> تعني 90 و<bdi lang=\"it\" dir=\"ltr\">tre</bdi> تعني 3؛ إذن 93."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Ho vent___ anni.</bdi> (عمري عشرون عامًا.) اكتب العلامة الناقصة فقط.",
+        "hint": "يُحذف حرف قبل anni وتوضع مكانه فاصلة عليا.",
+        "why": "نكتب <bdi lang=\"it\" dir=\"ltr\">vent’anni</bdi>؛ حُذفت النهاية المتحرّكة ووُضعت الفاصلة العليا مكانها."
+      },
+      {
+        "q": "ترجم إلى الإيطالية مخاطبًا صديقًا: «كم عمرك؟»",
+        "why": "نقول <bdi lang=\"it\" dir=\"ltr\">Quanti anni hai?</bdi>، وحرفيًا «كم عامًا لديك؟»."
+      },
+      {
+        "q": "صِل كل تعبير مع avere بمعناه.",
+        "pairs": [
+          "أنا عطشان",
+          "أشعر بالنعاس",
+          "أنا خائف",
+          "أنا على حقّ"
+        ]
+      },
+      {
+        "q": "أكمل الحوار عند صندوق الدفع.",
+        "tr": "— كم السعر؟ — اثنان وثلاثون يورو. — لديّ عشرون يورو فقط، آسف."
+      },
+      {
+        "tr": "عمري خمسة وثلاثون عامًا وأسكن في تورينو."
+      },
+      {
+        "tr": "كم سعر الكابتشينو؟"
+      }
+    ]
+  },
+  "lesson:a1-u02-l3": {
+    "theme": "العمل والتعارف",
+    "title": "ما عملك؟ الحديث عن المهنة",
+    "objectives": [
+      "ذكر مهنتك بطريقة طبيعية",
+      "استعمال fare مع أداة التعريف، وessere غالبًا دون أداة عند ذكر المهنة",
+      "التعرّف إلى صيغ المؤنّث في أسماء المهن"
+    ],
+    "theory": [
+      {
+        "h": "طريقتان لذكر المهنة",
+        "p": "للقول «أنا مهندس معماري» يمكنك استعمال <bdi lang=\"it\" dir=\"ltr\"><b>Faccio l’architetto.</b></bdi>، وهي صيغة شائعة للحديث عن العمل، أو <bdi lang=\"it\" dir=\"ltr\"><b>Sono architetto.</b></bdi> للتعريف بالمهنة أو الصفة. بعد <bdi lang=\"it\" dir=\"ltr\">fare</bdi> تأتي أداة التعريف، أمّا بعد <bdi lang=\"it\" dir=\"ltr\">essere</bdi> في هذه الأمثلة فلا نحتاج إلى أداة. اسأل: <bdi lang=\"it\" dir=\"ltr\"><em>Che lavoro fai?</em></bdi> «ما عملك؟»."
+      },
+      {
+        "h": "كيف تظهر صيغة المؤنّث؟",
+        "list": [
+          "في أسماء كثيرة تتغيّر <bdi lang=\"it\" dir=\"ltr\">-o</bdi> إلى <bdi lang=\"it\" dir=\"ltr\">-a</bdi>: <bdi lang=\"it\" dir=\"ltr\">l’impiegato → l’impiegata</bdi> «موظّف ← موظّفة».",
+          "توجد صيغ تُحفظ مع أمثلتها: <bdi lang=\"it\" dir=\"ltr\">il professore → la professoressa</bdi> و<bdi lang=\"it\" dir=\"ltr\">lo studente → la studentessa</bdi>. ليست <bdi lang=\"it\" dir=\"ltr\">-essa</bdi> قاعدة لكل اسم ينتهي بـ<bdi lang=\"it\" dir=\"ltr\">-e</bdi>.",
+          "في بعض الأسماء تتحوّل <bdi lang=\"it\" dir=\"ltr\">-tore</bdi> إلى <bdi lang=\"it\" dir=\"ltr\">-trice</bdi>: <bdi lang=\"it\" dir=\"ltr\">l’attore → l’attrice</bdi> «ممثل ← ممثلة»، و<bdi lang=\"it\" dir=\"ltr\">il direttore → la direttrice</bdi> «مدير ← مديرة».",
+          "قد يبقى الاسم نفسه وتتغيّر الأداة: <bdi lang=\"it\" dir=\"ltr\">il/la giornalista, il/la dentista, il/la cantante</bdi>؛ أي صحفي أو صحفية، وطبيب أو طبيبة أسنان، ومغنٍّ أو مغنّية."
+        ]
+      },
+      {
+        "h": "قد تسمع أكثر من تسمية",
+        "p": "ستصادف صيغًا مؤنّثة مثل <bdi lang=\"it\" dir=\"ltr\">l’avvocata</bdi> «محامية»، و<bdi lang=\"it\" dir=\"ltr\">la sindaca</bdi> «رئيسة البلدية»، و<bdi lang=\"it\" dir=\"ltr\">la ministra</bdi> «وزيرة». وقد تسمع أيضًا صيغة <bdi lang=\"it\" dir=\"ltr\">l’avvocato</bdi> عن امرأة. تعرّف إلى الصيغ المتداولة واحترم التسمية التي تستعملها صاحبة المهنة."
+      },
+      {
+        "contrast": "في العربية نقول «أنا معلّم» دون فعل في الحاضر. في الإيطالية يمكنك قول <bdi lang=\"it\" dir=\"ltr\"><b>Faccio l’insegnante.</b></bdi> أو <bdi lang=\"it\" dir=\"ltr\"><b>Sono insegnante.</b></bdi>. لا تنقل أداة التعريف من صيغة إلى الأخرى. كذلك <bdi lang=\"it\" dir=\"ltr\">lavoro come…</bdi> تعني «أعمل بوصفـ…» وهي صيغة صحيحة، لكن <bdi lang=\"it\" dir=\"ltr\">faccio il/la…</bdi> شائعة وبسيطة في الحديث اليومي."
+      }
+    ],
+    "grammar": {
+      "title": "الفعل fare: يفعل / يعمل — الحاضر",
+      "note": "فعل غير منتظم وشائع جدًا؛ نتعلّمه هنا للحديث عن المهنة، وله استعمالات يومية أخرى.",
+      "table": {
+        "head": [
+          "الضمير",
+          "تصريف fare",
+          "مثال"
+        ],
+        "rows": [
+          [
+            "io",
+            "faccio",
+            "Faccio l'insegnante."
+          ],
+          [
+            "tu",
+            "fai",
+            "Che lavoro fai?"
+          ],
+          [
+            "lui / lei / Lei",
+            "fa",
+            "Fa il medico."
+          ],
+          [
+            "noi",
+            "facciamo",
+            "Facciamo colazione."
+          ],
+          [
+            "voi",
+            "fate",
+            "Che cosa fate?"
+          ],
+          [
+            "loro",
+            "fanno",
+            "Fanno gli avvocati."
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "ما عملك؟"
+        },
+        {
+          "tr": "أنا صحفية."
+        },
+        {
+          "tr": "أنا مهندس.",
+          "note": "بعد essere لا نضع عادةً أداة قبل اسم المهنة في هذا النوع من الجمل."
+        },
+        {
+          "tr": "أعمل في وكالة."
+        },
+        {
+          "tr": "أنا عاطل عن العمل حاليًا."
+        },
+        {
+          "tr": "ما زلت أدرس، وأنا في السنة الأخيرة."
+        }
+      ]
+    },
+    "vocab": [
+      "العمل / المهنة",
+      "معلّم / معلّمة",
+      "طبيب / طبيبة",
+      "مهندس / مهندسة",
+      "محامٍ / محامية",
+      "صحفي / صحفية",
+      "موظّف / موظّفة",
+      "طاهٍ / طاهية",
+      "بائع / بائعة في متجر",
+      "عامل",
+      "صاحب مهنة حرّة / صاحبة مهنة حرّة",
+      "أبحث عن عمل"
+    ],
+    "exercises": [
+      {
+        "why": "انتبه إلى <bdi lang=\"it\" dir=\"ltr\">cc</bdi> المضعّفة في <bdi lang=\"it\" dir=\"ltr\">faccio</bdi> و<bdi lang=\"it\" dir=\"ltr\">facciamo</bdi>."
+      },
+      {
+        "q": "أيّ جملة تعني «أنا معلّم / معلّمة» وتناسب الحديث الطبيعي؟",
+        "opts": [
+          "Faccio l'insegnante.",
+          "Sono la insegnante.",
+          "Ho insegnante."
+        ],
+        "why": "نستخدم <bdi lang=\"it\" dir=\"ltr\">fare</bdi> مع أداة التعريف: <bdi lang=\"it\" dir=\"ltr\">Faccio l’insegnante.</bdi>."
+      },
+      {
+        "q": "ما مؤنّث <bdi lang=\"it\" dir=\"ltr\">il professore</bdi>؟",
+        "opts": [
+          "la professora",
+          "la professoressa",
+          "la professrice"
+        ],
+        "why": "الصيغة هي <bdi lang=\"it\" dir=\"ltr\">la professoressa</bdi>؛ ومن الأمثلة المشابهة <bdi lang=\"it\" dir=\"ltr\">studente → studentessa</bdi>. احفظ كل صيغة مع اسمها."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Mia sorella fa ___ dottoressa.</bdi> (أختي طبيبة.)",
+        "why": "بعد <bdi lang=\"it\" dir=\"ltr\">fare</bdi> نضع أداة التعريف الموافقة للاسم: <bdi lang=\"it\" dir=\"ltr\">la dottoressa</bdi>."
+      },
+      {
+        "q": "اختر أداة التعريف المناسبة.",
+        "items": [
+          "طاهية",
+          "مهندس",
+          "طالبة",
+          "عامل"
+        ]
+      },
+      {
+        "q": "ترجم إلى الإيطالية مخاطبًا شخصًا بطريقة غير رسمية: «ما عملك؟»",
+        "why": "نقول <bdi lang=\"it\" dir=\"ltr\">Che lavoro fai?</bdi>، وحرفيًا «أيّ عمل تفعل؟»."
+      },
+      {
+        "q": "صِل اسم المذكّر بصيغته في المؤنّث.",
+        "pairs": [
+          "l'attrice",
+          "la commessa",
+          "la studentessa",
+          "la giornalista"
+        ]
+      },
+      {
+        "tr": "أعمل في مصرف في ميلانو."
+      },
+      {
+        "tr": "أنا مهندس معماري، وأعمل مع أخي."
+      },
+      {
+        "tr": "ما عملك؟ أنا صحفية."
+      }
+    ]
+  },
+  "lesson:a1-u02-l4": {
+    "theme": "أساسيات القواعد",
+    "title": "الأفعال المنتظمة المنتهية بـ\u2066-ARE\u2069",
+    "objectives": [
+      "تصريف الأفعال المنتظمة المنتهية بـ\u2066-are\u2069 في الحاضر",
+      "كتابة صيغ cercare وpagare وmangiare بصورة صحيحة",
+      "تكوين جملة منفيّة وسؤال بسيط"
+    ],
+    "theory": [
+      {
+        "h": "نمط واحد لأفعال كثيرة",
+        "p": "تنتهي أفعال إيطالية كثيرة بـ<bdi lang=\"it\" dir=\"ltr\"><b>-are</b></bdi>. لتصريف الفعل المنتظم في الحاضر نحذف <bdi lang=\"it\" dir=\"ltr\">-are</bdi> ونضيف النهايات <bdi lang=\"it\" dir=\"ltr\"><b>-o, -i, -a, -iamo, -ate, -ano</b></bdi>. مثلًا: <bdi lang=\"it\" dir=\"ltr\"><em>parlare → parlo, parli, parla…</em></bdi>. تعلّم النمط مع المعنى؛ فـ<bdi lang=\"it\" dir=\"ltr\">parlo</bdi> تعني «أتكلّم» و<bdi lang=\"it\" dir=\"ltr\">parliamo</bdi> «نتكلّم»."
+      },
+      {
+        "h": "انتبه إلى موضع النبر",
+        "p": "في الأمثلة المنتظمة هنا، يقع النبر في صيغة <bdi lang=\"it\" dir=\"ltr\">loro</bdi> على المقطع الثالث من النهاية: <bdi lang=\"it\" dir=\"ltr\"><b>par</b>-la-no</bdi> و<bdi lang=\"it\" dir=\"ltr\">la-<b>vo</b>-ra-no</bdi>. لا تضغط على النهاية <bdi lang=\"it\" dir=\"ltr\">-no</bdi>. استمع إلى التسجيلات وقل الصيغ معها، بدل إضافة علامة نبر غير موجودة إلى الكتابة الإيطالية."
+      },
+      {
+        "h": "تغييرات كتابية تحافظ على النطق",
+        "list": [
+          "مع <bdi lang=\"it\" dir=\"ltr\"><b>-care / -gare</b></bdi> نضيف <bdi lang=\"it\" dir=\"ltr\"><b>h</b></bdi> في صيغ مثل <bdi lang=\"it\" dir=\"ltr\">cerchi, cerchiamo, paghi, paghiamo</bdi> كي يبقى نطق <bdi lang=\"it\" dir=\"ltr\">c / g</bdi> قويًا؛ لا ننطق <bdi lang=\"it\" dir=\"ltr\">h</bdi> مثل الهاء العربية.",
+          "مع <bdi lang=\"it\" dir=\"ltr\"><b>-ciare / -giare</b></bdi> لا نضاعف <bdi lang=\"it\" dir=\"ltr\">i</bdi> في أمثلة مثل <bdi lang=\"it\" dir=\"ltr\">mangiare → mangi</bdi> و<bdi lang=\"it\" dir=\"ltr\">cominciare → cominci</bdi>؛ فلا نكتب <bdi lang=\"it\" dir=\"ltr\">mangii</bdi>.",
+          "في <bdi lang=\"it\" dir=\"ltr\"><b>studiare</b></bdi>، حيث <bdi lang=\"it\" dir=\"ltr\">i</bdi> غير منبورة، نكتب <bdi lang=\"it\" dir=\"ltr\">studi, studiamo</bdi> بحرف <bdi lang=\"it\" dir=\"ltr\">i</bdi> واحد. احفظ هذه الأمثلة ولا تعمّمها على كل فعل آخر ينتهي بـ<bdi lang=\"it\" dir=\"ltr\">-iare</bdi>."
+        ]
+      },
+      {
+        "h": "النفي والسؤال ببساطة",
+        "p": "نضع <bdi lang=\"it\" dir=\"ltr\"><b>non</b></bdi> قبل الفعل للنفي: <bdi lang=\"it\" dir=\"ltr\"><em>Non parlo italiano.</em></bdi> «لا أتكلّم الإيطالية». وفي السؤال يمكن أن تبقى الكلمات بالترتيب نفسه، مع نبرة السؤال وعلامته: <bdi lang=\"it\" dir=\"ltr\"><em>Parli italiano?</em></bdi> «هل تتكلّم الإيطالية؟». بخلاف «هل» العربية، لا نحتاج هنا إلى كلمة منفصلة لبدء السؤال."
+      }
+    ],
+    "grammar": {
+      "title": "الفعل parlare: نمط تصريف -ARE",
+      "table": {
+        "head": [
+          "الضمير",
+          "النهاية",
+          "تصريف parlare",
+          "تصريف lavorare"
+        ],
+        "rows": [
+          [
+            "io",
+            "-o",
+            "parlo",
+            "lavoro"
+          ],
+          [
+            "tu",
+            "-i",
+            "parli",
+            "lavori"
+          ],
+          [
+            "lui / lei / Lei",
+            "-a",
+            "parla",
+            "lavora"
+          ],
+          [
+            "noi",
+            "-iamo",
+            "parliamo",
+            "lavoriamo"
+          ],
+          [
+            "voi",
+            "-ate",
+            "parlate",
+            "lavorate"
+          ],
+          [
+            "loro",
+            "-ano",
+            "parlano",
+            "lavorano"
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "أتكلّم قليلًا من الإيطالية."
+        },
+        {
+          "tr": "لا أتكلّم جيدًا، لكنني أفهم."
+        },
+        {
+          "tr": "هل تدرس في الجامعة؟",
+          "note": "ترتيب الكلمات لا يتغيّر هنا؛ نبرة الصوت تجعلها سؤالًا."
+        },
+        {
+          "tr": "نتناول الطعام في الثامنة."
+        },
+        {
+          "tr": "هل تبحث عن عمل في ميلانو؟",
+          "note": "نكتب cerchi مع h للمحافظة على النطق."
+        },
+        {
+          "tr": "هم يسكنون قرب المركز.",
+          "note": "النبر في abitano على المقطع الأوّل: A-bi-ta-no."
+        }
+      ]
+    },
+    "vocab": [
+      "يتكلّم / يتحدّث",
+      "يعمل",
+      "يدرس",
+      "يسكن",
+      "يأكل",
+      "يشتري",
+      "يبحث عن",
+      "يدفع",
+      "يستمع",
+      "يشاهد / ينظر إلى",
+      "ينتظر",
+      "يبدأ"
+    ],
+    "exercises": [
+      {
+        "why": "استعمل نهايات التصريف المنتظم مع <bdi lang=\"it\" dir=\"ltr\">parlare</bdi>: <bdi lang=\"it\" dir=\"ltr\">-o, -i, -a, -iamo, -ate, -ano</bdi>."
+      },
+      {
+        "tr": "صرّف cercare مع tu وnoi؛ وانتبه إلى الكتابة.",
+        "why": "نكتب <bdi lang=\"it\" dir=\"ltr\">cerchi</bdi> و<bdi lang=\"it\" dir=\"ltr\">cerchiamo</bdi> مع <bdi lang=\"it\" dir=\"ltr\">h</bdi> ليبقى الصوت <bdi lang=\"it\" dir=\"ltr\">k</bdi>."
+      },
+      {
+        "q": "أيّ صيغة تعني «أنت تأكل»؟",
+        "opts": [
+          "mangii",
+          "mangi",
+          "mangie"
+        ],
+        "why": "الصحيح <bdi lang=\"it\" dir=\"ltr\">mangi</bdi> بحرف <bdi lang=\"it\" dir=\"ltr\">i</bdi> واحد؛ لا نضاعفه في هذا الفعل."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Loro ___ a Bologna.</bdi> (هم يسكنون في بولونيا.)",
+        "why": "الفعل <bdi lang=\"it\" dir=\"ltr\">abitare</bdi> مع <bdi lang=\"it\" dir=\"ltr\">loro</bdi> هو <bdi lang=\"it\" dir=\"ltr\">abitano</bdi>، ونهايته <bdi lang=\"it\" dir=\"ltr\">-ano</bdi>."
+      },
+      {
+        "q": "حوّل الجملة إلى النفي: <bdi lang=\"it\" dir=\"ltr\">Parlo italiano. → ___ parlo italiano.</bdi>",
+        "why": "نضع <bdi lang=\"it\" dir=\"ltr\">non</bdi> قبل الفعل: <bdi lang=\"it\" dir=\"ltr\">Non parlo italiano.</bdi>."
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «نبحث عن شقّة في روما.»",
+        "why": "مع <bdi lang=\"it\" dir=\"ltr\">noi</bdi> نقول <bdi lang=\"it\" dir=\"ltr\">cerchiamo</bdi> مع <bdi lang=\"it\" dir=\"ltr\">h</bdi>، ونستخدم <bdi lang=\"it\" dir=\"ltr\">a</bdi> قبل المدينة."
+      },
+      {
+        "q": "اختر كل الصيغ التي تنتمي إلى تصريف studiare.",
+        "opts": [
+          "studio",
+          "studii",
+          "studi",
+          "studiamo",
+          "studiate"
+        ],
+        "why": "الصيغ المعروضة الصحيحة فيها <bdi lang=\"it\" dir=\"ltr\">i</bdi> واحدة؛ أمّا <bdi lang=\"it\" dir=\"ltr\">studii</bdi> فليست من تصريف <bdi lang=\"it\" dir=\"ltr\">studiare</bdi> في هذا التمرين."
+      },
+      {
+        "tr": "لا أعمل أيام السبت.",
+        "why": "نستخدم <bdi lang=\"it\" dir=\"ltr\">il sabato</bdi> بأداة التعريف للتعبير عن عادة تتكرّر أيام السبت."
+      },
+      {
+        "tr": "أدرس الإيطالية منذ ثلاثة أشهر."
+      },
+      {
+        "tr": "لا أتكلّم جيدًا، لكنني أفهم كل شيء تقريبًا."
+      }
+    ]
+  },
+  "lesson:a1-u02-test": {
+    "theme": "اختبار",
+    "title": "اختبار الوحدة الثانية",
+    "objectives": [
+      "مراجعة avere وfare وchiamarsi والأعداد وتصريف الأفعال المنتظمة المنتهية بـ\u2066-are\u2069"
+    ],
+    "theory": [
+      {
+        "p": "عشرة أسئلة. تنجح عند الإجابة الصحيحة عن 70٪ على الأقل. حاول من الذاكرة، ثم راجع ما تحتاج إليه."
+      }
+    ],
+    "exercises": [
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">___ chiamo Peter.</bdi> (اسمي بيتر.)"
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Quanti anni ___?</bdi> (كم عمرك؟ — مخاطبة غير رسمية)"
+      },
+      {
+        "q": "ما العدد الذي تعنيه <bdi lang=\"it\" dir=\"ltr\">ottantaquattro</bdi>؟",
+        "opts": [
+          "48",
+          "84",
+          "94"
+        ]
+      },
+      {
+        "q": "كيف تقول بالإيطالية «أنا جائع»؟",
+        "opts": [
+          "Sono fame",
+          "Ho fame",
+          "Sto fame"
+        ]
+      },
+      {},
+      {
+        "q": "أيّ صيغة تعني «أنت تدفع»؟",
+        "opts": [
+          "pagi",
+          "paghi",
+          "page"
+        ],
+        "why": "مع <bdi lang=\"it\" dir=\"ltr\">-gare</bdi> نضيف <bdi lang=\"it\" dir=\"ltr\">h</bdi> قبل النهاية <bdi lang=\"it\" dir=\"ltr\">-i</bdi>: <bdi lang=\"it\" dir=\"ltr\">paghi</bdi>."
+      },
+      {
+        "q": "أكمل التعريف بالنفس في المثال.",
+        "tr": "أنا بولندية، أسكن في فيرونا وأعمل معلّمة."
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «لا أتكلّم الإيطالية.»"
+      },
+      {
+        "tr": "عمري سبعة وعشرون عامًا وأبحث عن عمل."
+      },
+      {
+        "tr": "اسمي آنا وأنا صحفية."
+      }
+    ]
   }
 });

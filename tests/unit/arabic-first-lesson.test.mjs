@@ -28,11 +28,11 @@ function select(box, lang) {
   box.sandbox.LINGUAI.applyStrings(lang); box.sandbox.Registry.reindex();
 }
 
-test("exactly the three translated Arabic lessons are declared and complete", () => {
+test("every declared Arabic entry is complete and the original three lessons remain registered", () => {
   const box = setup(), ar = overlay("ar"), problems = [];
-  assert.deepEqual(Object.keys(ar), [key, "lesson:a1-u01-l2", "lesson:a1-u01-l3"]);
   const manifest = plain(box.sandbox.I18n.courseOverrides("ar"));
-  assert.deepEqual(manifest, { "a1-01.js": [key, "lesson:a1-u01-l2", "lesson:a1-u01-l3"] });
+  assert.deepEqual(Object.keys(ar).sort(), manifest["a1-01.js"].slice().sort());
+  for (const original of [key, "lesson:a1-u01-l2", "lesson:a1-u01-l3"]) assert.ok(manifest["a1-01.js"].includes(original));
   checkPartialCourse(manifest, { "a1-01.js": ar }, overlay("pl"), problems);
   assert.deepEqual(problems, []);
 });
@@ -58,12 +58,12 @@ test("English to Arabic to English to Arabic is exact and other lessons always f
   const box = setup(), { LINGUAI: L } = box.sandbox;
   const lesson = () => plain(box.Core.getLesson(id).lesson);
   const english = lesson();
-  const others = () => plain(box.Core.registry.byCode.A1.units[0].lessons.filter(l => ![id, "a1-u01-l2", "a1-u01-l3"].includes(l.id)));
+  const others = () => plain(box.Core.registry.byCode.A1.units[2]);
   const fallback = others();
   select(box, "es"); assert.notEqual(lesson().title, english.title);
   select(box, "ar"); const arabic = lesson();
   assert.deepEqual(others(), fallback); assert.equal(L.lessonLanguage("ar", id), "ar");
-  assert.equal(L.lessonLanguage("ar", "a1-u01-l4"), "en");
+  assert.equal(L.lessonLanguage("ar", "a1-u03-l1"), "en");
   for (const lang of ["en", "ar", "en", "ar"]) {
     select(box, lang); assert.deepEqual(lesson(), lang === "en" ? english : arabic);
     assert.deepEqual(others(), fallback);
@@ -85,10 +85,10 @@ test("missing, malformed or undeclared Arabic patches cannot leave stale Spanish
   const english = plain(box.Core.getLesson(id).lesson);
   select(box, "es"); select(box, "ar");
   assert.deepEqual(plain(box.Core.getLesson(id).lesson), english);
-  L.addStrings("ar", { [key]: { title: "ناقص" }, "lesson:a1-u01-l4": overlay("ar")[key] });
+  L.addStrings("ar", { [key]: { title: "ناقص" }, "lesson:a1-u03-l1": overlay("ar")[key] });
   select(box, "ar");
   assert.equal(L.lessonLanguage("ar", id), "en");
-  assert.equal(L.lessonLanguage("ar", "a1-u01-l4"), "en");
+  assert.equal(L.lessonLanguage("ar", "a1-u03-l1"), "en");
   assert.deepEqual(plain(box.Core.getLesson(id).lesson), english);
 });
 
@@ -113,7 +113,7 @@ test("missing Arabic script remains retryable; untranslated files never request 
 test("partial parity rejects missing files, unknown or undeclared lessons, missing keys and short arrays", () => {
   const manifest = { "a1-01.js": [key] }, reference = overlay("pl"), own = { [key]: overlay("ar")[key] };
   const invalid = [ {}, { "wrong.js": own }, { "a1-01.js": {} },
-    { "a1-01.js": { ...own, "lesson:a1-u01-l4": own[key] } } ];
+    { "a1-01.js": { ...own, "lesson:a1-u03-l1": own[key] } } ];
   for (const field of ["title", "grammar", "theory"]) { const copy = plain(own); delete copy[key][field]; invalid.push({ "a1-01.js": copy }); }
   for (const field of ["vocab", "dialogue", "exercises"]) { const copy = plain(own); copy[key][field].pop(); invalid.push({ "a1-01.js": copy }); }
   const mistyped = plain(own); mistyped[key].title = 42; invalid.push({ "a1-01.js": mistyped });
@@ -137,7 +137,7 @@ test("Arabic vocabulary glosses never overwrite English and language switching p
   select(box, "ar"); C.addCard("grazie", "شكرًا", id);
   assert.equal(C.state.srs.grazie.tr.en, "thank you"); assert.equal(C.state.srs.grazie.tr.ar, "شكرًا");
   assert.equal(C.cardTr(C.state.srs.grazie), "شكرًا");
-  C.addCard("nuovo", "new", "a1-u01-l4"); assert.equal(C.state.srs.nuovo.tr.en, "new"); assert.equal(C.state.srs.nuovo.tr.ar, undefined);
+  C.addCard("nuovo", "new", "a1-u03-l1"); assert.equal(C.state.srs.nuovo.tr.en, "new"); assert.equal(C.state.srs.nuovo.tr.ar, undefined);
   C.addCard("prego", "عفوًا / لا شكر على واجب", "copertura");
   assert.equal(C.state.srs.prego.tr.ar, "عفوًا / لا شكر على واجب");
   assert.equal(C.state.srs.prego.tr.en, undefined);

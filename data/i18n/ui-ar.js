@@ -141,6 +141,8 @@ LINGUAI.addUI("ar", {
   "ex.dialogue.prompt": "استمع وأجب.",
   "ex.dialogue.yourTurn": "دورك — {task}",
   "ex.dialogue.pickAnswer": "اختر ردًا",
+  "ex.dialogue.mistakes": "عدد الأخطاء: {n}. اقرأ الحوار بصوت مسموع مرّة أخرى.",
+  "ex.dialogue.allOk": "أحسنت، أجبت عن الحوار كاملًا بصورة صحيحة.",
   "ex.truefalse.true": "صحيح (vero)",
   "ex.truefalse.false": "خطأ (falso)",
   "srs.nothingDue": "لا توجد مراجعات مستحقة 🌿",

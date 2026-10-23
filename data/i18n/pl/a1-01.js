@@ -468,7 +468,7 @@ LINGUAI.addStrings("pl", {
       },
       { q: "„Noi ___ in ritardo.” (Jesteśmy spóźnieni.)", why: "essere, forma noi." },
       { q: "„Come ___?” zapytasz koleżankę o samopoczucie.", why: "stare, forma tu." },
-      { q: "Wybierz rodzajnik określony.", items: [, , , ] },
+      { q: "Wybierz rodzajnik określony.", items: ["", "", "", ""] },
       {
         q: "Liczba mnoga od „l'amico”:",
         opts: ["gli amici", "i amici", "le amiche"],

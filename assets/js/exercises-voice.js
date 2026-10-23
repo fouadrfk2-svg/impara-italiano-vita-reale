@@ -145,13 +145,16 @@
       var dlg = root.querySelector(".js-dlg");
       var turn = root.querySelector(".js-turn");
       var i = 0, mistakes = 0;
+      var host = root.closest("[data-lesson-language]");
+      var textLang = host ? host.getAttribute("data-lesson-language") : I18n.contentLanguage(I18n.lang);
+      var textDir = textLang === "ar" ? "rtl" : "ltr";
 
       function bubble(line, mine) {
         var d = document.createElement("div");
         d.className = "dlg__line" + (mine ? " dlg__line--b" : "");
         d.innerHTML = '<div class="dlg__who">' + (mine ? "🙋" : "🧑‍🍳") + "</div>" +
-          '<div class="dlg__bubble"><span class="dlg__it">' + esc(line.it) + " " + sayBtn(line.it) + "</span>" +
-          '<span class="dlg__pl">' + esc(line.tr || "") + "</span></div>";
+          '<div class="dlg__bubble"><span class="dlg__it" lang="it" dir="ltr">' + esc(line.it) + " " + sayBtn(line.it) + "</span>" +
+          '<span class="dlg__pl" lang="' + esc(textLang) + '" dir="' + textDir + '">' + esc(line.tr || "") + "</span></div>";
         dlg.appendChild(d);
       }
 
@@ -171,9 +174,9 @@
           return;
         }
         // the student's turn
-        turn.innerHTML = '<p style="font-weight:600;margin-bottom:8px">' +
+        turn.innerHTML = '<p lang="' + esc(textLang) + '" dir="' + textDir + '" style="font-weight:600;margin-bottom:8px">' +
           esc(t("ex.dialogue.yourTurn", { task: line.tr || t("ex.dialogue.pickAnswer") })) + "</p>" +
-          '<div class="opts">' + line.choices.map(function (c, k) {
+          '<div class="opts" lang="it" dir="ltr">' + line.choices.map(function (c, k) {
             return '<button type="button" class="opt js-ch" data-k="' + k + '"><span>' + esc(c) + "</span></button>";
           }).join("") + "</div>";
         turn.querySelectorAll(".js-ch").forEach(function (b) {

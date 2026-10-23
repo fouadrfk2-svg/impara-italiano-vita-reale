@@ -1,60 +1,69 @@
-# Arabic interface and first-lesson pilot
+# Arabic interface and first two A1 units
 
 Arabic (العربية) is available from the welcome screen and language selector.
-Arabic course translations cover only **a1-u01-l1**, **a1-u01-l2** and **a1-u01-l3**.
-Their Italian titles are “Buongiorno, un caffè”, “Maschile o femminile?” and “Il, lo, la, un, una”.
-All other lessons and supporting course content continue to use English.
+The partial Arabic course covers all eight lessons and both assessments in
+units **a1-u01** and **a1-u02**, including their unit titles and descriptions.
+All other course and supporting content continues to use English fallback.
 
 ## Partial course contract
 
-- I18n.contentLanguage("ar") remains "en": the complete English overlay is
-  always reapplied first, even after switching from Spanish or another language.
-- I18n.courseOverrides("ar") explicitly declares the file a1-01.js and the three
-  keys lesson:a1-u01-l1, lesson:a1-u01-l2 and lesson:a1-u01-l3. Registry requests only declared Arabic files, after English.
-  Failed files are reported and remain retryable; no nonexistent Arabic files
-  are requested for other levels.
-- Each declared lesson must be complete. The merger checks its keys, types and
-  indexed array lengths against English before applying it. Missing, malformed
-  or undeclared lesson patches leave the entire lesson in English, rather than
-  mixing in stale text. Theory is authored as a whole, with an Arabic-specific
-  contrast note instead of an English-speaker note.
-- Only declared lesson nodes are overlaid. Unit names, other lessons, readings,
-  reference material and false-friend content keep the English baseline.
-- scripts/parity.mjs retains the full requirements for existing course languages.
-  Arabic is explicitly partial: it checks file/lesson membership and the complete
-  shape of each declared lesson against Polish, then checks the effective English
-  fallback course. Missing fields/array items in the Arabic lesson are errors,
-  not silently accepted fallbacks. Missing files and undeclared entries fail too.
-- Missing UI keys retain English fallback. Native Arabic plural entries must have
-  all six CLDR forms; English fallback plurals use English rules. Existing full UI
-  dictionaries still require every reference key.
-- scripts/validate.mjs ar loads both layers and validates the effective course
-  through the same existing content rules. Italian, audio sources, answer keys,
-  scoring, IDs and lesson ordering are unchanged.
-- Untranslated exercises into the explanation language still expect English;
-  their Arabic UI instructions continue to say English. This pilot does not
-  reinterpret their accepted answers.
+- I18n.contentLanguage("ar") remains "en". The complete English overlay is
+  reapplied before Arabic, including after switching from another language.
+- I18n.courseOverrides("ar") declares a1-01.js with exactly twelve entries:
+  eight lesson entries, two lesson-form unit tests and two unit summaries.
+  Registry loads only declared Arabic files, after English; failed files are
+  retryable. No Arabic file is requested for untranslated levels.
+- Lessons and assessments are atomic. Missing keys, incorrect types, empty
+  theory or short indexed arrays make the entire entry fall back to English.
+  Arabic-specific theory may use its own explanatory structure.
+- Unit summaries are independently atomic: title and grammarNote must both
+  match the English entry's shape. A missing summary cannot partially override
+  the header or prevent a complete Arabic lesson from loading.
+- Undeclared units and lessons cannot override the English baseline. Readings,
+  references, conversations and other content families keep their baseline.
+- scripts/parity.mjs checks every declared file, key, type and indexed array
+  against Polish, then checks the effective course. Existing full-language
+  requirements remain intact; unit entries receive the same complete shape
+  check as other entries, without a lesson-only theory requirement.
+- The first unit test has four article-choice nouns. All five full-language
+  overlays explicitly retain four empty glossary strings. This corrects their
+  old three-slot sparse placeholder and clears Arabic glosses on switching back,
+  without changing their wording, Italian nouns or answer keys.
+- Missing interface keys use English fallback. Native Arabic plural entries
+  require all six CLDR categories. English fallback plurals use English rules.
+- scripts/validate.mjs ar validates the merged course using existing rules.
+  Canonical Italian, IDs, recordings, option order, grading and lesson order
+  are unchanged. Untranslated toBase exercises still expect English answers.
 
-## Direction and progress
+## Language quality
 
-Arabic explanations, grammar meanings, translated choices, dialogue translations and matching
-meanings use RTL. Italian sentences, choices, conjugations, token banks, audio
-and answer inputs remain LTR. Inline Italian in Arabic prose uses isolated bdi
-elements. Actual explanation blocks carry lang/dir. The active lesson language
-is scoped to #main and removed on navigation; English fallback stays LTR. Grammar
-cell direction follows its actual text, rather than assuming the final column is
-Arabic. Italian table examples and Italian options stay LTR; Arabic meanings and
-Arabic options use RTL. No answer-index/order or grading changes are involved.
+Arabic uses clear Modern Standard Arabic, with explanations adapted to Arabic
+speakers rather than English-specific contrasts. Translations follow the actual
+Italian neutral layer where English glosses have different names, cities or
+nationalities: Kasia, Gdańsk, Kraków and Polish nationality remain those examples.
 
-Progress remains under linguai.italiano.v2, schema 2. Lesson IDs, scores, Italian
-card keys, review schedules and drafts are unchanged. Vocabulary from the Arabic
-lesson is saved under tr.ar, never over tr.en. Untranslated lessons still save
-English glosses. Language switching selects the appropriate stored/course gloss
-without modifying review scheduling. Imported custom cards without a matching
-course/English gloss can still show their original learner-supplied translation.
+The existing Italian dialogue answer "Sono dalla Polonia" is retained because
+Italian choices and grading are outside the translation scope. Arabic theory
+teaches the natural country-origin expression "Vengo dalla Polonia". Nothing in
+this pilot changes that inherited accepted choice.
 
-As before, switching languages rerenders the current view: unsent exercise field
-values are not a saved attempt. Finish an answer before changing language.
+## Direction and learner state
+
+Arabic explanations, meanings, prompts and feedback are RTL. Italian sentences,
+choices, conjugations, token banks, recordings and answer inputs remain LTR.
+Inline Italian in Arabic prose uses isolated bdi elements where HTML is supported.
+Grammar cell direction follows its actual text; mixed cells isolate Italian.
+Matching may pair Italian with Arabic meanings or Italian feminine forms, so
+the right column follows its actual language rather than an Arabic assumption.
+Dynamic dialogue turns retain Italian LTR choices and the actual explanation
+language. Untranslated lessons retain English LTR explanations.
+
+Progress stays under linguai.italiano.v2, schema 2. IDs, scores, review schedules,
+Italian card keys and drafts keep their existing contract. Arabic glosses are
+stored under tr.ar, never over tr.en. Unit declarations do not enter vocabulary
+lookup as lesson IDs. Language switching preserves recorded learning progress.
+As before, switching languages redraws the view: unsent exercise inputs are not
+a saved attempt, so finish an answer before changing language.
 
 ## Verification
 
@@ -64,14 +73,21 @@ values are not a saved attempt. Finish an answer before changing language.
 - node scripts/validate.mjs ar (also pl/en/es/fr/de)
 - npm run check:precache and npm run check:swversion
 - npm run test:dom
+- npm run test:mutations and node scripts/coverage.mjs --min 99
 
-Focused Arabic tests cover complete lesson content, strict negative parity cases,
-atomic fallback, language cycling, unchanged Italian/answers, review gloss storage,
-all nine real exercises, Italian audio, completion and progress reload. Browser
-checks include 1440px/390px, RTL/LTR, overflow and axe AA. The existing Arabic pilot
-tests also cover navigation, all languages and supporting routes.
+Focused tests verify all 68 new exercise mappings, complete text, unit metadata,
+unchanged neutral Italian/answers, atomic failure, Arabic-English-Arabic and
+all existing language restoration, gloss storage and learner state. Browser
+tests exercise all new lessons and assessments at 1440px and 390px, including
+wrong feedback, fresh retry, successful completion, reload, Italian recordings,
+keyboard controls, RTL/LTR, horizontal overflow and axe AA checks.
 
-The service-worker shell fingerprint is regenerated with the existing
-node scripts/check_swversion.mjs --napraw command when cached assets change.
-No runtime dependency, external translation API, account/database, licensing,
-attribution or deployment change is involved.
+Run CPU-heavy gates before browser verification. Prior 30-second first-lesson
+timeouts occurred near final reload/language switching while mutation checks ran
+concurrently; the unchanged cases passed repeated isolated runs. Preserve their
+assertions and inspect traces rather than masking failures with arbitrary sleeps.
+
+Refresh the existing shell fingerprint with
+node scripts/check_swversion.mjs --napraw after cached files change.
+No runtime dependency, account/database, licensing, attribution or deployment
+change is involved.
