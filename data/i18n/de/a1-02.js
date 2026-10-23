@@ -396,7 +396,7 @@ LINGUAI.addStrings("de", {
     exercises: [
       { q: "„Le scarpe ___.\" (rot)" },
       { q: "„I pantaloni ___.\" (grün)" },
-      { q: "Wähl die Form von „quello\".", items: [, , , ] },
+      { q: "Wähl die Form von „quello\".", items: ["", "", "", ""] },
       { q: "Welche Zahl ist „duemilatrecento\"?", opts: ["230", "2300", "23000"] },
       { q: "„Sono ___ stanca.\" (sehr müde)", opts: ["molta", "molto", "molte"] },
       { q: "„Ci sono ___ persone.\" (viele Leute)" },

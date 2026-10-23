@@ -396,7 +396,7 @@ LINGUAI.addStrings("es", {
     exercises: [
       { q: "«Le scarpe ___.» (rojos)" },
       { q: "«I pantaloni ___.» (verdes)" },
-      { q: "Elige la forma de «quello».", items: [, , , ] },
+      { q: "Elige la forma de «quello».", items: ["", "", "", ""] },
       { q: "¿Qué número es «duemilatrecento»?", opts: ["230", "2300", "23000"] },
       { q: "«Sono ___ stanca.» (muy cansada)", opts: ["molta", "molto", "molte"] },
       { q: "«Ci sono ___ persone.» (mucha gente)" },

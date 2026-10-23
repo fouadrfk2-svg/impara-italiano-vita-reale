@@ -1292,5 +1292,740 @@ LINGUAI.addStrings("ar", {
         "tr": "اسمي آنا وأنا صحفية."
       }
     ]
+  },
+  "unit:a1-u03": {
+    "title": "الطعام والشراب وما يعجبك",
+    "grammarNote": "التعبير عن الإعجاب · الأفعال المنتهية بـ⁦-ere⁩ و⁦-ire⁩ · الكميات وأدوات التجزئة"
+  },
+  "lesson:a1-u03-l1": {
+    "theme": "الطعام واللقاءات",
+    "title": "ما يعجبك: piace أم piacciono؟",
+    "objectives": [
+      "التعبير عمّا يعجبك وما لا يعجبك",
+      "اختيار piace أو piacciono بحسب الشيء الذي يعجبك",
+      "سؤال الآخرين عمّا يعجبهم"
+    ],
+    "theory": [
+      {
+        "h": "ابدأ بمعنى «يُعجبني»",
+        "p": "<bdi lang=\"it\" dir=\"ltr\"><b>Mi piace la pizza.</b></bdi> تعني «تعجبني البيتزا». الشيء الذي يعجبك، هنا البيتزا، هو الذي يحدّد تصريف الفعل. أمّا <bdi lang=\"it\" dir=\"ltr\">mi</bdi> فتعني هنا «لي / بالنسبة إليّ». لا تبدأ هذه الجملة بـ<bdi lang=\"it\" dir=\"ltr\">io piaccio</bdi>؛ فذلك يغيّر المعنى إلى أنني أنا الذي أُعجب شخصًا آخر."
+      },
+      {
+        "h": "شيء مفرد أم أشياء في الجمع؟",
+        "p": "نقول <bdi lang=\"it\" dir=\"ltr\"><b>Mi piace il caffè.</b></bdi> «تعجبني القهوة»، لكن <bdi lang=\"it\" dir=\"ltr\"><b>Mi piacciono i dolci.</b></bdi> «تعجبني الحلويات». مع اسم مفرد نستخدم <bdi lang=\"it\" dir=\"ltr\">piace</bdi>، ومع اسم في الجمع نستخدم <bdi lang=\"it\" dir=\"ltr\">piacciono</bdi>. ومع فعل في المصدر نستخدم <bdi lang=\"it\" dir=\"ltr\">piace</bdi>: <bdi lang=\"it\" dir=\"ltr\">Mi piace cucinare.</bdi> «أحبّ الطبخ»."
+      },
+      {
+        "contrast": "يمكنك تقريب الفكرة إلى «يعجبني / تعجبني» في العربية: الشيء هو الذي يعجبك. لكن لا تنقل التذكير والتأنيث إلى الفعل الإيطالي هنا؛ فـ<bdi lang=\"it\" dir=\"ltr\">piace</bdi> تصلح مع اسم مفرد مذكّر أو مؤنّث. راقب المفرد والجمع: <bdi lang=\"it\" dir=\"ltr\">mi piace la pizza / mi piacciono le olive</bdi>. وقد يكون الشيء بعد الفعل في الإيطالية."
+      },
+      {
+        "h": "من الذي يعجبه الشيء؟",
+        "list": [
+          "<bdi lang=\"it\" dir=\"ltr\">mi piace</bdi> — يعجبني؛ <bdi lang=\"it\" dir=\"ltr\">ti piace</bdi> — يعجبك (مخاطبة غير رسمية).",
+          "<bdi lang=\"it\" dir=\"ltr\">gli piace</bdi> — يعجبه؛ <bdi lang=\"it\" dir=\"ltr\">le piace</bdi> — يعجبها.",
+          "<bdi lang=\"it\" dir=\"ltr\">ci piace</bdi> — يعجبنا؛ <bdi lang=\"it\" dir=\"ltr\">vi piace</bdi> — يعجبكم؛ <bdi lang=\"it\" dir=\"ltr\">gli piace</bdi> — يعجبهم. يُفهم المقصود من السياق.",
+          "مع اسم الشخص نضيف <bdi lang=\"it\" dir=\"ltr\">a</bdi>: <bdi lang=\"it\" dir=\"ltr\">A Marco piace il pesce.</bdi> «يعجب ماركو السمك»."
+        ]
+      },
+      {
+        "trap": "للنفي نضع <bdi lang=\"it\" dir=\"ltr\"><b>non</b></bdi> قبل الضمير والفعل معًا: <bdi lang=\"it\" dir=\"ltr\"><b>Non mi piace il pesce.</b></bdi> «لا يعجبني السمك». لا نقول <bdi lang=\"it\" dir=\"ltr\">Mi non piace</bdi>."
+      }
+    ],
+    "grammar": {
+      "title": "تركيب piacere",
+      "note": "ضمير الشخص + piace أو piacciono + الشيء الذي يعجبه",
+      "table": {
+        "head": [
+          "ما الذي يعجبك؟",
+          "الصيغة",
+          "مثال"
+        ],
+        "rows": [
+          [
+            "شيء مفرد",
+            "piace",
+            "Mi piace il vino rosso."
+          ],
+          [
+            "أشياء في الجمع",
+            "piacciono",
+            "Mi piacciono i dolci."
+          ],
+          [
+            "نشاط / فعل في المصدر",
+            "piace",
+            "Mi piace cucinare."
+          ],
+          [
+            "النفي",
+            "non … piace",
+            "Non mi piace il pesce crudo."
+          ],
+          [
+            "سؤال",
+            "ti piace?",
+            "Ti piace l'aperitivo?"
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "تعجبني القهوة كثيرًا."
+        },
+        {
+          "tr": "هل تعجبك مشروبات السبرتس؟"
+        },
+        {
+          "tr": "لا تعجبنا الجعة الدافئة."
+        },
+        {
+          "tr": "هي تحبّ الرقص."
+        },
+        {
+          "tr": "يعجب ماركو السمك.",
+          "note": "قبل اسم الشخص نضع حرف الجر a."
+        },
+        {
+          "tr": "أودّ أن أجرّب.",
+          "note": "صيغة مهذّبة من الشرط؛ احفظها الآن كتعبير كامل."
+        }
+      ]
+    },
+    "vocab": [
+      "أبيريتيفو: مشروب مع مقبّلات قبل العشاء",
+      "سبرتس: مشروب إيطالي كحولي",
+      "نبيذ أحمر / أبيض",
+      "جعة / بيرة",
+      "زيتون",
+      "رقائق بطاطا أو بطاطا مقلية، بحسب السياق",
+      "مقبّلات أو وجبات خفيفة مالحة",
+      "لحم خنزير مُملّح ومُعتّق",
+      "جبن",
+      "حلويات",
+      "سمك",
+      "لحم",
+      "يطبخ",
+      "يتذوّق / يجرّب"
+    ],
+    "culture": {
+      "title": "في إيطاليا: الأبيريتيفو ليس عشاءً بالضرورة",
+      "text": "<p><bdi lang=\"it\" dir=\"ltr\"><b>Aperitivo</b></bdi> لقاء قبل العشاء، غالبًا نحو السادسة والنصف إلى الثامنة والنصف مساءً. قد تجد مشروبًا مع مقبّلات بسعر مثل 7–12 يورو، لكن الوقت والسعر وما يشمله الطلب تختلف بحسب المدينة والمكان؛ اسأل عند الطلب.</p><p>في ميلانو وأماكن أخرى قد تسمع <bdi lang=\"it\" dir=\"ltr\"><i>apericena</i></bdi>، وهو أقرب إلى مشروب مع طعام يكفي لعشاء خفيف أو بوفيه. خذ كمية معتدلة وراعِ طريقة التقديم في المكان.</p><p>من المشروبات المعروفة <bdi lang=\"it\" dir=\"ltr\">spritz</bdi> مع <bdi lang=\"it\" dir=\"ltr\">Aperol</bdi> أو <bdi lang=\"it\" dir=\"ltr\">Campari</bdi>، و<bdi lang=\"it\" dir=\"ltr\">negroni</bdi> والنبيذ والجعة. هذه أسماء ستصادفها في القوائم؛ يمكنك اختيار ما يناسبك والسؤال عن مشروب غير كحولي.</p>"
+    },
+    "exercises": [
+      {
+        "q": "في الجملة <bdi lang=\"it\" dir=\"ltr\">«___ piacciono le olive.»</bdi>، لماذا استُعملت piacciono بدل piace؟",
+        "opts": [
+          "لأن الكلام عن عدّة أشخاص",
+          "لأن le olive اسم في الجمع",
+          "لأن الفعل في الماضي"
+        ],
+        "why": "الفعل يوافق الشيء الذي يعجب الشخص. <bdi lang=\"it\" dir=\"ltr\">Le olive</bdi> في الجمع، لذلك نستخدم <bdi lang=\"it\" dir=\"ltr\">piacciono</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Mi ___ il vino rosso.</bdi> (يعجبني النبيذ الأحمر.)",
+        "why": "الاسم <bdi lang=\"it\" dir=\"ltr\">il vino</bdi> مفرد، لذلك نستخدم <bdi lang=\"it\" dir=\"ltr\">piace</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Non mi ___ i film horror.</bdi> (لا تعجبني أفلام الرعب.)",
+        "why": "<bdi lang=\"it\" dir=\"ltr\">I film</bdi> في الجمع؛ لذلك نقول <bdi lang=\"it\" dir=\"ltr\">piacciono</bdi>."
+      },
+      {
+        "q": "أيّ جملة منفيّة صحيحة؟",
+        "opts": [
+          "Mi non piace il pesce.",
+          "Non mi piace il pesce.",
+          "Mi piace non il pesce."
+        ],
+        "why": "تأتي <bdi lang=\"it\" dir=\"ltr\">non</bdi> قبل مجموعة الضمير والفعل: <bdi lang=\"it\" dir=\"ltr\">Non mi piace</bdi>."
+      },
+      {
+        "q": "كيف تقول «يعجب ماركو السمك»؟",
+        "opts": [
+          "Marco piace il pesce",
+          "A Marco piace il pesce",
+          "Marco piacciono pesce"
+        ],
+        "why": "نضع <bdi lang=\"it\" dir=\"ltr\">a</bdi> قبل اسم الشخص: <bdi lang=\"it\" dir=\"ltr\">A Marco</bdi>. والسمك هنا اسم مفرد، فنستخدم <bdi lang=\"it\" dir=\"ltr\">piace</bdi>."
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «أحبّ الطبخ.»",
+        "why": "مع فعل في المصدر نستخدم <bdi lang=\"it\" dir=\"ltr\">piace</bdi>: <bdi lang=\"it\" dir=\"ltr\">Mi piace cucinare.</bdi>"
+      },
+      {
+        "q": "صِل كل تعبير بالشخص المقصود.",
+        "pairs": [
+          "يعجبني / بالنسبة إليّ",
+          "يعجبك / بالنسبة إليك",
+          "يعجبها / بالنسبة إليها",
+          "يعجبنا / بالنسبة إلينا"
+        ]
+      },
+      {
+        "q": "أكمل الحوار أثناء الأبيريتيفو.",
+        "tr": "— هل يعجبك السبرتس؟ — نعم، كثيرًا! لكن لا يعجبني الزيتون."
+      },
+      {
+        "tr": "تعجبني الأجبان الإيطالية كثيرًا."
+      },
+      {
+        "tr": "يعجبني الأبيريتيفو، لكن لا يعجبني الزيتون."
+      }
+    ]
+  },
+  "lesson:a1-u03-l2": {
+    "theme": "أساسيات القواعد",
+    "title": "أفعال ⁦-ERE⁩ ووجود الأشياء: c’è وci sono",
+    "objectives": [
+      "تصريف الأفعال المنتظمة المنتهية بـ⁦-ere⁩ في الحاضر",
+      "استعمال c’è وci sono مع المفرد والجمع",
+      "وصف ما يوجد في مكان ما"
+    ],
+    "theory": [
+      {
+        "h": "النمط قريب من أفعال ⁦-are⁩",
+        "p": "نحذف <bdi lang=\"it\" dir=\"ltr\"><b>-ere</b></bdi> ونضيف <bdi lang=\"it\" dir=\"ltr\"><b>-o, -i, -e, -iamo, -ete, -ono</b></bdi>. مثلًا <bdi lang=\"it\" dir=\"ltr\">prendere → prendo, prendi, prende</bdi>. تختلف ثلاث نهايات عن نمط <bdi lang=\"it\" dir=\"ltr\">-are</bdi>: <bdi lang=\"it\" dir=\"ltr\">-e, -ete, -ono</bdi>. وتبقى صيغة «نحن» <bdi lang=\"it\" dir=\"ltr\">-iamo</bdi> مشتركة بين الأنماط الثلاثة المنتظمة."
+      },
+      {
+        "h": "لا تتوقّع انتظام كل فعل",
+        "p": "نتدرّب هنا على أفعال منتظمة في الحاضر مثل <bdi lang=\"it\" dir=\"ltr\">prendere, leggere, scrivere</bdi>. توجد أفعال أخرى غير منتظمة، مثل <bdi lang=\"it\" dir=\"ltr\">bere → bevo</bdi> و<bdi lang=\"it\" dir=\"ltr\">rimanere → rimango</bdi> و<bdi lang=\"it\" dir=\"ltr\">scegliere → scelgo</bdi>. احفظ صيغها عندما تصادفها؛ لا تغيّر النمط المنتظم بسببها. وقد تختلف صيغ بعض الأفعال في أزمنة أخرى أيضًا."
+      },
+      {
+        "h": "للقول إن شيئًا موجود",
+        "p": "<bdi lang=\"it\" dir=\"ltr\"><b>C’è</b></bdi> تعني «يوجد / توجد» مع اسم مفرد: <bdi lang=\"it\" dir=\"ltr\">C’è un tavolo libero.</bdi> «توجد طاولة شاغرة». ومع اسم في الجمع نقول <bdi lang=\"it\" dir=\"ltr\"><b>ci sono</b></bdi>: <bdi lang=\"it\" dir=\"ltr\">Ci sono due posti.</bdi> «يوجد مكانان». في العربية قد نستخدم «هناك» في الحالتين، أمّا الإيطالية فتُظهر الفرق بين المفرد والجمع في الصيغة."
+      },
+      {
+        "trap": "فرّق بين وصف شيء وذكر وجوده: <bdi lang=\"it\" dir=\"ltr\">Il ristorante <b>è</b> chiuso.</bdi> «المطعم مغلق»، أمّا <bdi lang=\"it\" dir=\"ltr\"><b>C’è</b> un ristorante qui vicino.</bdi> فتعني «يوجد مطعم قريب من هنا». لا تحذف <bdi lang=\"it\" dir=\"ltr\">c’</bdi> عندما يكون المعنى «يوجد»."
+      }
+    ],
+    "grammar": {
+      "title": "نمط ⁦-ERE⁩: leggere وprendere",
+      "table": {
+        "head": [
+          "الضمير",
+          "النهاية",
+          "تصريف leggere",
+          "تصريف prendere"
+        ],
+        "rows": [
+          [
+            "io",
+            "-o",
+            "leggo",
+            "prendo"
+          ],
+          [
+            "tu",
+            "-i",
+            "leggi",
+            "prendi"
+          ],
+          [
+            "lui / lei / Lei",
+            "-e",
+            "legge",
+            "prende"
+          ],
+          [
+            "noi",
+            "-iamo",
+            "leggiamo",
+            "prendiamo"
+          ],
+          [
+            "voi",
+            "-ete",
+            "leggete",
+            "prendete"
+          ],
+          [
+            "loro",
+            "-ono",
+            "leggono",
+            "prendono"
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "سآخذ قهوة، شكرًا.",
+          "note": "يمكن استعمال prendere عند طلب طعام أو شراب."
+        },
+        {
+          "tr": "هل تقرأ قائمة الطعام؟"
+        },
+        {
+          "tr": "لا أرى النادل."
+        },
+        {
+          "tr": "هل توجد طاولة شاغرة؟"
+        },
+        {
+          "tr": "يوجد مكانان عند المنضدة."
+        },
+        {
+          "tr": "نكتب الاسم على الحجز."
+        }
+      ]
+    },
+    "vocab": [
+      "يأخذ / يطلب طعامًا أو شرابًا",
+      "يقرأ",
+      "يكتب",
+      "يرى",
+      "يسأل / يطلب",
+      "يجيب",
+      "يضع",
+      "يغلق",
+      "يوجد أو توجد مع المفرد / مع الجمع",
+      "مكان / مقعد",
+      "شاغر / مشغول",
+      "قريب من هنا"
+    ],
+    "exercises": [
+      {
+        "why": "راقب النهايات <bdi lang=\"it\" dir=\"ltr\">-e, -ete, -ono</bdi>؛ فهي مواضع الاختلاف عن نمط <bdi lang=\"it\" dir=\"ltr\">-are</bdi> في الحاضر."
+      },
+      {
+        "q": "أيّ خيار يذكر نهاية صيغة «نحن» noi المشتركة بين أنماط التصريف الثلاثة المنتظمة؟",
+        "opts": [
+          "\u2066-o\u2069 في صيغة \u2066io\u2069",
+          "\u2066-iamo\u2069 في صيغة \u2066noi\u2069",
+          "\u2066-ono\u2069 في صيغة \u2066loro\u2069"
+        ],
+        "why": "نهاية <bdi lang=\"it\" dir=\"ltr\">noi</bdi> هي <bdi lang=\"it\" dir=\"ltr\">-iamo</bdi>: <bdi lang=\"it\" dir=\"ltr\">parliamo, prendiamo, dormiamo</bdi>. ونهاية <bdi lang=\"it\" dir=\"ltr\">-o</bdi> مشتركة في صيغة io أيضًا، لكن السؤال هنا عن noi."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">___ un tavolo libero?</bdi> (هل توجد طاولة شاغرة؟)",
+        "why": "طاولة واحدة، فنقول <bdi lang=\"it\" dir=\"ltr\">c’è</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">___ tre persone in fila.</bdi> (يوجد ثلاثة أشخاص في الطابور.)",
+        "why": "نتحدّث عن جمع، لذلك نستخدم <bdi lang=\"it\" dir=\"ltr\">ci sono</bdi>."
+      },
+      {
+        "q": "ما الفرق بين <bdi lang=\"it\" dir=\"ltr\">Il bar è chiuso</bdi> و<bdi lang=\"it\" dir=\"ltr\">C’è un bar qui vicino</bdi>؟",
+        "opts": [
+          "لا فرق؛ لهما المعنى نفسه",
+          "الأولى تصف المقهى، والثانية تذكر وجود مقهى قريب",
+          "الثانية في الماضي"
+        ],
+        "why": "<bdi lang=\"it\" dir=\"ltr\">è</bdi> تصف المقهى بأنه مغلق، و<bdi lang=\"it\" dir=\"ltr\">c’è</bdi> تذكر وجود مقهى في المكان."
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «سآخذ جعة، وأنت؟»",
+        "why": "نستخدم <bdi lang=\"it\" dir=\"ltr\">prendo</bdi> عند اختيار الطلب: <bdi lang=\"it\" dir=\"ltr\">Prendo una birra, e tu?</bdi>."
+      },
+      {
+        "q": "اختر كل الأفعال المنتهية بـ⁦-ere⁩.",
+        "opts": [
+          "prendere",
+          "abitare",
+          "scrivere",
+          "dormire",
+          "chiudere"
+        ]
+      },
+      {
+        "tr": "لا أرى النادل."
+      },
+      {
+        "tr": "هل توجد طاولة شاغرة لشخصين؟"
+      },
+      {
+        "tr": "سنأخذ مشروبَي سبرتس، من فضلك."
+      }
+    ]
+  },
+  "lesson:a1-u03-l3": {
+    "theme": "أساسيات القواعد",
+    "title": "أفعال ⁦-IRE⁩: نمطان في الحاضر",
+    "objectives": [
+      "تصريف dormire وcapire في الحاضر",
+      "تمييز الأفعال التي تُضاف إليها ⁦-isc-⁩",
+      "التعبير عن تفضيل باستعمال preferire"
+    ],
+    "theory": [
+      {
+        "h": "نهاية واحدة ونمطان",
+        "p": "لأفعال <bdi lang=\"it\" dir=\"ltr\"><b>-ire</b></bdi> نمطان نتعلّمهما هنا. أفعال مثل <bdi lang=\"it\" dir=\"ltr\">dormire, partire, sentire, aprire, offrire</bdi> تأخذ النهايات مباشرةً. وأفعال مثل <bdi lang=\"it\" dir=\"ltr\">capire, finire, preferire, pulire, spedire</bdi> تضيف <bdi lang=\"it\" dir=\"ltr\"><b>-isc-</b></bdi> في صيغ <bdi lang=\"it\" dir=\"ltr\">io, tu, lui/lei, loro</bdi> فقط. لا نضيفها مع <bdi lang=\"it\" dir=\"ltr\">noi</bdi> أو <bdi lang=\"it\" dir=\"ltr\">voi</bdi>."
+      },
+      {
+        "h": "احفظ النمط مع الفعل",
+        "p": "لا تكفي نهاية <bdi lang=\"it\" dir=\"ltr\">-ire</bdi> وحدها لتعرف النمط. احفظ <bdi lang=\"it\" dir=\"ltr\">capire → capisco</bdi> مقابل <bdi lang=\"it\" dir=\"ltr\">dormire → dormo</bdi>. وقد تجد في القاموس إشارة <bdi lang=\"it\" dir=\"ltr\">(-isc-)</bdi> بجانب أفعال مثل <bdi lang=\"it\" dir=\"ltr\">gestire, inserire, garantire</bdi>. في العربية لا يوجد تغيير مطابق لهذا المقطع، فلا تبحث عن ترجمته؛ هو جزء من تصريف الفعل الإيطالي."
+      },
+      {
+        "tip": "تذكّر الترتيب: <bdi lang=\"it\" dir=\"ltr\"><b>capisco, capisci, capisce</b> — capiamo, capite — <b>capiscono</b></bdi>. راقب أن الصيغتين <bdi lang=\"it\" dir=\"ltr\">capiamo</bdi> و<bdi lang=\"it\" dir=\"ltr\">capite</bdi> بلا <bdi lang=\"it\" dir=\"ltr\">-isc-</bdi>."
+      },
+      {
+        "h": "قل ما تفضّله",
+        "p": "<bdi lang=\"it\" dir=\"ltr\"><b>Preferisco</b></bdi> تعني «أفضّل». يمكن أن يأتي بعدها اسم: <bdi lang=\"it\" dir=\"ltr\">Preferisco il vino bianco.</bdi> «أفضّل النبيذ الأبيض»، أو فعل في المصدر: <bdi lang=\"it\" dir=\"ltr\">Preferisco restare a casa.</bdi> «أفضّل البقاء في البيت». احفظها لتوضيح اختيارك في متجر أو مقهى."
+      }
+    ],
+    "grammar": {
+      "title": "dormire دون ⁦-isc-⁩ وcapire معها",
+      "table": {
+        "head": [
+          "الضمير",
+          "تصريف dormire",
+          "تصريف capire",
+          "المعنى بالعربية"
+        ],
+        "rows": [
+          [
+            "io",
+            "dormo",
+            "capisco",
+            "أنام / أفهم"
+          ],
+          [
+            "tu",
+            "dormi",
+            "capisci",
+            "تنام / تفهم"
+          ],
+          [
+            "lui / lei",
+            "dorme",
+            "capisce",
+            "ينام أو تنام / يفهم أو تفهم"
+          ],
+          [
+            "noi",
+            "dormiamo",
+            "capiamo",
+            "ننام / نفهم"
+          ],
+          [
+            "voi",
+            "dormite",
+            "capite",
+            "تنامون / تفهمون"
+          ],
+          [
+            "loro",
+            "dormono",
+            "capiscono",
+            "ينامون / يفهمون"
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "لا أفهم، هل يمكنك أن تعيد الكلام؟"
+        },
+        {
+          "tr": "أفضّل طاولة في الخارج."
+        },
+        {
+          "tr": "في أيّ ساعة تنتهي من العمل؟"
+        },
+        {
+          "tr": "يفتح المتجر في التاسعة.",
+          "note": "الفعل aprire لا يأخذ ⁦-isc-⁩ في الحاضر."
+        },
+        {
+          "tr": "ننطلق صباح الغد."
+        },
+        {
+          "tr": "هم يفهمون كل شيء."
+        }
+      ]
+    },
+    "vocab": [
+      "يفهم",
+      "ينتهي / ينهي",
+      "يفضّل",
+      "ينظّف",
+      "يرسل",
+      "ينام",
+      "يغادر / ينطلق",
+      "يفتح",
+      "يقدّم / يدعو شخصًا على حسابه، بحسب السياق",
+      "يسمع / يشعر",
+      "يتبع / يتابع",
+      "هل يمكنك أن تعيد الكلام؟ (مخاطبة مهذّبة)"
+    ],
+    "exercises": [
+      {
+        "why": "أضف <bdi lang=\"it\" dir=\"ltr\">-isc-</bdi> مع <bdi lang=\"it\" dir=\"ltr\">io, tu, lui/lei, loro</bdi>، ولا تضفها مع <bdi lang=\"it\" dir=\"ltr\">noi, voi</bdi>."
+      },
+      {
+        "why": "الفعل <bdi lang=\"it\" dir=\"ltr\">dormire</bdi> لا يأخذ <bdi lang=\"it\" dir=\"ltr\">-isc-</bdi>: <bdi lang=\"it\" dir=\"ltr\">dormo, dorme, dormono</bdi>."
+      },
+      {
+        "q": "أيّ فعل يأخذ المقطع ⁦-isc-⁩ في بعض صيغ الحاضر؟",
+        "opts": [
+          "partire",
+          "preferire",
+          "aprire"
+        ],
+        "why": "الفعل preferire يتبع نمط الزيادة في أربع صيغ: <bdi lang=\"it\" dir=\"ltr\">preferisco, preferisci, preferisce, preferiamo, preferite, preferiscono</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Noi non ___ bene.</bdi> (نحن لا نفهم جيدًا.)",
+        "hint": "صيغة noi لا تأخذ المقطع ⁦-isc-⁩.",
+        "why": "نقول <bdi lang=\"it\" dir=\"ltr\">capiamo</bdi> بلا <bdi lang=\"it\" dir=\"ltr\">-isc-</bdi> مع noi."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Loro ___ alle sette.</bdi> (هم ينتهون في السابعة؛ استعمل finire.)",
+        "why": "صيغة <bdi lang=\"it\" dir=\"ltr\">loro</bdi> من <bdi lang=\"it\" dir=\"ltr\">finire</bdi> هي <bdi lang=\"it\" dir=\"ltr\">finiscono</bdi>."
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «أفضّل طاولة في الخارج.»"
+      },
+      {
+        "q": "اختر كل الصيغ التي تحتوي على المقطع ⁦-isc-⁩.",
+        "opts": [
+          "capisco",
+          "capiamo",
+          "finisce",
+          "dormite",
+          "puliscono"
+        ]
+      },
+      {
+        "tr": "لا أفهم، هل يمكنك أن تعيد الكلام؟"
+      },
+      {
+        "tr": "أفضّل المغادرة مبكّرًا صباح الغد."
+      },
+      {
+        "tr": "عفوًا، لا أفهم. هل يمكنك أن تعيد الكلام؟"
+      }
+    ]
+  },
+  "lesson:a1-u03-l4": {
+    "theme": "الطعام والتسوّق",
+    "title": "بعض الخبز والماء: الكميات وأدوات التجزئة",
+    "objectives": [
+      "التعبير عن كمية غير محدّدة باستعمال del وdella وdei وغيرها",
+      "استعمال un po’ di وun chilo di لذكر كمية",
+      "طلب مواد غذائية من متجر"
+    ],
+    "theory": [
+      {
+        "h": "كمية غير محدّدة",
+        "p": "عندما تريد بعضًا من شيء، يمكنك استعمال «أداة التجزئة»: <bdi lang=\"it\" dir=\"ltr\"><b>Vorrei del pane.</b></bdi> «أودّ بعض الخبز». تتكوّن الصيغ من <bdi lang=\"it\" dir=\"ltr\">di</bdi> مع أداة التعريف. وفي الجمع <bdi lang=\"it\" dir=\"ltr\">dei pomodori</bdi> تعني «بعض الطماطم». لا نقصد خبزًا معيّنًا معروفًا للمخاطب ولا عددًا محدّدًا."
+      },
+      {
+        "h": "اربط الصيغة بأداة الاسم",
+        "list": [
+          "<bdi lang=\"it\" dir=\"ltr\">di + il = <b>del</b> pane; di + lo = <b>dello</b> zucchero</bdi> — بعض الخبز؛ بعض السكر.",
+          "<bdi lang=\"it\" dir=\"ltr\">di + l’ = <b>dell’</b>acqua; di + la = <b>della</b> carne</bdi> — بعض الماء؛ بعض اللحم.",
+          "<bdi lang=\"it\" dir=\"ltr\">di + i = <b>dei</b> pomodori; di + gli = <b>degli</b> spinaci; di + le = <b>delle</b> mele</bdi> — بعض الطماطم والسبانخ والتفاح."
+        ]
+      },
+      {
+        "h": "عندما تذكر مقدارًا",
+        "p": "يمكنك قول <bdi lang=\"it\" dir=\"ltr\"><b>un po’ di</b></bdi> «قليل من»، أو ذكر مقياس: <bdi lang=\"it\" dir=\"ltr\">un chilo di, un etto di, mezzo litro di</bdi> «كيلوغرام من، مئة غرام من، نصف لتر من». بعد المقياس نستخدم <bdi lang=\"it\" dir=\"ltr\">di</bdi>: <bdi lang=\"it\" dir=\"ltr\">mezzo litro di latte</bdi>. ومع النفي يمكنك ببساطة قول <bdi lang=\"it\" dir=\"ltr\">Non ho pane.</bdi> «ليس لديّ خبز»؛ لا يلزم استعمال أداة التجزئة في كل جملة."
+      },
+      {
+        "contrast": "قد تقول في العربية «أريد خبزًا» أو «أريد بعض الخبز». في الإيطالية <bdi lang=\"it\" dir=\"ltr\">Vorrei del pane</bdi> صيغة مفيدة لطلب كمية غير محدّدة. لا تعامل <bdi lang=\"it\" dir=\"ltr\">del</bdi> كأنها «الـ» العربية؛ المعنى هنا «بعض»، والصيغة تتغيّر بحسب جنس الاسم وعدده وبدايته. ويمكن أن تسمع أيضًا اسمًا بلا أداة في بعض السياقات."
+      },
+      {
+        "tip": "<bdi lang=\"it\" dir=\"ltr\"><b>Un etto</b></bdi> يساوي 100 غرام. لذلك <bdi lang=\"it\" dir=\"ltr\"><b>due etti</b></bdi> تساوي 200 غرام. ستسمع هذا المقياس عند منضدة الأجبان واللحوم؛ لا يعني كيلوغرامًا."
+      }
+    ],
+    "grammar": {
+      "title": "أدوات التجزئة وتعبيرات الكمية",
+      "table": {
+        "head": [
+          "نوع الاسم وبدايته",
+          "الصيغة",
+          "مثال"
+        ],
+        "rows": [
+          [
+            "مذكّر يبدأ بحرف ساكن عادي",
+            "del",
+            "del pane"
+          ],
+          [
+            "مذكّر يبدأ بـs مع ساكن أو z",
+            "dello",
+            "dello zucchero"
+          ],
+          [
+            "اسم مفرد يبدأ بحرف متحرّك",
+            "dell'",
+            "dell'acqua, dell'olio"
+          ],
+          [
+            "مؤنّث يبدأ بحرف ساكن",
+            "della",
+            "della carne"
+          ],
+          [
+            "جمع مذكّر",
+            "dei / degli",
+            "dei pomodori, degli spinaci"
+          ],
+          [
+            "جمع مؤنّث",
+            "delle",
+            "delle mele"
+          ]
+        ]
+      },
+      "examples": [
+        {
+          "tr": "أودّ بعض الخبز، من فضلك."
+        },
+        {
+          "tr": "أشتري بعض التفاح والعنب."
+        },
+        {
+          "tr": "قليل من الملح، لا كثيرًا."
+        },
+        {
+          "tr": "مئتا غرام من لحم الخنزير المُملّح والمُعتّق غير المطهوّ."
+        },
+        {
+          "tr": "نصف لتر من الحليب."
+        },
+        {
+          "tr": "ليس لديّ سكر في البيت.",
+          "note": "الاسم هنا يأتي بلا أداة تجزئة مع النفي."
+        }
+      ]
+    },
+    "vocab": [
+      "خبز",
+      "حليب",
+      "ماء",
+      "سكر",
+      "ملح",
+      "زيت / زيت زيتون",
+      "طماطم",
+      "تفاح",
+      "مئة غرام",
+      "كيلوغرام",
+      "قليل من",
+      "نصف لتر",
+      "هذا يكفي",
+      "كم تريد من الكمية؟ (مخاطبة مهذّبة)"
+    ],
+    "exercises": [
+      {
+        "q": "أيّ جملة تستخدم أداة التجزئة لطلب بعض الخبز دون تحديد كمية؟",
+        "opts": [
+          "Vorrei il pane",
+          "Vorrei del pane",
+          "Vorrei un pane"
+        ],
+        "why": "<bdi lang=\"it\" dir=\"ltr\">del</bdi> تعبّر هنا عن كمية غير محدّدة: <bdi lang=\"it\" dir=\"ltr\">Vorrei del pane</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Compro ___ acqua.</bdi> (أشتري بعض الماء.)",
+        "why": "كلمة <bdi lang=\"it\" dir=\"ltr\">acqua</bdi> تبدأ بحرف متحرّك، فتكون الصيغة <bdi lang=\"it\" dir=\"ltr\">di + l’ = dell’</bdi>."
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Vorrei ___ mele.</bdi> (أودّ بعض التفاح.)",
+        "why": "<bdi lang=\"it\" dir=\"ltr\">mele</bdi> جمع مؤنّث: <bdi lang=\"it\" dir=\"ltr\">di + le = delle</bdi>."
+      },
+      {
+        "q": "اختر أداة التجزئة المناسبة لكل اسم.",
+        "items": [
+          "خبز",
+          "سكر",
+          "لحم",
+          "زيت",
+          "طماطم",
+          "سبانخ"
+        ]
+      },
+      {
+        "q": "ما مقدار <bdi lang=\"it\" dir=\"ltr\">due etti</bdi>؟",
+        "opts": [
+          "20 غرامًا",
+          "200 غرام",
+          "كيلوغرامان"
+        ],
+        "why": "كل <bdi lang=\"it\" dir=\"ltr\">etto</bdi> يساوي 100 غرام؛ إذن <bdi lang=\"it\" dir=\"ltr\">due etti</bdi> يساوي 200 غرام."
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «نصف لتر من الحليب، من فضلك.»"
+      },
+      {
+        "q": "أنت عند منضدة المواد الغذائية في متجر الحيّ.",
+        "setting": "متجر أغذية صغير، عند منضدة الأجبان واللحوم؛ هذا حوار تدريبي.",
+        "lines": [
+          {
+            "tr": "صباح الخير! تفضّل، ماذا تريد؟"
+          },
+          {
+            "tr": "اطلب مئتَي غرام من لحم الخنزير المذكور في نموذج الحوار.",
+            "answerTr": "مئتا غرام من لحم الخنزير، من فضلك."
+          },
+          {
+            "tr": "تفضّل. هل تريد شيئًا آخر؟"
+          },
+          {
+            "tr": "اطلب بعض الخبز أيضًا.",
+            "answerTr": "وبعض الخبز أيضًا، شكرًا."
+          }
+        ]
+      },
+      {
+        "q": "أكمل قائمة المشتريات بأدوات التجزئة.",
+        "tr": "أشتري بعض الخبز والماء والطماطم."
+      },
+      {
+        "tr": "أودّ كيلوغرامًا من الطماطم وقليلًا من الريحان."
+      },
+      {
+        "tr": "مئتا غرام من الجبن، من فضلك. هذا يكفي."
+      }
+    ]
+  },
+  "lesson:a1-u03-test": {
+    "theme": "اختبار",
+    "title": "اختبار الوحدة الثالثة",
+    "objectives": [
+      "مراجعة piacere وتصريف أفعال ⁦-ere⁩ و⁦-ire⁩ وأدوات التجزئة"
+    ],
+    "theory": [
+      {
+        "p": "عشرة أسئلة. تنجح عند الإجابة الصحيحة عن 70٪ على الأقل. حاول من الذاكرة، ثم راجع الشرح الذي تحتاج إليه."
+      }
+    ],
+    "exercises": [
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Mi ___ gli spaghetti.</bdi> (تعجبني السباغيتي.)"
+      },
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">Non mi ___ il pesce crudo.</bdi> (لا يعجبني السمك النيّئ.)"
+      },
+      {
+        "q": "كيف تقول «يعجب ماركو النبيذ»؟",
+        "opts": [
+          "Marco piace il vino",
+          "A Marco piace il vino",
+          "Marco piacciono il vino"
+        ]
+      },
+      {},
+      {},
+      {
+        "q": "أكمل: <bdi lang=\"it\" dir=\"ltr\">___ due posti liberi.</bdi> (يوجد مكانان شاغران.)"
+      },
+      {
+        "q": "اختر أداة التجزئة المناسبة.",
+        "items": [
+          "ماء",
+          "لحم",
+          "خبز",
+          "تفاح"
+        ]
+      },
+      {
+        "q": "ترجم إلى الإيطالية: «أفضّل النبيذ الأبيض.»"
+      },
+      {
+        "tr": "يوجد بعض الزيتون والجبن."
+      },
+      {
+        "tr": "يعجبني الأبيريتيفو الإيطالي كثيرًا."
+      }
+    ]
   }
 });

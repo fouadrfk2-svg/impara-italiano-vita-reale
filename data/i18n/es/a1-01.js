@@ -1292,7 +1292,7 @@ LINGUAI.addStrings("es", {
       {  },
       {  },
       { q: "«___ due posti liberi.» (Hay dos sitios libres.)" },
-      { q: "El artículo partitivo:", items: [, , , ] },
+      { q: "El artículo partitivo:", items: ["", "", "", ""] },
       { q: "«Prefiero el vino blanco.»" },
       { tr: "Hay aceitunas y queso." },
       { tr: "Me gusta mucho el aperitivo italiano." }

@@ -1290,7 +1290,7 @@ LINGUAI.addStrings("pl", {
       {  },
       {  },
       { q: "„___ due posti liberi.” (Są dwa wolne miejsca.)" },
-      { q: "Rodzajnik cząstkowy:", items: [, , , ] },
+      { q: "Rodzajnik cząstkowy:", items: ["", "", "", ""] },
       { q: "„Wolę białe wino.”" },
       { tr: "Są oliwki i ser." },
       { tr: "Bardzo lubię włoskie aperitivo." }

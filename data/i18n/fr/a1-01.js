@@ -1293,7 +1293,7 @@ LINGUAI.addStrings("fr", {
       {  },
       {  },
       { q: "« ___ due posti liberi. » (Il y a deux places libres.)" },
-      { q: "L'article partitif :", items: [, , , ] },
+      { q: "L'article partitif :", items: ["", "", "", ""] },
       { q: "« Je préfère le vin blanc. »" },
       { tr: "Il y a des olives et du fromage." },
       { tr: "J'aime beaucoup l'apéritif italien." }

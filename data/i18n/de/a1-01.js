@@ -1292,7 +1292,7 @@ LINGUAI.addStrings("de", {
       {  },
       {  },
       { q: "„___ due posti liberi.\" (Es gibt zwei freie Plätze.)" },
-      { q: "Der Teilungsartikel:", items: [, , , ] },
+      { q: "Der Teilungsartikel:", items: ["", "", "", ""] },
       { q: "„Ich bevorzuge Weißwein.\"" },
       { tr: "Es gibt Oliven und Käse." },
       { tr: "Der italienische Aperitivo gefällt mir sehr." }

@@ -396,7 +396,7 @@ LINGUAI.addStrings("fr", {
     exercises: [
       { q: "« Le scarpe ___. » (rouges)" },
       { q: "« I pantaloni ___. » (verts)" },
-      { q: "Choisis la forme de « quello ».", items: [, , , ] },
+      { q: "Choisis la forme de « quello ».", items: ["", "", "", ""] },
       { q: "Quel nombre est « duemilatrecento » ?", opts: ["230", "2300", "23000"] },
       { q: "« Sono ___ stanca. » (très fatiguée)", opts: ["molta", "molto", "molte"] },
       { q: "« Ci sono ___ persone. » (beaucoup de monde)" },

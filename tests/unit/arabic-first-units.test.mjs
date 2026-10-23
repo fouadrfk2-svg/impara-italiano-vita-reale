@@ -10,7 +10,7 @@ const plain=x=>JSON.parse(JSON.stringify(x));
 const ids=['a1-u01-l4','a1-u01-test','a1-u02-l1','a1-u02-l2','a1-u02-l3','a1-u02-l4','a1-u02-test'];
 const expectedKeys=['lesson:a1-u01-l1','lesson:a1-u01-l2','lesson:a1-u01-l3','unit:a1-u01','lesson:a1-u01-l4','lesson:a1-u01-test','unit:a1-u02','lesson:a1-u02-l1','lesson:a1-u02-l2','lesson:a1-u02-l3','lesson:a1-u02-l4','lesson:a1-u02-test'];
 function overlay(lang){let data;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n',lang,'a1-01.js'),'utf8'),{LINGUAI:{addStrings(_l,map){data=plain(map);}}});return data;}
-function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js','data/core/a1-01.js',...['en','pl','es','fr','de','ar'].map(lang=>'data/i18n/'+lang+'/a1-01.js')])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
+function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js','data/core/a1-01.js','data/core/a1-02.js',...['en','pl','es','fr','de','ar'].flatMap(lang=>['a1-01.js','a1-02.js'].map(file=>'data/i18n/'+lang+'/'+file))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
 function select(box,lang){box.Core.state.settings.lang=lang;box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
 const ar=overlay('ar'),en=overlay('en');
 const plans={
@@ -44,10 +44,10 @@ const plans={
  ]
 };
 
-test('exactly eight lessons, two unit tests and two unit summaries are declared complete',()=>{
+test('the first two translated units remain complete in the expanded manifest',()=>{
  const box=setup(),manifest=plain(box.sandbox.I18n.courseOverrides('ar'));
- assert.deepEqual(manifest,{'a1-01.js':expectedKeys});assert.deepEqual(Object.keys(ar),expectedKeys);
- const errors=[];checkPartialCourse(manifest,{'a1-01.js':ar},overlay('pl'),errors);assert.deepEqual(errors,[]);
+ for(const key of expectedKeys)assert.ok(manifest['a1-01.js'].includes(key));assert.deepEqual(Object.keys(ar),manifest['a1-01.js']);
+ const errors=[];checkPartialCourse(manifest,{'a1-01.js':ar,'a1-02.js':overlayFile('ar','a1-02.js')},{...overlay('pl'),...overlayFile('pl','a1-02.js')},errors);assert.deepEqual(errors,[]);
  assert.equal(ids.reduce((n,id)=>n+plans[id].length,0),68);
 });
 for(const id of ids){
@@ -104,21 +104,21 @@ test('whole units, tests and unrelated English fallback restore exactly across A
   assert.equal(arabic[0].title,ar['unit:a1-u01'].title);assert.equal(arabic[1].grammarNote,ar['unit:a1-u02'].grammarNote);
   for(const next of [lang,'ar',lang,'ar']){select(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}
  }
- select(box,'en');const other=snapshot()[2];select(box,'ar');assert.deepEqual(snapshot()[2],other);
+ select(box,'en');const other=snapshot()[4];select(box,'ar');assert.deepEqual(snapshot()[4],other);
 });
 test('each new lesson or assessment falls back as a whole when a key or exercise is missing',()=>{
  for(const id of ids)for(const damage of [p=>{delete p.title;},p=>p.exercises.pop(),p=>{p.theory=[];}]){
   const box=setup(),patch=overlay('ar');damage(patch['lesson:'+id]);box.sandbox.LINGUAI.addStrings('ar',patch);select(box,'es');select(box,'ar');
   assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',id),'en');assert.equal(box.Core.getLesson(id).lesson.title,en['lesson:'+id].title);
-  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),{'a1-01.js':patch},overlay('pl'),errors);assert.ok(errors.some(e=>e.includes(id)));
+  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),{'a1-01.js':patch,'a1-02.js':overlayFile('ar','a1-02.js')},{...overlay('pl'),...overlayFile('pl','a1-02.js')},errors);assert.ok(errors.some(e=>e.includes(id)));
  }
 });
 test('unit summaries fall back atomically and independently; undeclared units cannot override English',()=>{
  for(const key of ['unit:a1-u01','unit:a1-u02'])for(const damage of [p=>{delete p.grammarNote;},p=>{p.title=42;}]){
-  const box=setup(),patch=overlay('ar');damage(patch[key]);patch['unit:a1-u03']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);select(box,'es');select(box,'ar');
-  const u=box.Core.registry.byCode.A1.units.find(u=>'unit:'+u.id===key);assert.equal(u.title,en[key].title);assert.equal(u.grammarNote,en[key].grammarNote);assert.equal(box.Core.registry.byCode.A1.units[2].title,en['unit:a1-u03'].title);
+  const box=setup(),patch=overlay('ar');damage(patch[key]);patch['unit:a1-u05']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);select(box,'es');select(box,'ar');
+  const u=box.Core.registry.byCode.A1.units.find(u=>'unit:'+u.id===key);assert.equal(u.title,en[key].title);assert.equal(u.grammarNote,en[key].grammarNote);assert.equal(box.Core.registry.byCode.A1.units[4].title,overlayFile('en','a1-02.js')['unit:a1-u05'].title);
   assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',u.lessons[0].id),'ar');
-  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),{'a1-01.js':patch},overlay('pl'),errors);assert.ok(errors.some(e=>e.includes(key)));assert.ok(errors.some(e=>e.includes('undeclared entry')));
+  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),{'a1-01.js':patch,'a1-02.js':overlayFile('ar','a1-02.js')},{...overlay('pl'),...overlayFile('pl','a1-02.js')},errors);assert.ok(errors.some(e=>e.includes(key)));assert.ok(errors.some(e=>e.includes('undeclared entry')));
  }
 });
 test('unit declarations do not interfere with card gloss lookup or learner state',()=>{
@@ -126,3 +126,5 @@ test('unit declarations do not interfere with card gloss lookup or learner state
  select(box,'ar');C.addCard('ho fame','أنا جائع','copertura');assert.equal(C.state.srs[C.cardKey('ho fame')].tr.ar,'أنا جائع');assert.equal(C.state.srs[C.cardKey('ho fame')].tr.en,"I'm hungry");
  const before=plain(C.state);delete before.settings.lang;for(const lang of ['en','ar','en','ar']){select(box,lang);const current=plain(C.state);delete current.settings.lang;assert.deepEqual(current,before);}assert.equal(C.state.schema,2);
 });
+
+function overlayFile(lang,file){let map;vm.runInNewContext(readFileSync(join(ROOT,"data/i18n",lang,file),"utf8"),{LINGUAI:{addStrings(_l,value){map=JSON.parse(JSON.stringify(value));}}});return map;}

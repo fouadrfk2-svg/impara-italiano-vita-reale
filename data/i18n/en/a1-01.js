@@ -1290,7 +1290,7 @@ LINGUAI.addStrings("en", {
       {  },
       {  },
       { q: "\"___ due posti liberi.\" (There are two free seats.)" },
-      { q: "The partitive article:", items: [, , , ] },
+      { q: "The partitive article:", items: ["", "", "", ""] },
       { q: "\"I prefer white wine.\"" },
       { tr: "There are olives and cheese." },
       { tr: "I really like the Italian aperitivo." }

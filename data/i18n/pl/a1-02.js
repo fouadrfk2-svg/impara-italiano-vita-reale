@@ -390,7 +390,7 @@ LINGUAI.addStrings("pl", {
     exercises: [
       { q: "„Le scarpe ___.” (czerwone)" },
       { q: "„I pantaloni ___.” (zielone)" },
-      { q: "Wybierz formę „quello”.", items: [, , , ] },
+      { q: "Wybierz formę „quello”.", items: ["", "", "", ""] },
       { q: "Ile to „duemilatrecento”?", opts: ["230", "2300", "23000"] },
       { q: "„Sono ___ stanca.” (bardzo zmęczona)", opts: ["molta", "molto", "molte"] },
       { q: "„Ci sono ___ persone.” (dużo ludzi)" },
