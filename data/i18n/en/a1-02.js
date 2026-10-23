@@ -1101,7 +1101,7 @@ LINGUAI.addStrings("en", {
     objectives: ["check combined prepositions, andare/venire, directions and c'è/ci sono"],
     theory: [{ p: "Ten questions. You pass at 70%." }],
     exercises: [
-      { q: "a + article:", items: [, , , ] },
+      { q: "a + article:", items: ["", "", "", ""] },
       { q: "\"Il libro è ___ tavolo.\" (su + il)" },
       { q: "\"Abito ___ centro.\" (in + il)" },
       {  },

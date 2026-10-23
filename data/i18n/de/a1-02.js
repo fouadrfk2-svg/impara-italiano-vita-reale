@@ -1115,7 +1115,7 @@ LINGUAI.addStrings("de", {
     objectives: ["verschmolzene Präpositionen, andare/venire, Wegbeschreibungen und c'è/ci sono prüfen"],
     theory: [{ p: "Zehn Fragen. Bestanden ab 70 %." }],
     exercises: [
-      { q: "a + Artikel:", items: [, , , ] },
+      { q: "a + Artikel:", items: ["", "", "", ""] },
       { q: "„Il libro è ___ tavolo.\" (su + il)" },
       { q: "„Abito ___ centro.\" (in + il)" },
       {  },

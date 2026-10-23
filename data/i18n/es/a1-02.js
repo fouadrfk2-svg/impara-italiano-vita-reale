@@ -1113,7 +1113,7 @@ LINGUAI.addStrings("es", {
     objectives: ["comprobar las preposiciones contractas, andare/venire, las indicaciones y c'è/ci sono"],
     theory: [{ p: "Diez preguntas. Se aprueba con un 70%." }],
     exercises: [
-      { q: "a + artículo:", items: [, , , ] },
+      { q: "a + artículo:", items: ["", "", "", ""] },
       { q: "«Il libro è ___ tavolo.» (su + il)" },
       { q: "«Abito ___ centro.» (in + il)" },
       {  },

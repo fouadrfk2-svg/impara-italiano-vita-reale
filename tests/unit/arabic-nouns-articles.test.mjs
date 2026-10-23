@@ -120,16 +120,16 @@ test("contrast notes explain Arabic gender differences and avoid the source's ap
   assert.match(ar["lesson:" + ids[1]].exercises[6].pairs[0], /يبدأ بـps$/);
 });
 
-test("Arabic-English-Arabic restores both whole lessons exactly; unit 5 keeps English", () => {
+test("Arabic-English-Arabic restores both whole lessons exactly; unit 7 keeps English", () => {
   const box = setup();
   const snapshot = () => plain(box.Core.registry.byCode.A1.units[0]);
-  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A1.units[4]);
+  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A1.units[6]);
   select(box, "ar"); const ar = snapshot();
   for (const lang of ["en", "ar", "en", "ar"]) {
     select(box, lang); assert.deepEqual(snapshot(), lang === "ar" ? ar : en);
-    assert.deepEqual(plain(box.Core.registry.byCode.A1.units[4]), fallback);
-    assert.deepEqual(plain(box.Core.getLesson("a1-u05-l1").lesson), fallback.lessons[0]);
-    assert.deepEqual(plain(box.Core.getLesson("a1-u05-test").lesson), fallback.test);
+    assert.deepEqual(plain(box.Core.registry.byCode.A1.units[6]), fallback);
+    assert.deepEqual(plain(box.Core.getLesson("a1-u07-l1").lesson), fallback.lessons[0]);
+    assert.deepEqual(plain(box.Core.getLesson("a1-u07-test").lesson), fallback.test);
   }
 });
 

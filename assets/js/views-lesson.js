@@ -265,7 +265,7 @@
     });
     // Arabic overlays can mix explanation cells and Italian examples in any
     // column. Choices may likewise be Arabic meanings or Italian forms.
-    if (contentLang === "ar") el().querySelectorAll(".gt td,.opts,.field-row > span,.match-col.js-r").forEach(function (node) {
+    if (contentLang === "ar") el().querySelectorAll(".gt th,.gt td,.opts,.field-row > span,.match-col.js-r").forEach(function (node) {
       var isArabic = /[\u0600-\u06ff]/.test(node.textContent);
       node.setAttribute("lang", isArabic ? "ar" : "it");
       node.setAttribute("dir", isArabic ? "rtl" : "ltr");

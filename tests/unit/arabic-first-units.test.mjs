@@ -104,7 +104,7 @@ test('whole units, tests and unrelated English fallback restore exactly across A
   assert.equal(arabic[0].title,ar['unit:a1-u01'].title);assert.equal(arabic[1].grammarNote,ar['unit:a1-u02'].grammarNote);
   for(const next of [lang,'ar',lang,'ar']){select(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}
  }
- select(box,'en');const other=snapshot()[4];select(box,'ar');assert.deepEqual(snapshot()[4],other);
+ select(box,'en');const other=snapshot()[6];select(box,'ar');assert.deepEqual(snapshot()[6],other);
 });
 test('each new lesson or assessment falls back as a whole when a key or exercise is missing',()=>{
  for(const id of ids)for(const damage of [p=>{delete p.title;},p=>p.exercises.pop(),p=>{p.theory=[];}]){
@@ -115,8 +115,8 @@ test('each new lesson or assessment falls back as a whole when a key or exercise
 });
 test('unit summaries fall back atomically and independently; undeclared units cannot override English',()=>{
  for(const key of ['unit:a1-u01','unit:a1-u02'])for(const damage of [p=>{delete p.grammarNote;},p=>{p.title=42;}]){
-  const box=setup(),patch=overlay('ar');damage(patch[key]);patch['unit:a1-u05']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);select(box,'es');select(box,'ar');
-  const u=box.Core.registry.byCode.A1.units.find(u=>'unit:'+u.id===key);assert.equal(u.title,en[key].title);assert.equal(u.grammarNote,en[key].grammarNote);assert.equal(box.Core.registry.byCode.A1.units[4].title,overlayFile('en','a1-02.js')['unit:a1-u05'].title);
+  const box=setup(),patch=overlay('ar');damage(patch[key]);patch['unit:a1-u07']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);select(box,'es');select(box,'ar');
+  const u=box.Core.registry.byCode.A1.units.find(u=>'unit:'+u.id===key);assert.equal(u.title,en[key].title);assert.equal(u.grammarNote,en[key].grammarNote);assert.equal(box.Core.registry.byCode.A1.units[6].title,overlayFile('en','a1-02.js')['unit:a1-u07'].title);
   assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',u.lessons[0].id),'ar');
   const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),{'a1-01.js':patch,'a1-02.js':overlayFile('ar','a1-02.js')},{...overlay('pl'),...overlayFile('pl','a1-02.js')},errors);assert.ok(errors.some(e=>e.includes(key)));assert.ok(errors.some(e=>e.includes('undeclared entry')));
  }

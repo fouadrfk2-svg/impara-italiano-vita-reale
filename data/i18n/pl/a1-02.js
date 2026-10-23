@@ -1101,7 +1101,7 @@ LINGUAI.addStrings("pl", {
     objectives: ["sprawdzić przyimki ściągnięte, andare/venire, wskazówki i c'è/ci sono"],
     theory: [{ p: "Dziesięć zadań. Zaliczenie od 70%." }],
     exercises: [
-      { q: "a + rodzajnik:", items: [, , , ] },
+      { q: "a + rodzajnik:", items: ["", "", "", ""] },
       { q: "„Il libro è ___ tavolo.” (su + il)" },
       { q: "„Abito ___ centro.” (in + il)" },
       {  },

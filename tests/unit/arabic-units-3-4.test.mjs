@@ -627,11 +627,11 @@ const entries=lang=>Object.assign({},...Object.values(bags(lang)));
 const ar=entries('ar'),en=entries('en');
 function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...files.map(file=>'data/core/'+file),...['en','pl','es','fr','de','ar'].flatMap(lang=>files.map(file=>'data/i18n/'+lang+'/'+file))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
 function language(box,lang){box.Core.state.settings.lang=lang;box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
-test('exactly four Arabic units, sixteen lessons and four assessments are declared; every entry is complete',()=>{
+test('the first four Arabic units remain complete in the expanded manifest',()=>{
  const box=setup(),manifest=plain(box.sandbox.I18n.courseOverrides('ar'));
  const keys=unit=>['unit:'+unit,...[1,2,3,4].map(n=>'lesson:'+unit+'-l'+n),'lesson:'+unit+'-test'];
- assert.deepEqual(manifest['a1-01.js'].slice(12),keys('a1-u03'));assert.deepEqual(manifest['a1-02.js'],keys('a1-u04'));
- assert.equal(Object.values(manifest).flat().length,24);assert.equal(plans.length,10);assert.equal(plans.reduce((sum,p)=>sum+p.answers.length,0),100);
+ assert.deepEqual(manifest['a1-01.js'].slice(12),keys('a1-u03'));assert.deepEqual(manifest['a1-02.js'].slice(0,6),keys('a1-u04'));
+ assert.equal(Object.values(manifest).flat().length,36);assert.equal(plans.length,10);assert.equal(plans.reduce((sum,p)=>sum+p.answers.length,0),100);
  for(const file of files)assert.deepEqual(Object.keys(bag('ar',file)),manifest[file]);
  const errors=[];checkPartialCourse(manifest,bags('ar'),entries('pl'),errors);assert.deepEqual(errors,[]);
 });
@@ -693,7 +693,7 @@ test('Arabic comparisons, precise prompts and translations correct source ambigu
 test('Arabic-English-Arabic and every existing language restore exact complete content, including unit summaries and blank glosses',()=>{
  const box=setup(),snapshot=()=>plain(box.Core.registry.byCode.A1.units);
  for(const lang of ['en','pl','es','fr','de']){language(box,lang);const before=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}}
- language(box,'en');const fallback=snapshot().slice(4);language(box,'ar');assert.deepEqual(snapshot().slice(4),fallback);
+ language(box,'en');const fallback=snapshot().slice(6);language(box,'ar');assert.deepEqual(snapshot().slice(6),fallback);
  for(const unit of ['a1-u03','a1-u04'])for(const lang of ['pl','en','es','fr','de'])assert.deepEqual(entries(lang)['lesson:'+unit+'-test'].exercises[unit==='a1-u03'?6:2].items,['','','','']);
 });
 test('all ten new lessons and assessments fall back atomically when malformed without disabling their translated neighbors',()=>{
@@ -707,9 +707,9 @@ test('all ten new lessons and assessments fall back atomically when malformed wi
 });
 test('unit titles and grammar notes fall back together; undeclared content cannot override English',()=>{
  for(const unit of ['a1-u03','a1-u04'])for(const field of ['title','grammarNote']){
-  const box=setup(),file=unit==='a1-u03'?'a1-01.js':'a1-02.js',patch=bag('ar',file);delete patch['unit:'+unit][field];patch['unit:a1-u05']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);language(box,'ar');
+  const box=setup(),file=unit==='a1-u03'?'a1-01.js':'a1-02.js',patch=bag('ar',file);delete patch['unit:'+unit][field];patch['unit:a1-u07']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);language(box,'ar');
   const current=box.Core.registry.byCode.A1.units.find(u=>u.id===unit);assert.equal(current.title,en['unit:'+unit].title);assert.equal(current.grammarNote,en['unit:'+unit].grammarNote);
-  assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',unit+'-l1'),'ar');assert.equal(box.Core.registry.byCode.A1.units[4].title,en['unit:a1-u05'].title);
+  assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',unit+'-l1'),'ar');assert.equal(box.Core.registry.byCode.A1.units[6].title,en['unit:a1-u07'].title);
  }
 });
 test('the new Arabic file loads after English, retries failures and never requests untranslated Arabic files',()=>{
