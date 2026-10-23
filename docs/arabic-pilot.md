@@ -1,17 +1,17 @@
-# Arabic interface and first six A1 units
+# Arabic interface and first eight A1 units
 
 Arabic (العربية) is available from the welcome screen and language selector.
-The partial Arabic course covers all twenty-four lessons and six assessments in
-units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05** and **a1-u06**, including their unit titles and descriptions.
+The partial Arabic course covers all thirty-two lessons and eight assessments in
+units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07** and **a1-u08**, including their unit titles and descriptions.
 All other course and supporting content continues to use English fallback.
 
 ## Partial course contract
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly thirty-six entries across a1-01.js (units 1–3)
-  and a1-02.js (units 4–6): twenty-four lessons, six lesson-form unit tests and
-  six unit summaries.
+- I18n.courseOverrides("ar") declares exactly forty-eight entries across a1-01.js (units 1–3),
+  a1-02.js (units 4–7) and a1-03.js (unit 8): thirty-two lessons, eight lesson-form
+  unit tests and eight unit summaries.
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
 - Lessons and assessments are atomic. Missing keys, incorrect types, empty
@@ -63,6 +63,19 @@ still accept mixed-register combinations; no answer key or scoring rule is chang
 English source overstatements about adverb placement and compulsory preposition fusion
 are not repeated in Arabic. No unrelated language wording is changed.
 
+Units 7–8 add restaurant communication, quantities with ne, relationships,
+descriptions and comparisons. Restaurant customs are qualified rather than stated as
+universal bans, fee guarantees or legal advice. Nipote includes grandchildren and
+nephews/nieces; suo agrees with the possessed noun, not the owner's gender.
+The source's optional article in mia sorella maggiore is not taught as compulsory:
+the exercise explicitly requests the article-present version. Hair-description
+questions specify the taught avere + article pattern rather than claiming all
+article-less descriptions are ungrammatical. The inherited Mia collega prompt is
+retained and annotated with the ordinary La mia collega pattern. Milano is taught
+with cara; the inherited alternate caro answer remains unchanged. The source's
+Hai figli? — Ne ho una is explained as referring to an understood una figlia.
+No Italian answer, source recording, scoring rule or other-language wording changes.
+
 ## Direction and learner state
 
 Arabic explanations, meanings, prompts and feedback are RTL. Italian sentences,
@@ -94,7 +107,7 @@ a saved attempt, so finish an answer before changing language.
 - npm run test:dom
 - npm run test:mutations and node scripts/coverage.mjs --min 99
 
-Focused tests verify the 68 Unit 1–2 exercise mappings and all 100 Unit 3–4 mappings and all 100 Unit 5–6 mappings, complete text, unit metadata,
+Focused tests verify the 68 Unit 1–2 exercise mappings and all 100 Unit 3–4 mappings and all 100 Unit 5–6 mappings and all 99 Unit 7–8 mappings, complete text, unit metadata,
 unchanged neutral Italian/answers, atomic failure, Arabic-English-Arabic and
 all existing language restoration, gloss storage and learner state. Browser
 tests exercise all new lessons and assessments at 1440px and 390px, including
