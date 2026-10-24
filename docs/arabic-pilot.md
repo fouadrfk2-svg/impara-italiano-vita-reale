@@ -1,21 +1,21 @@
-# Arabic interface, complete A1 and the first four A2 units
+# Arabic interface and complete original A1–A2
 
 Arabic (العربية) is available from the welcome screen and language selector.
 The partial Arabic course covers all forty lessons and ten assessments in
 units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
-A2 units **a2-u01**, **a2-u02**, **a2-u03** and **a2-u04** include sixteen existing lessons, four assessments,
-200 existing exercises, unit titles and grammar summaries. All remaining A2–C2
-and other supporting content continues to use English fallback. No curriculum
+All eight A2 units include 32 existing lessons, eight assessments and exactly
+405 existing exercises, with unit titles and grammar summaries. B1–C2 and
+untranslated supporting content continue to use English fallback. No curriculum
 unit, learner exercise, Italian example or topic is added.
 
 ## Partial course contract
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly eighty-four entries across a1-01.js (units 1–3),
-  a1-02.js (units 4–7) and a1-03.js (units 8–10): forty lessons, ten lesson-form
-  unit tests and ten unit summaries, plus twenty-four entries for the first four A2 units
-  in a2-01.js (sixteen lessons, four assessments, four summaries).
+- I18n.courseOverrides("ar") declares exactly 108 complete entries: 60 for A1
+  across a1-01.js, a1-02.js and a1-03.js, and 48 for A2 across a2-01.js
+  (units 1–4) and a2-02.js (units 5–8). Each unit declares four original lessons,
+  its original assessment and its unit summary.
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
 - Lessons and assessments are atomic. Missing keys, incorrect types, empty
@@ -172,6 +172,71 @@ all learner strings, previous Arabic A1/A2 content, atomic rejection of malforme
 overlays, English fallback, language restoration and saved state. Browser checks
 cover 1440px/390px, all 100 exercises, wrong feedback/retry, grammar/table direction,
 dialogue turns, recordings, completion/reload and axe AA accessibility.
+
+## A2 Units 5–8: completion and inherited source concerns
+
+The final batch translates 16 original lessons, four original assessments and
+205 existing exercises. The completed A2 inventory remains 32 lessons, eight
+assessments and 405 exercises. No Italian source, recording, answer key, option
+position, scoring rule or curriculum order changes. The first four Arabic A2
+units and all A1 translation files remain byte-equivalent.
+
+Reviewed source issues, preserved without changing accepted answers:
+- Housing: rental terms, deposits and repair responsibility are simplified in
+  the source. Arabic preserves the existing topics but marks the explanation as
+  a simplification rather than legal guidance. The landlord answer remains in
+  its original position. Place expressions do not all take a/di; Arabic avoids
+  that source overgeneralization. Restrictions on ci with people are scoped to
+  the existing pensare example rather than made universal.
+- The original Italian vocabulary il traslocо ends in a Cyrillic character.
+  It is preserved, as are every other Italian word and recording reference.
+- Unit 5 lesson 3 has three sparse glossary placeholders for four article
+  items in every full-language overlay. Arabic preserves those empty slots as
+  holes, not null, so it does not introduce stale gloss:null after switching.
+  The original four nouns and article answers remain unchanged.
+- Work: the English phone dialogue names Anna Smith, but its Italian answer
+  says Anna Nowak; Arabic follows the Italian answer. English meanings sometimes
+  say meeting where Italian says appointment, or insert Rossi where the spoken
+  sentence only says Dottoressa. Arabic follows the actual Italian sentence.
+  The first email grammar example says Dott. Bianchi in Italian but Dr. Rossi
+  in English; Arabic follows the male Bianchi. The review example favore means
+  a favor, and conosciuta means meeting/getting to know her; Arabic follows
+  those original meanings rather than the less precise English glosses.
+  The broad claims about answering with one's name and meeting interruptions
+  are qualified rather than presented as universal cultural rules.
+- Unit 6 lesson 1 cloze retains the original question mark after vorrei;
+  the original Italian punctuation and key remain untouched. The recorded
+  deadline example retains its English word and Polish quotation marks as
+  part of the original Italian recording text, while its meaning is Arabic.
+- Good wishes: the source treats buona fortuna as categorically unlucky.
+  Arabic describes a traditional belief; the exercise explicitly asks for the
+  traditional expression taught here, retaining In bocca al lupo and Crepi.
+  Ferragosto does not close every service; dinner lateness and what to bring
+  are not universal obligations. Arabic qualifies the existing explanations.
+- Regional descriptions and dialect origins are simplified. The source
+  carbonara city answers and Polish-origin example remain unchanged. Italian
+  food names in tables stay Italian, without adding dishes or examples.
+- The -mente rule and adverb position depend on the word and context. Arabic
+  explains the existing examples without presenting the positions as exclusive.
+  Vorrei and mi piacerebbe are not rigidly separated by real versus unreal wishes.
+- Unit 8 lesson 2 exercise 2 is malformed in the original core: after the
+  second gap it reads (smettere) già di piovere, and its accepted key is aveva;
+  smesso is missing from the sentence. It is NOT silently repaired. Its Arabic
+  meaning translates the intended existing sentence; the original key remains.
+  That exercise and lesson 4 exercise 1 retain the inherited Polish word
+  kobieta in their core scaffolding. Arabic instructions explicitly identify
+  the female speaker; the neutral source text is not edited in this translation.
+- The source warns against se avrei too broadly; Arabic scopes this to the
+  conditional pattern in question. The participle-agreement review is scoped
+  to its existing direct-object example. No new grammar example is introduced.
+
+Focused tests verify all 205 independently reviewed responses, exact neutral
+fields, all learner strings and complete manifest entries. Prior fallback tests
+now use the actual untranslated B1 units, retaining exact English restoration
+and atomic malformed-overlay checks. Browser coverage exercises every final A2
+lesson and assessment at 390px/1440px, including matching columns that intentionally
+contain Italian, wrong answers, retries, conjugations, dialogues, recordings,
+language cycles, saved scores/reload and axe AA accessibility.
 
 ## Direction and learner state
 

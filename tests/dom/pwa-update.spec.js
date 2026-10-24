@@ -215,7 +215,12 @@ test("a change of voice does not leave the student with the old recordings", asy
     biezaceAudio = null;
     await nowaWersja(page, "v904.000000000000");
     await expect(page.locator(KOMUNIKAT)).toBeVisible({ timeout: 20000 });
-    await page.locator(KOMUNIKAT + " .toast__act").click();
+    /* Cache creation/cleanup can finish before controllerchange reloads the
+       document. Wait for that expected reload before reading page-side caches. */
+    await Promise.all([
+      page.waitForEvent("load"),
+      page.locator(KOMUNIKAT + " .toast__act").click()
+    ]);
     await pamiecPowloki(page, "v904.000000000000");
 
     await page.waitForFunction(
