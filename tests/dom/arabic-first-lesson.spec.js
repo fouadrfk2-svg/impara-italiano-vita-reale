@@ -72,8 +72,8 @@ for (const width of [1440, 390]) {
       await language(page, "ar"); expect(await snapshot()).toBe(ar);
       // The next lesson remains the exact complete English fallback.
       await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('A2',resolve)));
-      const englishNeighbor = await page.evaluate(() => window.Core.getLesson("a2-u03-l1").lesson.title);
-      await page.evaluate(() => window.App.go("lezione", { id: "a2-u03-l1" }));
+      const englishNeighbor = await page.evaluate(() => window.Core.getLesson("a2-u05-l1").lesson.title);
+      await page.evaluate(() => window.App.go("lezione", { id: "a2-u05-l1" }));
       await expect(page.locator("#main")).toHaveAttribute("data-lesson-language", "en");
       await expect(page.locator(".view-head > p")).toHaveText(englishNeighbor);
       expect(await page.locator(".prose").first().evaluate(el => getComputedStyle(el).direction)).toBe("ltr");

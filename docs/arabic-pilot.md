@@ -1,10 +1,10 @@
-# Arabic interface, complete A1 and the first two A2 units
+# Arabic interface, complete A1 and the first four A2 units
 
 Arabic (العربية) is available from the welcome screen and language selector.
 The partial Arabic course covers all forty lessons and ten assessments in
 units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
-A2 units **a2-u01** and **a2-u02** add their eight existing lessons, two assessments,
-100 existing exercises, unit titles and grammar summaries. All remaining A2–C2
+A2 units **a2-u01**, **a2-u02**, **a2-u03** and **a2-u04** include sixteen existing lessons, four assessments,
+200 existing exercises, unit titles and grammar summaries. All remaining A2–C2
 and other supporting content continues to use English fallback. No curriculum
 unit, learner exercise, Italian example or topic is added.
 
@@ -12,10 +12,10 @@ unit, learner exercise, Italian example or topic is added.
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly seventy-two entries across a1-01.js (units 1–3),
+- I18n.courseOverrides("ar") declares exactly eighty-four entries across a1-01.js (units 1–3),
   a1-02.js (units 4–7) and a1-03.js (units 8–10): forty lessons, ten lesson-form
-  unit tests and ten unit summaries, plus twelve entries for the first two A2 units
-  in a2-01.js (eight lessons, two assessments, two summaries).
+  unit tests and ten unit summaries, plus twenty-four entries for the first four A2 units
+  in a2-01.js (sixteen lessons, four assessments, four summaries).
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
 - Lessons and assessments are atomic. Missing keys, incorrect types, empty
@@ -102,8 +102,8 @@ The Italian nouns and all existing source answer keys remain unchanged.
 Arabic adapts the existing language comparisons, without adding Italian models,
 exercises or topics. The conjugation labels for imperfetto and futuro are Arabic.
 The original A1 overlays, Italian core, recordings and every grading field remain
-unchanged. Fallback checks cover every untranslated A2 Unit 3–8, including
-all thirty lessons/assessments and their unit metadata across a2-01.js and the
+unchanged. Fallback checks now cover every untranslated A2 Unit 5–8, including
+all twenty lessons/assessments and their unit metadata across a2-01.js and the
 undeclared a2-02.js file. Arabic-English-Arabic restores exact English content.
 
 Inherited issues are retained in the Italian/answer layer:
@@ -128,6 +128,50 @@ Primary checks: [Trenitalia regional tickets](https://www.trenitalia.com/it/regi
 [Crusca on conjectural future](https://accademiadellacrusca.it/it/consulenza/sulluso-epistemico-del-futuro/5021).
 These checks qualify the translation of existing topics; this is language
 learning, not travel, legal or tax advice.
+
+## A2 Units 3–4 translation and inherited source concerns
+
+The twelve newly declared entries translate eight existing lessons, two existing
+assessments and exactly 100 exercises. Every original indexed array and Italian
+choice remains in its original order. Unit 3 covers direct/indirect pronouns,
+participle agreement and imperative pronouns. Unit 4 covers symptom descriptions,
+the doctor dialogue, conditional advice and describing habits. Only the required
+conditional-tense UI label is added. Arabic comparisons replace English-only ones.
+
+Inherited source concerns, without changing any Italian or accepted answer:
+- The blanket participle-agreement statement is too broad: mandatory agreement
+  here concerns lo/la/li/le; mi/ti/ci/vi permit variation. Arabic states the scope,
+  preserves Ci hanno invitati and adds no Italian example or answer.
+- Unit 3 lesson 4's English ordering prompt adds “I'm listening” although the
+  original tokens/key only say Mi dica pure, signora. Arabic translates only that
+  original Italian. The grammar example and recording remain untouched.
+- The source cloze has gia without its accent, the table has a Anna, and the
+  imperative overview omits other patterns. These Italian forms are not repaired.
+- Unit 4's original doctor scene immediately prescribes an antibiotic; a later
+  recording gives a six-day course. These are fictional language examples, not a
+  basis for treatment. The dialogue, doses, duration, recordings and keys remain
+  exact. Arabic labels the existing doctor's dialogue/instructions as practice;
+  it introduces no medical diagnosis, dosing recommendation or new scenario.
+- The source claim that emergency care is essentially free for all visitors is
+  overbroad. Arabic qualifies the existing healthcare paragraph rather than
+  promising free care; triage is not taught as a decision guide. Prescription
+  requirements are not compared to an assumed US background.
+- Unit 4's dieta explanation has an oversimplified English comparison. Arabic
+  distinguishes the broad meaning “eating pattern” from sono a dieta, preserving
+  its existing multiple-choice position. The conditional example prendessi and
+  phrase Se fossi in te occur before detailed subjunctive study; both remain.
+
+Checks: [Treccani on obligatory/optional agreement](https://www.treccani.it/magazine/lingua_italiana/domande_e_risposte/grammatica/grammatica_1634.html),
+[Crusca on agreement](https://accademiadellacrusca.it/it/consulenza/accordo-del-participio-passato/23),
+[Ministry of Health ticket rules](https://www.salute.gov.it/new/it/tema/esenzioni-dal-ticket/ticket-ed-esenzioni/),
+[AIFA antibiotic campaign](https://www.aifa.gov.it/senza-regole-gli-antibiotici-non-funzionano),
+[UNESCO Mediterranean diet](https://ich.unesco.org/en/RL/mediterranean-diet-00884).
+
+Focused tests independently check every one of these 100 original answer mappings,
+all learner strings, previous Arabic A1/A2 content, atomic rejection of malformed
+overlays, English fallback, language restoration and saved state. Browser checks
+cover 1440px/390px, all 100 exercises, wrong feedback/retry, grammar/table direction,
+dialogue turns, recordings, completion/reload and axe AA accessibility.
 
 ## Direction and learner state
 

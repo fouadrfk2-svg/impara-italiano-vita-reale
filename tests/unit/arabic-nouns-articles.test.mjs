@@ -17,7 +17,7 @@ function setup() {
   const box = loadEngine({ files: [...CORE, "assets/js/i18n.js", "assets/js/i18n-merge.js"] });
   box.Core.load();
   for (const file of ["data/core/curriculum-index.js", "data/core/a1-01.js", "data/core/a1-02.js", "data/core/a1-03.js", "data/i18n/en/curriculum-index.js", "data/i18n/en/a1-01.js", "data/i18n/es/a1-01.js", "data/i18n/ar/a1-01.js", "data/i18n/en/a1-02.js", "data/i18n/es/a1-02.js", "data/i18n/en/a1-03.js", "data/i18n/es/a1-03.js", "data/core/a2-01.js", "data/i18n/en/a2-01.js", "data/i18n/es/a2-01.js"]) vm.runInContext(readFileSync(join(ROOT, file), "utf8"), box.sandbox);
-  return box;
+  for(const file of ['data/core/a2-02.js',...['en','pl','es','fr','de'].map(lang=>'data/i18n/'+lang+'/a2-02.js')])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;
 }
 function select(box, lang) { box.Core.state.settings.lang = lang; box.sandbox.LINGUAI.applyStrings(lang); box.sandbox.Registry.reindex(); }
 const arabic = (value, label) => assert.match(value, /[\u0600-\u06ff]/, label);
@@ -120,16 +120,16 @@ test("contrast notes explain Arabic gender differences and avoid the source's ap
   assert.match(ar["lesson:" + ids[1]].exercises[6].pairs[0], /يبدأ بـps$/);
 });
 
-test("Arabic-English-Arabic restores both whole lessons exactly; A2 keeps English", () => {
+test("Arabic-English-Arabic restores both whole lessons exactly; untranslated A2 Unit 5 keeps English", () => {
   const box = setup();
   const snapshot = () => plain(box.Core.registry.byCode.A1.units[0]);
-  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A2.units[2]);
+  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A2.units[4]);
   select(box, "ar"); const ar = snapshot();
   for (const lang of ["en", "ar", "en", "ar"]) {
     select(box, lang); assert.deepEqual(snapshot(), lang === "ar" ? ar : en);
-    assert.deepEqual(plain(box.Core.registry.byCode.A2.units[2]), fallback);
-    assert.deepEqual(plain(box.Core.getLesson("a2-u03-l1").lesson), fallback.lessons[0]);
-    assert.deepEqual(plain(box.Core.getLesson("a2-u03-test").lesson), fallback.test);
+    assert.deepEqual(plain(box.Core.registry.byCode.A2.units[4]), fallback);
+    assert.deepEqual(plain(box.Core.getLesson("a2-u05-l1").lesson), fallback.lessons[0]);
+    assert.deepEqual(plain(box.Core.getLesson("a2-u05-test").lesson), fallback.test);
   }
 });
 

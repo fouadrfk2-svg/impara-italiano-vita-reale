@@ -540,10 +540,10 @@ const entries=lang=>Object.assign({},...Object.values(bags(lang)));
 const ar=entries('ar'),en=entries('en');
 function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...[...files,'a2-02.js'].map(file=>'data/core/'+file),...['en','pl','es','fr','de','ar'].flatMap(lang=>(lang==='ar'?files:[...files,'a2-02.js']).map(file=>'data/i18n/'+lang+'/'+file))])vm.runInContext(read(file),box.sandbox);return box;}
 function language(box,lang){box.Core.state.settings.lang=lang;box.sandbox.I18n.set(lang);box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
-test('exactly two existing A2 units are added to the 60 unchanged A1 entries',()=>{
+test('four existing A2 units are declared to the 60 unchanged A1 entries',()=>{
  const box=setup(),manifest=plain(box.sandbox.I18n.courseOverrides('ar'));
  const keys=n=>['unit:a2-u0'+n,...[1,2,3,4].map(l=>'lesson:a2-u0'+n+'-l'+l),'lesson:a2-u0'+n+'-test'];
- assert.equal(Object.values(manifest).flat().length,72);assert.equal(a1Files.flatMap(f=>manifest[f]).length,60);assert.deepEqual(manifest['a2-01.js'],[...keys(1),...keys(2)]);
+ assert.equal(Object.values(manifest).flat().length,84);assert.equal(a1Files.flatMap(f=>manifest[f]).length,60);assert.deepEqual(manifest['a2-01.js'],[...keys(1),...keys(2),...keys(3),...keys(4)]);
  assert.equal(plans.length,10);assert.equal(plans.filter(p=>/-l[1-4]$/.test(p.id)).length,8);assert.equal(plans.reduce((n,p)=>n+p.answers.length,0),100);
  for(const f of files)assert.deepEqual(Object.keys(bag('ar',f)),manifest[f]);
  const errors=[];checkPartialCourse(manifest,bags('ar'),entries('pl'),errors);assert.deepEqual(errors,[]);
@@ -610,10 +610,10 @@ test('only the two newly required conjugation-tense labels are Arabic and fallba
  const box=setup();language(box,'ar');assert.match(box.sandbox.I18n.t('tense.imperf'),/الماضي/);assert.match(box.sandbox.I18n.t('tense.futuro'),/المستقبل/);
  assert.equal(box.sandbox.I18n.t('tense.cong'), 'Present subjunctive');
 });
-test('every language restores exact A1/A2 content and untranslated A2 Unit 3 stays English',()=>{
+test('every language restores exact A1/A2 content and untranslated A2 Unit 5 stays English',()=>{
  const box=setup(),snapshot=()=>plain([box.Core.registry.byCode.A1.units,box.Core.registry.byCode.A2.units]);
  for(const lang of ['en','pl','es','fr','de']){language(box,lang);const base=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:base);}}
- language(box,'en');const fallback=plain(box.Core.registry.byCode.A2.units[2]);language(box,'ar');assert.deepEqual(plain(box.Core.registry.byCode.A2.units[2]),fallback);assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar','a2-u03-l1'),'en');
+ language(box,'en');const fallback=plain(box.Core.registry.byCode.A2.units[4]);language(box,'ar');assert.deepEqual(plain(box.Core.registry.byCode.A2.units[4]),fallback);assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar','a2-u05-l1'),'en');
 });
 test('each new lesson and assessment falls back atomically when malformed without damaging A1 or its neighbors',()=>{
  for(const plan of plans)for(const damage of [p=>{delete p.title;},p=>p.exercises.pop(),p=>{p.theory=[];}]){
@@ -623,10 +623,10 @@ test('each new lesson and assessment falls back atomically when malformed withou
   const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),all,entries('pl'),errors);assert(errors.some(e=>e.includes(plan.id)));
  }
 });
-test('unit summaries remain atomic and undeclared A2 Unit 3 cannot override English',()=>{
+test('unit summaries remain atomic and undeclared A2 Unit 5 cannot override English',()=>{
  for(const unit of ['a2-u01','a2-u02'])for(const field of ['title','grammarNote']){
-  const box=setup(),patch=bag('ar','a2-01.js');delete patch['unit:'+unit][field];patch['unit:a2-u03']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);language(box,'ar');
-  const current=box.Core.registry.byCode.A2.units.find(u=>u.id===unit);assert.equal(current.title,en['unit:'+unit].title);assert.equal(current.grammarNote,en['unit:'+unit].grammarNote);assert.equal(box.Core.registry.byCode.A2.units[2].title,en['unit:a2-u03'].title);
+  const box=setup(),patch=bag('ar','a2-01.js');delete patch['unit:'+unit][field];patch['unit:a2-u05']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);language(box,'ar');
+  const current=box.Core.registry.byCode.A2.units.find(u=>u.id===unit);assert.equal(current.title,en['unit:'+unit].title);assert.equal(current.grammarNote,en['unit:'+unit].grammarNote);assert.equal(box.Core.registry.byCode.A2.units[4].title,bag('en','a2-02.js')['unit:a2-u05'].title);
  }
 });
 test('the partial A2 file follows English, retries a failed load and never requests undeclared Arabic A2 files',()=>{
@@ -638,7 +638,7 @@ test('language switching preserves learner scores, reviews and separate glossary
  const card=C.state.srs[C.cardKey('il binario')];assert.equal(card.tr.en,'platform');assert.equal(card.tr.ar,'رصيف القطار');const state=()=>{const s=plain(C.state);delete s.settings.lang;return s;},before=state();for(const lang of ['en','pl','es','fr','de','ar']){language(box,lang);assert.deepEqual(state(),before);}assert.equal(C.state.schema,2);
 });
 
-for(const number of [3,4,5,6,7,8])test('untranslated A2 Unit '+number+' keeps all four lessons, its assessment and metadata exactly English',()=>{
+for(const number of [5,6,7,8])test('untranslated A2 Unit '+number+' keeps all four lessons, its assessment and metadata exactly English',()=>{
  const box=setup(),unitId='a2-u'+String(number).padStart(2,'0');
  const current=()=>plain(box.Core.registry.byCode.A2.units.find(unit=>unit.id===unitId));
  language(box,'en');const english=current();assert.ok(english);assert.equal(english.lessons.length,4);assert.equal(english.test.id,unitId+'-test');
