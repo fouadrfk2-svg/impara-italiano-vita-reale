@@ -199,6 +199,8 @@ LINGUAI.addUI("ar", {
   "privacy.title": "الخصوصية",
   "ex.conj.prompt": "صرّف الفعل: <bdi lang=\"it\" dir=\"ltr\">{verb}</bdi> — {tense}",
   "tense.pres": "المضارع",
+  "tense.imperf": "الماضي الوصفي (imperfetto)",
+  "tense.futuro": "المستقبل البسيط (futuro semplice)",
   "lesson.starAdd": "+ أضف للمراجعة",
   "lesson.starIn": "في المراجعة",
   "lesson.stepDialogue": "الحوار",

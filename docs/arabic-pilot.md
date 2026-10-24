@@ -1,17 +1,21 @@
-# Arabic interface and complete A1 translation
+# Arabic interface, complete A1 and the first two A2 units
 
 Arabic (العربية) is available from the welcome screen and language selector.
 The partial Arabic course covers all forty lessons and ten assessments in
 units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
-All A2–C2 and other supporting content continues to use English fallback.
+A2 units **a2-u01** and **a2-u02** add their eight existing lessons, two assessments,
+100 existing exercises, unit titles and grammar summaries. All remaining A2–C2
+and other supporting content continues to use English fallback. No curriculum
+unit, learner exercise, Italian example or topic is added.
 
 ## Partial course contract
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly sixty entries across a1-01.js (units 1–3),
+- I18n.courseOverrides("ar") declares exactly seventy-two entries across a1-01.js (units 1–3),
   a1-02.js (units 4–7) and a1-03.js (units 8–10): forty lessons, ten lesson-form
-  unit tests and ten unit summaries.
+  unit tests and ten unit summaries, plus twelve entries for the first two A2 units
+  in a2-01.js (eight lessons, two assessments, two summaries).
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
 - Lessons and assessments are atomic. Missing keys, incorrect types, empty
@@ -93,6 +97,38 @@ retains those empty slots exactly and adds no glossary properties, preserving
 exact language restoration without changing other-language files or validators.
 The Italian nouns and all existing source answer keys remain unchanged.
 
+## A2 Units 1–2 source notes
+
+Arabic adapts the existing language comparisons, without adding Italian models,
+exercises or topics. The conjugation labels for imperfetto and futuro are Arabic.
+The original A1 overlays, Italian core, recordings and every grading field remain
+unchanged. Fallback checks cover every untranslated A2 Unit 3–8, including
+all thirty lessons/assessments and their unit metadata across a2-01.js and the
+undeclared a2-02.js file. Arabic-English-Arabic restores exact English content.
+
+Inherited issues are retained in the Italian/answer layer:
+- The English hotel dialogue says Smith; the Italian says Nowak. Arabic follows
+  Nowak there and preserves Smith in the separate existing table/fill example.
+- Imperfetto regularity, duration markers, conversational reactions and future
+  register are described as common patterns, not exhaustive or universal rules.
+- The original examples include abitassi/fossi before their later formal study;
+  the two original accepted versions of the translation answer remain intact.
+- È caduta la corrente is an inherited awkward power-cut model. The Arabic
+  conveys its intended meaning; neither recording nor Italian is replaced.
+- The railway explanation overgeneralizes digital activation and platform timing.
+  Arabic preserves the paper-ticket scenario and qualifies the generalizations.
+- Hotel document and tax claims are too broad: documento does not mean passport
+  exclusively, and the stated 1–7 euro range is not a universal tariff or ceiling.
+  Existing two-euro fictional hotel examples and all choice indexes remain intact.
+
+Primary checks: [Trenitalia regional tickets](https://www.trenitalia.com/it/regionale/viaggiare-con-il-regionale.html),
+[Polizia di Stato identification FAQ](https://alloggiatiweb.poliziadistato.it/portalealloggiati/FAQ.aspx),
+[Roma Capitale tax framework](https://www.comune.roma.it/web-resources/cms/documents/RC23083-22.pdf),
+[Università per Stranieri di Siena A2 aspect notes](https://www.unistrasi.it/public/articoli/1946/Files/A2%20UD13.pdf),
+[Crusca on conjectural future](https://accademiadellacrusca.it/it/consulenza/sulluso-epistemico-del-futuro/5021).
+These checks qualify the translation of existing topics; this is language
+learning, not travel, legal or tax advice.
+
 ## Direction and learner state
 
 Arabic explanations, meanings, prompts and feedback are RTL. Italian sentences,
@@ -124,7 +160,7 @@ a saved attempt, so finish an answer before changing language.
 - npm run test:dom
 - npm run test:mutations and node scripts/coverage.mjs --min 99
 
-Focused tests verify the 68 Unit 1–2 exercise mappings and all 100 Unit 3–4 mappings and all 100 Unit 5–6 mappings and all 99 Unit 7–8 mappings and all 104 Unit 9–10 mappings, complete text, unit metadata,
+Focused tests verify the 68 Unit 1–2 exercise mappings and all 100 Unit 3–4 mappings and all 100 Unit 5–6 mappings and all 99 Unit 7–8 mappings and all 104 Unit 9–10 mappings and all 100 A2 Unit 1–2 mappings, complete text, unit metadata,
 unchanged neutral Italian/answers, atomic failure, Arabic-English-Arabic and
 all existing language restoration, gloss storage and learner state. Browser
 tests exercise all new lessons and assessments at 1440px and 390px, including

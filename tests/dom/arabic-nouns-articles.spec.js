@@ -68,8 +68,8 @@ for (const width of [1440,390]) for (const lesson of lessons) {
       const en=await page.evaluate(id=>JSON.stringify(window.Core.getLesson(id).lesson),lesson.id);expect(en).not.toBe(ar);
       for(const lang of ["ar","en","ar"]){await language(page,lang);expect(await page.evaluate(id=>JSON.stringify(window.Core.getLesson(id).lesson),lesson.id)).toBe(lang==="ar"?ar:en);expect(await page.locator(".exq .opts").evaluateAll(groups=>groups.map(group=>Array.from(group.querySelectorAll(".opt"),n=>n.getAttribute("data-orig"))))).toEqual(choiceOrder);await audit(page);}
       await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('A2',resolve)));
-      const neighbor=await page.evaluate(()=>window.Core.getLesson("a2-u01-l1").lesson.title);
-      await page.evaluate(()=>window.App.go("lezione",{id:"a2-u01-l1"}));
+      const neighbor=await page.evaluate(()=>window.Core.getLesson("a2-u03-l1").lesson.title);
+      await page.evaluate(()=>window.App.go("lezione",{id:"a2-u03-l1"}));
       await expect(page.locator("#main")).toHaveAttribute("data-lesson-language","en");
       await expect(page.locator(".view-head > p")).toHaveText(neighbor);
       expect(errors).toEqual([]);expect(failed).toEqual([]);

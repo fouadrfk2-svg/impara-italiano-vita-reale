@@ -28,7 +28,7 @@ test("Arabic manifest and strict parity retain both complete noun and article le
   assert.deepEqual(Object.keys(ar).sort(), keys.slice().sort());
   for (const id of ids) assert.ok(keys.includes("lesson:" + id));
   const problems = [];
-  checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js") }, { ...overlays("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js") }, problems);
+  checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js") }, { ...overlays("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js"), ...overlayFile("pl", "a2-01.js") }, problems);
   assert.deepEqual(problems, []);
   for (const id of ids) assert.deepEqual(Object.keys(ar["lesson:" + id]).sort(), Object.keys(en["lesson:" + id]).sort());
 });
@@ -123,13 +123,13 @@ test("contrast notes explain Arabic gender differences and avoid the source's ap
 test("Arabic-English-Arabic restores both whole lessons exactly; A2 keeps English", () => {
   const box = setup();
   const snapshot = () => plain(box.Core.registry.byCode.A1.units[0]);
-  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A2.units[0]);
+  select(box, "en"); const en = snapshot(), fallback = plain(box.Core.registry.byCode.A2.units[2]);
   select(box, "ar"); const ar = snapshot();
   for (const lang of ["en", "ar", "en", "ar"]) {
     select(box, lang); assert.deepEqual(snapshot(), lang === "ar" ? ar : en);
-    assert.deepEqual(plain(box.Core.registry.byCode.A2.units[0]), fallback);
-    assert.deepEqual(plain(box.Core.getLesson("a2-u01-l1").lesson), fallback.lessons[0]);
-    assert.deepEqual(plain(box.Core.getLesson("a2-u01-test").lesson), fallback.test);
+    assert.deepEqual(plain(box.Core.registry.byCode.A2.units[2]), fallback);
+    assert.deepEqual(plain(box.Core.getLesson("a2-u03-l1").lesson), fallback.lessons[0]);
+    assert.deepEqual(plain(box.Core.getLesson("a2-u03-test").lesson), fallback.test);
   }
 });
 
@@ -143,7 +143,7 @@ test("a malformed new Arabic lesson falls back independently without disabling t
     const other = ids.find(x => x !== id);
     assert.equal(box.sandbox.LINGUAI.lessonLanguage("ar", other), "ar");
     const problems = [];
-    checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js") }, { ...overlays("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js") }, problems);
+    checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js") }, { ...overlays("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js"), ...overlayFile("pl", "a2-01.js") }, problems);
     assert.ok(problems.some(p => p.includes(id + ".grammar")));
   }
 });
