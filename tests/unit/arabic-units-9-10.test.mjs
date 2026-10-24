@@ -526,18 +526,18 @@ const plans=[
 ];
 const previousHash="8b59a205af0deb775bc1b265222ee0afb4217d7d231a8ad5d59a7ea20093c945";
 const plain=value=>JSON.parse(JSON.stringify(value));
-const files=['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js'];
+const files=['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js'];
 function bag(lang,file){let result;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n',lang,file),'utf8'),{LINGUAI:{addStrings(_lang,map){result=plain(map);}}});return result;}
 const bags=lang=>Object.fromEntries(files.map(file=>[file,bag(lang,file)]));
 const entries=lang=>Object.assign({},...Object.values(bags(lang)));
 const ar=entries('ar'),en=entries('en');
-function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js'].map(f=>'data/core/'+f),...['en','pl','es','fr','de','ar'].flatMap(lang=>['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js',...(lang==='ar'?[]:['b1-01.js'])].map(f=>'data/i18n/'+lang+'/'+f))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
+function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js'].map(f=>'data/core/'+f),...['en','pl','es','fr','de','ar'].flatMap(lang=>['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js',...(lang==='ar'?[]:['b2-01.js'])].map(f=>'data/i18n/'+lang+'/'+f))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
 function language(box,lang){box.Core.state.settings.lang=lang;box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
 
 test('all ten Arabic A1 units declare exactly 40 lessons, ten assessments and ten summaries',()=>{
  const box=setup(),manifest=plain(box.sandbox.I18n.courseOverrides('ar'));
  const keys=n=>{const id='a1-u'+String(n).padStart(2,'0');return ['unit:'+id,...[1,2,3,4].map(l=>'lesson:'+id+'-l'+l),'lesson:'+id+'-test'];};
- assert.equal(Object.values(manifest).flat().length,108);
+ assert.equal(Object.values(manifest).flat().length,132);
  assert.deepEqual(manifest['a1-01.js'].slice(12),keys(3));assert.deepEqual(manifest['a1-02.js'],[...keys(4),...keys(5),...keys(6),...keys(7)]);assert.deepEqual(manifest['a1-03.js'],[...keys(8),...keys(9),...keys(10)]);
  assert.equal(plans.length,10);assert.equal(plans.reduce((n,p)=>n+p.answers.length,0),104);
  for(const file of files)assert.deepEqual(Object.keys(bag('ar',file)),manifest[file]);
@@ -619,7 +619,7 @@ test('Arabic explains the auxiliary, gender, aspect and source concerns without 
 test('Arabic-English-Arabic and all five existing languages restore exact content and all target glossary meanings',()=>{
  const box=setup(),snapshot=()=>plain(box.Core.registry.byCode.A1.units);
  for(const lang of ['en','pl','es','fr','de']){language(box,lang);const before=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}}
- language(box,'en');const fallback=plain(box.Core.registry.byCode.B1.units[0]);language(box,'ar');assert.deepEqual(plain(box.Core.registry.byCode.B1.units[0]),fallback);
+ language(box,'en');const fallback=plain(box.Core.registry.byCode.B2.units[0]);language(box,'ar');assert.deepEqual(plain(box.Core.registry.byCode.B2.units[0]),fallback);
  for(const lang of ['en','pl','es','fr','de']){
   language(box,'ar');assert.equal(box.Core.getLesson('a1-u10-l4').lesson.exercises[3].items[0].gloss,undefined);
   language(box,lang);const review=box.Core.getLesson('a1-u10-l4').lesson.exercises[3].items,exam=box.Core.getLesson('a1-u10-test').lesson.exercises[2].items;assert.equal(review.length,5);assert.equal(exam.length,4);for(const item of [...review,...exam])assert.ok(item.gloss==null||item.gloss==='','No invented or stale gloss after switching');
@@ -635,17 +635,17 @@ test('each new lesson and assessment falls back atomically when damaged, preserv
  }
 });
 
-test('new unit summaries are independently atomic and untranslated B1 Unit 1 retains English fallback',()=>{
+test('new unit summaries are independently atomic and untranslated B2 Unit 1 retains English fallback',()=>{
  for(const unit of ['a1-u09','a1-u10'])for(const field of ['title','grammarNote']){
-  const box=setup(),patch=bag('ar','a1-03.js');delete patch['unit:'+unit][field];patch['unit:b1-u01']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);language(box,'ar');
+  const box=setup(),patch=bag('ar','a1-03.js');delete patch['unit:'+unit][field];patch['unit:b2-u01']={title:'غير معلن',grammarNote:'غير معلن'};box.sandbox.LINGUAI.addStrings('ar',patch);language(box,'ar');
   const current=box.Core.registry.byCode.A1.units.find(u=>u.id===unit);assert.equal(current.title,en['unit:'+unit].title);assert.equal(current.grammarNote,en['unit:'+unit].grammarNote);
-  assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',unit+'-l1'),'ar');assert.equal(box.Core.registry.byCode.B1.units[0].title,bag('en','b1-01.js')['unit:b1-u01'].title);
+  assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',unit+'-l1'),'ar');assert.equal(box.Core.registry.byCode.B2.units[0].title,bag('en','b2-01.js')['unit:b2-u01'].title);
  }
 });
 
 test('new translations reuse existing file loading and never request undeclared Arabic course files',()=>{
  const box=setup(),R=box.sandbox.Registry;
- assert.deepEqual(R.i18nPaths('ar',['a1-01.js','a1-02.js','a1-03.js','b1-01.js']),['data/i18n/en/a1-01.js','data/i18n/en/a1-02.js','data/i18n/en/a1-03.js','data/i18n/en/b1-01.js','data/i18n/ar/a1-01.js','data/i18n/ar/a1-02.js','data/i18n/ar/a1-03.js']);
+ assert.deepEqual(R.i18nPaths('ar',['a1-01.js','a1-02.js','a1-03.js','b2-01.js']),['data/i18n/en/a1-01.js','data/i18n/en/a1-02.js','data/i18n/en/a1-03.js','data/i18n/en/b2-01.js','data/i18n/ar/a1-01.js','data/i18n/ar/a1-02.js','data/i18n/ar/a1-03.js']);
  R.markI18n(['data/i18n/en/a1-02.js','data/i18n/ar/a1-02.js'],['data/i18n/ar/a1-02.js']);assert.deepEqual(R.i18nPaths('ar',['a1-02.js']),['data/i18n/ar/a1-02.js']);
 });
 

@@ -1,10 +1,11 @@
-# Arabic interface and complete original A1–A2
+# Arabic interface and complete original A1–B1
 
 Arabic (العربية) is available from the welcome screen and language selector.
 The partial Arabic course covers all forty lessons and ten assessments in
 units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
 All eight A2 units include 32 existing lessons, eight assessments and exactly
-405 existing exercises, with unit titles and grammar summaries. B1–C2 and
+405 existing exercises, with unit titles and grammar summaries. All four B1
+units add 16 original lessons, four assessments and 203 original exercises. B2–C2 and
 untranslated supporting content continue to use English fallback. No curriculum
 unit, learner exercise, Italian example or topic is added.
 
@@ -12,9 +13,10 @@ unit, learner exercise, Italian example or topic is added.
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly 108 complete entries: 60 for A1
+- I18n.courseOverrides("ar") declares exactly 132 complete entries: 60 for A1
   across a1-01.js, a1-02.js and a1-03.js, and 48 for A2 across a2-01.js
-  (units 1–4) and a2-02.js (units 5–8). Each unit declares four original lessons,
+  (units 1–4) and a2-02.js (units 5–8), plus 24 for B1 in b1-01.js.
+  Each translated unit declares four original lessons,
   its original assessment and its unit summary.
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
@@ -232,11 +234,69 @@ Reviewed source issues, preserved without changing accepted answers:
 
 Focused tests verify all 205 independently reviewed responses, exact neutral
 fields, all learner strings and complete manifest entries. Prior fallback tests
-now use the actual untranslated B1 units, retaining exact English restoration
+now use the actual untranslated B2 units, retaining exact English restoration
 and atomic malformed-overlay checks. Browser coverage exercises every final A2
 lesson and assessment at 390px/1440px, including matching columns that intentionally
 contain Italian, wrong answers, retries, conjugations, dialogues, recordings,
 language cycles, saved scores/reload and axe AA accessibility.
+
+## Complete original B1 translation
+
+The four original B1 units cover the subjunctive, combined pronouns and
+relatives/indefinites, Italian bureaucracy, and media/argument. They contain
+exactly 16 lessons, four assessments and 203 exercises (51/50/50/52 by unit).
+All unit summaries, theory, tables, example meanings, vocabulary, culture,
+questions, choices in the learner language, dialogue translations and feedback
+are Arabic. Italian table cells, choices, audio, IDs, answers and order stay
+unchanged. The existing congiuntivo exercise label now has an Arabic UI string.
+No new lesson, exercise or Italian example is introduced.
+
+Inherited source concerns, retained without altering Italian or grading:
+
+- Unit 1 overstates that subjunctive subject pronouns are obligatory and that
+  this mood never describes facts. Arabic explains disambiguation and stance;
+  context can identify the subject, and emotion may concern an actual event.
+- The trigger list includes come se without distinguishing its usual imperfect
+  or pluperfect subjunctive. Arabic names that distinction in the existing note.
+  Same-subject di + infinitive is explained for the given verbs, not as a
+  universal prohibition on an explicit che clause. Il quale is not presented
+  as an unrestricted replacement for every che/cui.
+- Unit 1 lesson 3 uses plural vi in the original enjoyment examples. Unit 1
+  lesson 4 example 3 switches from singular hai ragione to plural esagerate;
+  Arabic follows those original forms, not the singular English gloss.
+- Unit 2 lesson 1 exercise 3 accepts both ve la and ce la although its stated
+  reply is addressed to the group (ve la). The Arabic explanation teaches
+  ve la; both inherited accepted keys remain. Exercise 2 also accepts glielo
+  before ho; the correct written model remains gliel'ho, and neither key changes.
+- Unit 2 lesson 3's proverb is Chi dorme non piglia pesci, not the literal
+  English early-bird wording. Arabic translates the Italian and explains its
+  existing meaning, without inventing a replacement Italian proverb.
+- Unit 3's descriptions of fiscal-code issuance, residence requirements,
+  self-certification, duty stamps, PEC, cancellation and employment terms are
+  simplified and sometimes categorical. Arabic qualifies these source notes;
+  the lesson teaches language, not legal, financial or administrative advice.
+  No current entitlement or official procedure is guaranteed. The original
+  fourteen-day refund claim, sixteen-euro stamp, four-euro account offer,
+  residence-document list and employment examples remain fictional learning
+  sentences, not universal rules. RAL must not be read as a figure to which a
+  thirteenth salary is necessarily added again; holiday days depend on terms.
+  The original grouping of apprenticeship and internship and of partita IVA
+  with self-employment is retained as vocabulary, with limited contextual notes.
+- Unit 4's tense/time shifts depend on reporting context, not an automatic
+  mechanical rule. The original answer choosing past conditional is retained
+  and its Arabic question specifies the shifted past reference. Journalistic
+  conditional distances the speaker from confirmation; it does not by itself
+  prove a source unofficial. The existing multiple-choice key about sources
+  close to government remains unchanged. Connective register notes describe
+  tendencies rather than bans; exam strategy does not promise exam success.
+
+Focused tests check every original exercise response, unchanged neutral fields,
+all Arabic learner leaves, exact Italian table/options, all six language cycles,
+scores/glossary state, atomic malformed-entry fallback and lazy-load retry.
+Browser coverage completes all 20 original B1 entries at 390px and 1440px,
+including wrong answers, fresh retries, recordings, RTL/LTR, language switching,
+saved progress/reload and axe AA checks. Existing fallback regressions now use
+the four original B2 units: all three lessons and assessment in each stay English.
 
 ## Direction and learner state
 

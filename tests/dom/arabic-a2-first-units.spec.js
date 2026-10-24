@@ -353,20 +353,20 @@ for(const width of [1440,390])test.describe('Arabic A2 units one and two at '+wi
    await page.waitForFunction(id=>JSON.parse(localStorage.getItem('linguai.italiano.v2')).lessons[id].best===1,lesson.id);await page.reload();await ready(page);expect((await state()).lessons[lesson.id]).toEqual(before.lessons[lesson.id]);expect(errors).toEqual([]);
   });
  }
- test('both Arabic A2 unit summaries restore and untranslated B1 Unit 1 stays English',async({page})=>{
+ test('both Arabic A2 unit summaries restore and untranslated B2 Unit 1 stays English',async({page})=>{
   await page.goto('/index.html#/lezione?id=a2-u01-l1');await ready(page);await page.evaluate(()=>window.App.go('percorso',{level:'A2'}));
   const headings=page.locator('.unit__titles p');await expect(headings.nth(0)).toContainText('بين الأمس واليوم');await expect(headings.nth(1)).toContainText('في السفر');await expect(headings.nth(1)).toContainText('futuro semplice');await audit(page);
   await page.evaluate(()=>window.App.go('lezione',{id:'a2-u02-test'}));await ready(page);await language(page,'en');await language(page,'ar');await page.evaluate(()=>window.App.go('percorso',{level:'A2'}));await expect(headings.nth(0)).toContainText('بين الأمس واليوم');await expect(headings.nth(1)).toContainText('في السفر');
-  await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('B1',resolve)));
-      const english=await page.evaluate(()=>window.Core.getLesson('b1-u01-l1').lesson.title);await page.evaluate(()=>window.App.go('lezione',{id:'b1-u01-l1'}));await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');await expect(page.locator('.view-head > p')).toHaveText(english);expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
+  await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('B2',resolve)));
+      const english=await page.evaluate(()=>window.Core.getLesson('b2-u01-l1').lesson.title);await page.evaluate(()=>window.App.go('lezione',{id:'b2-u01-l1'}));await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');await expect(page.locator('.view-head > p')).toHaveText(english);expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
  });
 
- for(const number of [1,2,3,4])test('b1-u0'+number+' complete English fallback for all lessons and assessment',async({page})=>{
+ for(const number of [1,2,3,4])test('b2-u0'+number+' complete English fallback for all lessons and assessment',async({page})=>{
   const errors=[],failed=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push(r.url());});
-  const unitId='b1-u'+String(number).padStart(2,'0');
-  await page.goto('/index.html#/lezione?id=a2-u01-l1');await ready(page);await language(page,'en');await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('B1',resolve)));
-  const snapshot=()=>page.evaluate(id=>JSON.stringify(window.Core.registry.byCode.B1.units.find(u=>u.id===id)),unitId);
-  const english=await snapshot(),unit=JSON.parse(english);expect(unit.lessons).toHaveLength(4);expect(unit.test.id).toBe(unitId+'-test');
+  const unitId='b2-u'+String(number).padStart(2,'0');
+  await page.goto('/index.html#/lezione?id=a2-u01-l1');await ready(page);await language(page,'en');await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('B2',resolve)));
+  const snapshot=()=>page.evaluate(id=>JSON.stringify(window.Core.registry.byCode.B2.units.find(u=>u.id===id)),unitId);
+  const english=await snapshot(),unit=JSON.parse(english);expect(unit.lessons).toHaveLength(3);expect(unit.test.id).toBe(unitId+'-test');
   await language(page,'ar');expect(await snapshot()).toBe(english);
   for(const lesson of [...unit.lessons,unit.test]){
    await page.evaluate(id=>window.App.go('lezione',{id}),lesson.id);
