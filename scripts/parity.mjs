@@ -188,7 +188,8 @@ export function checkPartialCourse(manifest, byFile, reference, out) {
       else if (!(key in bag)) out.push(key + ": missing declared translation");
       else {
         diff(shape(withoutFreeFields(reference[key])), shape(withoutFreeFields(bag[key])), key, out);
-        if (key.startsWith("lesson:") && (!Array.isArray(bag[key].theory) || !bag[key].theory.length)) out.push(key + ": empty theory");
+        // Some original assessments have no theory; require it wherever the source does.
+        if (key.startsWith("lesson:") && ("theory" in reference[key] || "theory" in bag[key]) && (!Array.isArray(bag[key].theory) || !bag[key].theory.length)) out.push(key + ": empty theory");
       }
     });
   });

@@ -55,6 +55,7 @@
         if (!got) nieudane.push(lv.code);
         if (--zostalo > 0) return;
         if (global.Lemma && Lemma.odswiez) Lemma.odswiez();   // the dictionary grew
+        if (global.Router.current.route !== "copertura") return;
         rysuj(F);
         if (nieudane.length) Core.toast(t("search.partial", { levels: nieudane.join(", ") }));
       });

@@ -133,14 +133,35 @@ for (const width of [1440, 390]) {
       const failed = []; page.on("response", r => { if (r.status() >= 400) failed.push(r.url()); });
       await page.goto("/index.html#/percorso"); await ready(page);
       await language(page, "es");
-      await page.evaluate(() => new Promise(resolve => window.Core.loadLevelData("B2", resolve)));
-      const spanish = await page.evaluate(() => window.Core.registry.byCode.B2.units[0].lessons[0].title);
+      await page.evaluate(() => new Promise(resolve => window.Core.loadLevelData("C1", resolve)));
+      const spanish = await page.evaluate(() => window.Core.registry.byCode.C1.units[0].lessons[0].title);
       await language(page, "ar");
-      const arabic = await page.evaluate(() => window.Core.registry.byCode.B2.units[0].lessons[0].title);
+      const arabic = await page.evaluate(() => window.Core.registry.byCode.C1.units[0].lessons[0].title);
       await language(page, "en");
-      expect(arabic).toBe(await page.evaluate(() => window.Core.registry.byCode.B2.units[0].lessons[0].title));
+      expect(arabic).toBe(await page.evaluate(() => window.Core.registry.byCode.C1.units[0].lessons[0].title));
       expect(arabic).not.toBe(spanish);
       expect(failed).toEqual([]);
+    });
+
+    test.describe("delayed supporting-page data",()=>{
+      test.use({serviceWorkers:"block"});
+      test("late Coverage load cannot replace reading after navigation",async({page})=>{
+        const errors=[];page.on("pageerror",e=>errors.push(e.message));
+        let release,requested;const held=new Promise(resolve=>{release=resolve;}),hit=new Promise(resolve=>{requested=resolve;});
+        await page.route("**/data/core/b2-03.js",async route=>{requested();await held;await route.continue();});
+        try{
+          await page.goto("/index.html#/percorso");await ready(page);
+          await page.evaluate(()=>window.App.go("copertura",{}));
+          await page.waitForFunction(()=>window.Router.current.route==="copertura");await hit;
+          await page.evaluate(()=>window.App.go("lettura",{id:"r-a1-mattina"}));
+          await expect(page.locator(".lk-text")).toBeVisible();const original=await page.locator(".lk-text").innerText();
+          release();await page.waitForFunction(()=>window.Core.registry.levels.every(lv=>window.Core.registry.loaded[lv.code]===true));
+          await expect(page.locator(".lk-text")).toBeVisible();await expect(page.locator(".lk-text")).toHaveText(original);
+          expect(await page.evaluate(()=>window.Router.current.route)).toBe("lettura");
+          expect(await page.locator(".lk-text").evaluate(el=>getComputedStyle(el).direction)).toBe("ltr");
+          await overflow(page);expect(errors).toEqual([]);
+        }finally{release();}
+      });
     });
 
     test("Arabic supporting routes render without overflow and Italian reading stays LTR", async ({ page }) => {

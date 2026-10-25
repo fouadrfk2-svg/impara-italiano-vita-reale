@@ -323,18 +323,18 @@ for(const width of [1440,390])test.describe('Arabic A2 units three and four at '
    await page.waitForFunction(id=>JSON.parse(localStorage.getItem('linguai.italiano.v2')).lessons[id].best===1,lesson.id);await page.reload();await ready(page);expect((await state()).lessons[lesson.id]).toEqual(before.lessons[lesson.id]);expect(errors).toEqual([]);
   });
  }
- test('both Arabic A2 unit summaries restore and untranslated B2 Unit 1 stays English',async({page})=>{
+ test('both Arabic A2 unit summaries restore and untranslated C1 Unit 1 stays English',async({page})=>{
   await page.goto('/index.html#/lezione?id=a2-u03-l1');await ready(page);await page.evaluate(()=>window.App.go('percorso',{level:'A2'}));
   const headings=page.locator('.unit__titles p');await expect(headings.nth(2)).toContainText('ضمائر المفعول به والمفعول غير المباشر');await expect(headings.nth(3)).toContainText('الصحة');await expect(headings.nth(3)).toContainText('mi fa male');await audit(page);
   await page.evaluate(()=>window.App.go('lezione',{id:'a2-u04-test'}));await ready(page);await language(page,'en');await language(page,'ar');await page.evaluate(()=>window.App.go('percorso',{level:'A2'}));await expect(headings.nth(2)).toContainText('ضمائر المفعول به والمفعول غير المباشر');await expect(headings.nth(3)).toContainText('الصحة');
-  await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('B2',resolve)));await page.evaluate(()=>window.App.go('lezione',{id:'b2-u01-l1'}));await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
+  await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('C1',resolve)));await page.evaluate(()=>window.App.go('lezione',{id:'c1-u01-l1'}));await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
  });
 
- for(const number of [1,2,3,4])test('b2-u0'+number+' complete English fallback for all lessons and assessment',async({page})=>{
+ for(const number of [1,2,3,4])test('c1-u0'+number+' complete English fallback for all lessons and assessment',async({page})=>{
   const errors=[],failed=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push(r.url());});
-  const unitId='b2-u'+String(number).padStart(2,'0');
-  await page.goto('/index.html#/lezione?id=a2-u03-l1');await ready(page);await language(page,'en');await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('B2',resolve)));
-  const snapshot=()=>page.evaluate(id=>JSON.stringify(window.Core.registry.byCode.B2.units.find(u=>u.id===id)),unitId);
+  const unitId='c1-u'+String(number).padStart(2,'0');
+  await page.goto('/index.html#/lezione?id=a2-u03-l1');await ready(page);await language(page,'en');await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('C1',resolve)));
+  const snapshot=()=>page.evaluate(id=>JSON.stringify(window.Core.registry.byCode.C1.units.find(u=>u.id===id)),unitId);
   const english=await snapshot(),unit=JSON.parse(english);expect(unit.lessons).toHaveLength(3);expect(unit.test.id).toBe(unitId+'-test');
   await language(page,'ar');expect(await snapshot()).toBe(english);
   for(const lesson of [...unit.lessons,unit.test]){
@@ -342,7 +342,15 @@ for(const width of [1440,390])test.describe('Arabic A2 units three and four at '
    await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','en');
    await expect(page.locator('.view-head > p')).toHaveText(lesson.title);
    await expect(page.locator('html')).toHaveAttribute('dir','rtl');
-   expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
+   if(lesson.theory&&lesson.theory.length){
+    expect(await page.locator('.prose').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
+   }else{
+    // Original assessments may have no theory panel; verify their actual instructions.
+    const prompt=page.locator(active+' .exq__prompt').first();
+    await expect(prompt).toHaveText(lesson.exercises[0].q);
+    await expect(prompt).toHaveAttribute('lang','en');
+    expect(await prompt.evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');
+   }
    expect(await page.evaluate(id=>window.LINGUAI.lessonLanguage('ar',id),lesson.id)).toBe('en');
    expect(await page.evaluate(id=>JSON.stringify(window.Core.getLesson(id).lesson),lesson.id)).toBe(JSON.stringify(lesson));
    if(lesson.id.endsWith('-l1')||lesson.id.endsWith('-test'))await audit(page);

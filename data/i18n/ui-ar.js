@@ -198,6 +198,8 @@ LINGUAI.addUI("ar", {
   "a11y.listenTo": "استمع إلى {what}",
   "privacy.title": "الخصوصية",
   "ex.conj.prompt": "صرّف الفعل: <bdi lang=\"it\" dir=\"ltr\">{verb}</bdi> — {tense}",
+  "tense.congImp": "الماضي في صيغة congiuntivo imperfetto",
+  "tense.remoto": "الماضي السردي (passato remoto)",
   "tense.cong": "المضارع في صيغة congiuntivo",
   "tense.pres": "المضارع",
   "tense.imperf": "الماضي الوصفي (imperfetto)",

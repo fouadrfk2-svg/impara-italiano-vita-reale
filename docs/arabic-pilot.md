@@ -1,11 +1,13 @@
-# Arabic interface and complete original A1–B1
+# Arabic interface and complete original A1–B2
 
 Arabic (العربية) is available from the welcome screen and language selector.
 The partial Arabic course covers all forty lessons and ten assessments in
 units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
 All eight A2 units include 32 existing lessons, eight assessments and exactly
 405 existing exercises, with unit titles and grammar summaries. All four B1
-units add 16 original lessons, four assessments and 203 original exercises. B2–C2 and
+units add 16 original lessons, four assessments and 203 original exercises.
+All six B2 units add 18 original lessons, six assessments and 252 original
+exercises. C1–C2 and
 untranslated supporting content continue to use English fallback. No curriculum
 unit, learner exercise, Italian example or topic is added.
 
@@ -13,10 +15,11 @@ unit, learner exercise, Italian example or topic is added.
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly 132 complete entries: 60 for A1
+- I18n.courseOverrides("ar") declares exactly 162 complete entries: 60 for A1
   across a1-01.js, a1-02.js and a1-03.js, and 48 for A2 across a2-01.js
-  (units 1–4) and a2-02.js (units 5–8), plus 24 for B1 in b1-01.js.
-  Each translated unit declares four original lessons,
+  (units 1–4) and a2-02.js (units 5–8), plus 24 for B1 in b1-01.js and 30 for B2 across b2-01.js,
+  b2-02.js and b2-03.js.
+  A1–B1 units declare four original lessons; B2 units declare three. Each includes
   its original assessment and its unit summary.
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
@@ -295,8 +298,77 @@ all Arabic learner leaves, exact Italian table/options, all six language cycles,
 scores/glossary state, atomic malformed-entry fallback and lazy-load retry.
 Browser coverage completes all 20 original B1 entries at 390px and 1440px,
 including wrong answers, fresh retries, recordings, RTL/LTR, language switching,
-saved progress/reload and axe AA checks. Existing fallback regressions now use
-the four original B2 units: all three lessons and assessment in each stay English.
+saved progress/reload and axe AA checks. Fallback regressions now use the first
+four original C1 units: all three lessons and assessment in each stay English.
+
+## Complete original B2 and inherited source concerns
+
+All six original B2 units are translated, including 18 lessons, six assessments
+and exactly 252 existing exercises (41 / 40 / 41 / 42 / 43 / 45 by unit).
+No Italian content, recording, answer, option order, ID or scoring rule changes.
+Unit summaries and all existing learner-language fields retain their original
+shapes. The original Unit 5 assessment has no objectives or theory: none are added.
+Existing Italian-only table cells and answer options remain exactly Italian.
+Only the conjugation labels tense.congImp and tense.remoto are added to Arabic UI.
+Two source-compatibility fixes are covered explicitly: the merge applies existing
+match glosses stored in tr arrays, and strict parity permits omitted theory only
+when the original entry omits it. Missing, empty or malformed originally required
+text still rejects the entire translation. No teaching block is invented to fit
+the validator. A delayed level-load regression also reproduced Coverage
+redrawing over a reading after navigation; its completion callback now checks
+that Coverage is still the current route before rendering. Dictionary refresh
+and all loading/progress behavior remain intact. The original supporting-route
+assertions are retained, with deterministic delayed-load coverage at both widths.
+
+The Arabic explanations follow Italian examples and qualify inherited overstatements:
+
+- Unit 1's six irregular subjunctive verbs are important models, not an exhaustive
+  inventory of every derived irregular verb. Its se rule applies to hypothetical
+  conditions, not every use of se. Future-in-the-past choices in the original keys
+  remain; tense selection is contextual, not a universal ban on alternatives.
+  The time-grouped senza che means absence, not time; fino a che depends on context.
+- Unit 2's claim that se cannot take a future conflicts with its own valid
+  Se verrai, ti aspetterò example and accepted farà key. Arabic explicitly permits
+  a future in real conditions. The double imperfetto is informal, not banned from
+  every kind of writing. Existing qualora / nel caso in cui fill items explicitly
+  request congiuntivo imperfetto because their keys accept only that tense.
+- Unit 3's same-subject rule is scoped to the infinitive/gerund transformations,
+  not the independent Finita la riunione participial construction. Dopo mangiato
+  is an attested elliptical form; original multiple-choice items explicitly ask
+  for the past-infinitive construction, preserving all choices and the existing
+  key. The unchanged vocabulary entry diventare → divenne mixes diventare with
+  divenire; no Italian correction is made here. The 1–3–3 pattern describes a
+  group, not every irregular verb. Regional passato remoto and passive-frequency
+  descriptions are tendencies, not universal geographic or register rules.
+- Unit 4's economic sentences and figures are language examples, not current
+  statistics. Il fatto che does not invariably require congiuntivo; Arabic and
+  questions specify the construction being practised. Cultural claims about
+  Italians interrupting or debates never becoming personal are not universal.
+- Unit 5's backshift, pronouns and venire/andare changes depend on the reporting
+  perspective. Sostenere does not always force a subjunctive, and portare does
+  not automatically become lasciare. Same-subject di essere statements are not
+  universally excluded by mi ha detto. The unchanged assessment prefers the
+  taught di + infinitive pattern, without declaring every che + subjunctive
+  directive ungrammatical. The lesson 2 translation prompt follows its accepted
+  sentence without an extra lì; its English gloss adds there. Its final spoken
+  gloss follows non sarebbe venuto (would not come), not simply would not be there.
+- Unit 6's conjunction claims apply to the taught concessive uses. Anche se
+  takes indicative for the factual examples and subjunctive in the hypothetical
+  examples; pur di is purpose, pur + gerund is concession. A gerund has an implied
+  subject, not no subject. The original Pur piovendo option and key are retained;
+  impersonal weather constructions should not be confused with an arbitrary
+  change of subject. English in effect can itself be ambiguous; Arabic follows
+  the intended distinction between actual confirmation and consequence.
+
+Focused response fixtures review every existing exercise against its original
+key, including matching arrays stored as tr as well as pairs. Preservation tests
+freeze all earlier Arabic overlays and every original core file. Browser checks
+complete all 24 B2 entries at 390px and 1440px, audit axe AA and overflow for each
+interaction type, test wrong feedback/retry, Italian audio, exact Arabic-English-
+Arabic restoration, scores and reload persistence. C1/C2 remain English fallback.
+Final browser runs use one worker and zero retries. External QA configuration
+disables continuous traces to avoid filling the drive; failure screenshots,
+all assertions and test timeouts remain unchanged. No screenshot gallery is made.
 
 ## Direction and learner state
 

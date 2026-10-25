@@ -71,7 +71,8 @@
   function applyExercise(ex, p) {
     if (!ex || !p) return;
     copy(ex, p, EX_KEYS);
-    byIndex(ex.pairs, p.pairs, "tr");
+    // Original later-level match overlays also store glosses in a tr array.
+    byIndex(ex.pairs, p.pairs || (ex.t === "match" && Array.isArray(p.tr) ? p.tr : null), "tr");
     byIndex(ex.items, p.items, "gloss");
     objByIndex(ex.lines, p.lines, ["tr", "answerTr"]);
   }
