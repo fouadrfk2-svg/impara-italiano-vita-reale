@@ -117,6 +117,7 @@ describe("the indexes", () => {
 describe("fetching a level's data", () => {
   test("the neutral layer goes before the text overlay", () => {
     const box = swiezy();
+    box.Core.state.settings.lang = "pl"; // Explicit Polish overlay scenario, independent of product default.
     R(box).registerLevel(poziom({ dataFiles: ["a1-01.js", "a1-02.js"] }));
     R(box).loadLevelData("A1", () => {});
     box.settleScripts();

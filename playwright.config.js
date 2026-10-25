@@ -30,9 +30,8 @@ module.exports = defineConfig({
        error than the user's browser, so that path stays unverified and is
        described as such in recorder.js. */
     permissions: ["microphone"],
-    /* A first visit follows the browser's language (app.js, boot). The suite
-       was written against the Polish default, so the test browser speaks
-       Polish; a test about another browser language sets its own locale. */
+    /* Locale controls browser formatting; Arabic is the product default.
+       Polish UI regressions below explicitly start with a saved Polish choice. */
     locale: "pl-PL",
     launchOptions: {
       args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"]
@@ -40,7 +39,16 @@ module.exports = defineConfig({
   },
 
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } }
+    {
+      name: "chromium",
+      testIgnore: [/arabic-.*\.spec\.js$/, /supporting-localization\.spec\.js$/, /welcome\.spec\.js$/],
+      use: { ...devices["Desktop Chrome"], storageState: { cookies: [], origins: [{ origin: "http://localhost:8123", localStorage: [{ name: "linguai.italiano.v2", value: JSON.stringify({ schema: 2, settings: { lang: "pl" } }) }] }] } }
+    },
+    {
+      name: "localization",
+      testMatch: [/arabic-.*\.spec\.js$/, /supporting-localization\.spec\.js$/, /welcome\.spec\.js$/],
+      use: { ...devices["Desktop Chrome"] }
+    }
   ],
 
   webServer: {

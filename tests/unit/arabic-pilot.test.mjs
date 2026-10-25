@@ -80,7 +80,7 @@ describe("Arabic interface pilot", () => {
     R.setLanguage("ar", () => {});
     box.settleScripts();
     assert.ok(box.scripts.length > 0);
-    assert.deepEqual(Array.from(box.scripts), ["curriculum-index.js", "conversations.js", "grammar-reference.js", "phonetics.js", "readings.js", "writing.js", "interference.js"].map(f => "data/i18n/en/" + f).concat(["data/i18n/ar/curriculum-index.js", "data/i18n/ar/conversations.js", "data/i18n/ar/grammar-reference.js"]));
+    assert.deepEqual(Array.from(box.scripts), ["curriculum-index.js", "conversations.js", "grammar-reference.js", "phonetics.js", "readings.js", "writing.js", "interference.js"].map(f => "data/i18n/en/" + f).concat(["data/i18n/ar/curriculum-index.js", "data/i18n/ar/conversations.js", "data/i18n/ar/grammar-reference.js", "data/i18n/ar/phonetics.js", "data/i18n/ar/readings.js", "data/i18n/ar/writing.js"]));
   });
 
   test("a failed English fallback file remains retryable and is reported", () => {

@@ -545,3 +545,15 @@ Source review and minimal Arabic prose qualifications (original English/Italian 
 - Unaltered source concerns: `g-imperativo` lists `di' (dici)` even though `dici` is not the standard imperative alternative; the Italian parenthetical remains intact for separate source correction. `g-passato-remoto` uses the label “1-3-3” for io, lui/lei and loro (not the usual ordinal-person numbering). The illustrated forms are preserved. Original anglophone phonetic spellings remain technical mnemonic notation; they are not a complete phonetic transcription.
 
 Mixed reference tables exposed a pre-existing RTL cascade conflict: legacy `.it` cells overrode an explicit resolved Arabic language. A rule scoped to Arabic reference/supporting tables now honours the Arabic cell direction. Italian cells and English C2 content keep LTR.
+
+
+## Arabic supporting completion and first-visit default
+
+- Complete selective overlays: 23 A1–C1 short readings, five A1–C1 library texts, six writing tasks and five phonetics sets (39 entries). Original Italian passages, questions, answer keys, audio, order and earlier translations remain unchanged. C2 stays English.
+- Fresh profiles start in Arabic regardless of browser locale. Stored language choices remain authoritative; the Polish-only v1 migration is unchanged. English and all other language options remain available. Legacy Polish browser scenarios now declare a saved Polish preference explicitly; localization/welcome scenarios use empty storage.
+- Pronunciation comparisons use Arabic articulatory explanations and only the existing Italian pairs. English example words are replaced by those existing Italian words without adding exercises or examples.
+- Contextual English gloss concerns: readings use *svolta* as a participle (carried out), not a turning point, and *nomina* as a verb (names), not an appointment. The library uses *sostenere* to support a claim, not to maintain an object. Arabic meanings follow the unchanged Italian context.
+- Inherited source limitations: generalisations about coffee habits, market etiquette, receipts/guarantees, housing/residency, immigration procedures, pharmacies and train-ticket rules are retained in Italian and are not verified current legal, medical or procedural guidance. The B1 library's categorical receipt/travel/rights claims need separate original-content review; this translation does not alter them or grading.
+- The writing engine accepts a limited set of Italian responses by design; no answer set was expanded.
+
+- Confirmed dictionary issue fixed: normalised lemmas did not match capitalised/stress-marked reading gloss keys (for example Italia). Lookup now compares the same normalised Italian identity, preserving original data and card keys.

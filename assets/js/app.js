@@ -195,25 +195,10 @@
   };
 
   /* ---------------- Startup ---------------- */
-  /** Whether the browser holds a saved profile, read before load() fills defaults. */
-  function zapisIstnieje() {
-    /* A v1 save counts too: it is migrated on load, not a first visit. */
-    try {
-      return global.localStorage.getItem(Core.STORE_KEY) !== null ||
-        global.localStorage.getItem(global.Store.KEY_V1) !== null;
-    } catch (e) { return false; }
-  }
-
   function boot() {
-    var pierwszaWizyta = !zapisIstnieje();
+    /* Arabic is the fresh-profile default. Store.load preserves saved language
+       choices, including the Polish-only v1 migration, regardless of locale. */
     Core.load();
-    /* A first visit takes the browser's language when the course has it:
-       the default (Polish) left everyone else facing a welcome they could not
-       read. A saved choice always wins, so this runs only without a save. */
-    if (pierwszaWizyta) {
-      var zPrzegladarki = I18n.pickLang(global.navigator.languages || [global.navigator.language]);
-      if (zPrzegladarki) Core.state.settings.lang = zPrzegladarki;
-    }
     var lang = Core.state.settings.lang;
     I18n.set(lang);
     applyTheme(Core.state.settings.theme || "light");

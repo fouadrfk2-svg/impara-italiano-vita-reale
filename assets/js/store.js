@@ -95,7 +95,7 @@
       xp: 0,
       minutes: 0,
       settings: {
-        lang: "pl",         // language of explanations; Italian is always the language taught
+        lang: "ar",         // first-visit language; saved choices and v1 migration keep their own language
         theme: "light",
         voiceSource: "natural", // "natural" = Edge TTS recordings, "system" = Web Speech API
         rate: 1,

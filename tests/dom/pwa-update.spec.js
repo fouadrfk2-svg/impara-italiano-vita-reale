@@ -104,7 +104,7 @@ test("after a release the message appears by itself, and \"Update\" moves to the
 
   const komunikat = page.locator(KOMUNIKAT);
   await expect(komunikat).toBeVisible({ timeout: 20000 });
-  await expect(komunikat).toContainText("nowa wersja");
+  await expect(komunikat).toContainText(await page.evaluate(() => window.I18n.t("pwa.updateReady")));
 
   /* The marker survives everything except a page reload: after the click it
      must be gone, and that is the only proof the page started from scratch. */

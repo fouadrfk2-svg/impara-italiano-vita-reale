@@ -105,7 +105,9 @@
     var pary = [[r.glossIt, r.gloss], [r.lexIt, r.lex]];
     for (var i = 0; i < pary.length; i++) {
       var wl = pary[i][0] || [], tr = pary[i][1] || [];
-      var j = wl.indexOf(haslo);
+      /* Lemmas are normalised, while author glosses can retain capitals
+         or stress marks (Italia, pèsca). Compare the same identity on both sides. */
+      var j = wl.map(function (word) { return Core.norm(word); }).indexOf(klucz);
       if (j >= 0 && tr[j]) return { tr: tr[j], zFrazy: "" };
     }
 

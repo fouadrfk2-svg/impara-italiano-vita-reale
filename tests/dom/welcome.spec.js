@@ -133,12 +133,12 @@ test("the welcome strings exist in five languages", async ({ page }) => {
 test.describe("a first visit from a French browser", () => {
   test.use({ locale: "fr-FR" });
 
-  /* The default was Polish for everyone. */
-  test("the welcome speaks the browser's language", async ({ page }) => {
+  /* Fresh visitors start Arabic independently of browser locale. */
+  test("the welcome is Arabic regardless of the browser language", async ({ page }) => {
     await page.goto("/index.html");
     await gotowe(page);
     await expect(page.locator(".js-zero")).toBeVisible();
-    expect(await page.evaluate(() => window.I18n.lang)).toBe("fr");
+    expect(await page.evaluate(() => window.I18n.lang)).toBe("ar");
   });
 });
 

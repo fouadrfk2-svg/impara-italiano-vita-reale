@@ -49,5 +49,5 @@ test('privacy translations retain the separate disclosures for voice, answers, c
 test('complete Arabic UI preserves English/other-language restoration and learner state independently from content fallback',()=>{
  const b=engine(),I=b.sandbox.I18n;b.Core.recordLesson('a1-u01-l1',8,10,120);b.Core.addCard('ciao','مرحبًا','a1-u01-l1');const state=()=>{const s=plain(b.Core.state);delete s.settings.lang;return s;},saved=state();
  for(const lang of ['en','pl','es','fr','de']){const expected=dictionary(lang);I.set(lang);assert.equal(I.t('talk.send'),expected['talk.send']);I.set('ar');assert.equal(I.t('talk.send'),ar['talk.send']);assert.deepEqual(state(),saved);}
- assert.equal(I.contentLanguage('ar'),'en');assert.equal(Object.values(I.contentOverrides('ar')).flat().length,59);assert(!Object.values(I.contentOverrides('ar')).flat().includes('level:C2'));assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar','c2-u01-l1'),'en');assert.equal(b.Core.state.schema,2);
+ assert.equal(I.contentLanguage('ar'),'en');assert.equal(Object.values(I.contentOverrides('ar')).flat().length,98);assert(!Object.values(I.contentOverrides('ar')).flat().includes('level:C2'));assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar','c2-u01-l1'),'en');assert.equal(b.Core.state.schema,2);
 });

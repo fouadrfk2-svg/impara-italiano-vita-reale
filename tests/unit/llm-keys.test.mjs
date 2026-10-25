@@ -139,6 +139,7 @@ describe("the keys must not leave in the backup", () => {
 
   test("clearing the profile takes the keys with it", () => {
     const b = box();
+    b.Core.state.settings.lang = "pl"; // A deliberately selected saved preference.
     const K = b.sandbox.LlmKeys;
     K.set("openai", KEY);
     b.Core.resetState();

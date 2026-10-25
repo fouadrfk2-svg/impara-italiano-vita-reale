@@ -39,7 +39,7 @@ describe("merge", () => {
     box.Core.load();
     const s = box.Core.state;
     assert.equal(s.settings.rate, 0.8, "the value from the saved state");
-    assert.equal(s.settings.lang, "pl", "the rest of the branch from the defaults");
+    assert.equal(s.settings.lang, "ar", "the rest of the branch from the Arabic-first defaults");
     assert.equal(s.settings.autoplay, true);
   });
 
@@ -909,7 +909,7 @@ describe("addCard: reserved keys do not touch the prototype", () => {
   });
 
   test("an accepted card survives save and load with its translation", () => {
-    const box = loadEngine();
+    const box = loadEngine({ seed: { [KEY]: saved({ settings: { lang: "pl" } }) } });
     box.Core.load();
     assert.equal(box.Core.addCard("caffè", "coffee", "import"), "caffe");
     box.Core.save();
