@@ -509,3 +509,17 @@ plural categories, placeholders, markup, original values, all language cycles
 and saved progress. Browser coverage audits existing sections at 390px/1440px
 with axe AA, overflow checks, mixed-language controls and consent persistence.
 Run CPU-heavy suites separately from the complete single-worker browser run.
+
+
+## Standalone conversations and level descriptions — Arabic
+
+All 14 existing conversations are fully translated, including every indexed turn, learner task, option meaning, setting and closing. Only A1–C1 level names/descriptions are enabled; C2 remains English. Core Italian, dialogue branches, recorded models and accepted alternatives are unchanged, including Anna/Poland in `presentarsi`, fictional prices and restaurant food/drink. The 962 Arabic UI keys and all A1–C1 course files are byte-identical.
+
+Inherited source concerns (not grading changes):
+
+- `presentarsi`: the recorded model `Sono dalla Polonia` is less idiomatic than the already accepted `Vengo dalla Polonia`; the name/country and recording remain unchanged.
+- `medico` and `medico-gola`: fictional medical dialogue contains antibiotic/treatment instructions, and the branching model ties a prescription to swallowing difficulty alone. This is a source-content limitation, not medical guidance. The source also claims a doctor sends a sick note directly to an employer. Translation preserves the original utterances and branches; clinical/procedural review is a separate content decision.
+- `treno` / `treno-perso`: validation, refund, change fees and strike rules are assertions in the fictional scenario, not verified current travel-policy advice.
+- `affitto` / `casa-visita` and `burocrazia`: rental conditions, deposits and immediate tax-code issuance belong to the scenario; they are not legal or official-procedure guarantees.
+- `dibattito`: the original closing generalises about Italians interrupting each other. It is translated faithfully; cultural accuracy should be reviewed separately.
+- Restaurant source dialogue alternates singular/plural and formal/informal address; Arabic follows each original utterance without rewriting Italian or recordings.
