@@ -523,3 +523,25 @@ Inherited source concerns (not grading changes):
 - `affitto` / `casa-visita` and `burocrazia`: rental conditions, deposits and immediate tax-code issuance belong to the scenario; they are not legal or official-procedure guarantees.
 - `dibattito`: the original closing generalises about Italians interrupting each other. It is translated faithfully; cultural accuracy should be reviewed separately.
 - Restaurant source dialogue alternates singular/plural and formal/informal address; Arabic follows each original utterance without rewriting Italian or recordings.
+
+
+## Arabic grammar reference — A1–C1
+
+39 original articles and all eight existing section headings are translated. The three C2 articles (`g-nome-avanzato`, `g-participio`, `g-perifrasi`) remain wholly English. All original HTML tags/attributes and Italian example/conjugation text are retained. Latin expressions in mixed translated text use Unicode LTR isolates; original phonetic mnemonic tokens are retained as pronunciation notation, not English instructions. No new examples, lessons, exercises or answers are introduced. Earlier Arabic lessons, UI and conversations remain byte-identical.
+
+Source review and minimal Arabic prose qualifications (original English/Italian files remain unchanged):
+
+- `g-nome-genere`: the claim that all listed suffixes, especially `-ice`, always indicate feminine gender is overbroad; loanword gender is not determined universally by the replaced word. Arabic uses qualified wording.
+- `g-nome-plurale`, `g-presente`: stress-based `-co/-go` and dropping `i` are patterns with exceptions, not universal algorithms. Arabic qualifies the existing rules without adding examples.
+- `g-articolo-det`: gender/number agreement is with the noun; only the phonological form follows the immediately following sound. Arabic distinguishes these.
+- `g-agg-accordo`: `marrone` is variable in standard Italian too; the source restriction to speech is inaccurate. The original colour list stays intact.
+- `g-pron-diretti`, `g-ci-ne`: Arabic specifies the existing direct-pronoun agreement rule and gender/number agreement for quantitative `ne` more precisely. No accepted answers change.
+- `g-si`: the source says the participle always ends in `-i` but itself gives `si è mangiato bene`. Arabic states that the ending varies with the construction and retains both original examples.
+- `g-verbi-pronominali`: the universal `essere` claim contradicts `ce l'ho fatta`. Arabic avoids generalising the auxiliary and retains both original examples and agreement with `la`.
+- `g-congiuntivo-pres`: subject pronouns need not always be expressed; Arabic ties their use to disambiguation. The list includes connectors that require other subjunctive tenses (notably `come se`); Arabic labels the list as subjunctive constructions, not a blanket present-tense rule.
+- `g-periodo-ipotetico`: a universal ban on future after `se` is false. Arabic scopes the warning to hypothetical conditions and explicitly avoids a universal ban. The original erroneous `Se avrei` illustration stays an error illustration.
+- `g-gerundio`, `g-infinito`: “right now only”, universally identical subjects and “always after dopo” are overstatements outside the illustrated constructions. Arabic limits the explanation to the existing examples/constructions.
+- `g-preposizioni`, `g-avverbi`, `g-registri`, `g-fonologia`: avoid unsupported absolute frequency, fixed-position, register or completely-predictable-pronunciation claims; Arabic uses appropriate qualifications. English-specific comparisons are adapted to Arabic using only the existing examples.
+- Unaltered source concerns: `g-imperativo` lists `di' (dici)` even though `dici` is not the standard imperative alternative; the Italian parenthetical remains intact for separate source correction. `g-passato-remoto` uses the label “1-3-3” for io, lui/lei and loro (not the usual ordinal-person numbering). The illustrated forms are preserved. Original anglophone phonetic spellings remain technical mnemonic notation; they are not a complete phonetic transcription.
+
+Mixed reference tables exposed a pre-existing RTL cascade conflict: legacy `.it` cells overrode an explicit resolved Arabic language. A rule scoped to Arabic reference/supporting tables now honours the Arabic cell direction. Italian cells and English C2 content keep LTR.

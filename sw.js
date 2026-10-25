@@ -48,7 +48,7 @@
 
    A human raises "v35" when they want to name a release; the fingerprint
    is not their job. */
-var SW_VERSION = "v35.5b9b17d82a84";
+var SW_VERSION = "v35.15f63199d38d";
 
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 /* Recordings are content-addressed, so their cache survives a version change.

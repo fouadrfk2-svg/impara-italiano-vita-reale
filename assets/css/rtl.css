@@ -54,3 +54,8 @@ html[dir="rtl"] [data-content-language="it"] { direction:ltr; unicode-bidi:isola
 html[dir="rtl"] [data-content-language="ar"] :is(bdi[dir="ltr"],.it,.dlg__it,.lk-text,.gt,.tok-bank,.tok-target,.voice-target,input:not(.js-tr),textarea) {
   direction:ltr; unicode-bidi:isolate;
 }
+
+/* Resolved Arabic table cells take precedence over legacy Italian cell classes. */
+html[dir="rtl"] [data-content-language="ar"] .gt :is(th,td)[data-content-language="ar"] {
+  direction:rtl; unicode-bidi:isolate; text-align:right;
+}
