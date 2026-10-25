@@ -174,20 +174,37 @@ function diff(a, b, path, out) {
 
 /** Complete entries only: fallback may cover other lessons, never a hole in a
  * declared translation. File membership is checked as well as every key/index. */
-export function checkPartialCourse(manifest, byFile, reference, out) {
+export function checkPartialCourse(manifest, byFile, reference, out, contentManifest = {}) {
+  const course = manifest;
+  manifest = Object.assign({}, manifest);
+  for (const [file, keys] of Object.entries(contentManifest)) {
+    if (!Array.isArray(keys)) { out.push(file + ": invalid supporting declaration"); manifest[file] = manifest[file] || []; }
+    else manifest[file] = (manifest[file] || []).concat(keys);
+  }
+  const engine = engineI18n();
   const seen = new Set();
   Object.keys(byFile).filter(f => !(f in manifest)).forEach(f => out.push(f + ": undeclared partial file"));
   Object.entries(manifest).forEach(([file, keys]) => {
     const bag = byFile[file];
     if (!bag) { out.push(file + ": missing declared partial file"); return; }
     Object.keys(bag).filter(k => !keys.includes(k)).forEach(k => out.push(file + ": undeclared entry " + k));
+    if (!Array.isArray(keys)) { out.push(file + ": invalid declaration"); return; }
     keys.forEach(key => {
       if (seen.has(key)) out.push(key + ": duplicate declaration");
       seen.add(key);
-      if (!/^(lesson|unit):/.test(key) || !(key in reference)) out.push(key + ": unknown lesson or unit");
+      const supporting = Array.isArray(contentManifest[file]) && contentManifest[file].includes(key);
+      if (!(key in reference) || (supporting ? !engine.supportsContent(file, key) : !/^(lesson|unit):/.test(key))) out.push(key + ": unknown lesson, unit or supporting entry");
+      else if (supporting && Array.isArray(course[file]) && course[file].includes(key)) out.push(key + ": duplicate declaration");
       else if (!(key in bag)) out.push(key + ": missing declared translation");
       else {
         diff(shape(withoutFreeFields(reference[key])), shape(withoutFreeFields(bag[key])), key, out);
+        if (supporting) {
+          const empty = (v, base, p) => {
+            if (typeof base === "string" && base.trim() && typeof v === "string" && !v.trim()) out.push(p + ": empty supporting text");
+            else if (v && base && typeof v === "object" && typeof base === "object") Object.keys(base).forEach(k => empty(v[k], base[k], p + "." + k));
+          };
+          empty(bag[key], reference[key], key);
+        }
         // Some original assessments have no theory; require it wherever the source does.
         if (key.startsWith("lesson:") && ("theory" in reference[key] || "theory" in bag[key]) && (!Array.isArray(bag[key].theory) || !bag[key].theory.length)) out.push(key + ": empty theory");
       }
@@ -247,9 +264,9 @@ for (const lang of langs) {
   const own = loadLang(lang, byFile);
   const problems = [];
   const manifest = ENGINE.courseOverrides(lang);
-  const partial = Object.keys(manifest).length > 0;
+  const partial = ENGINE.contentLanguage(lang) !== lang;
   const base = partial ? ENGINE.contentLanguage(lang) : lang;
-  if (partial) checkPartialCourse(manifest, byFile, ref, problems);
+  if (partial) checkPartialCourse(manifest, byFile, ref, problems, ENGINE.contentOverrides(lang));
   const bag = partial ? Object.assign(loadLang(base), own) : own;
 
   /* The "int:" keys take a separate path: presence is decided by `for`, not by Polish. */

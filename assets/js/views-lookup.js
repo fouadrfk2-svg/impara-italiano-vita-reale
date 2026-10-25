@@ -202,7 +202,11 @@
     var ctx = karta.querySelector(".lk-card__ctx");
     if (ctx) ctx.textContent = t("lookup.fromPhrase", { phrase: wynik.zFrazy });
     var pole = karta.querySelector(".js-tr");
-    if (pole) pole.value = gloss;
+    if (pole) {
+      pole.value = gloss;
+      I18n.markMeaning(pole, gloss);
+      pole.addEventListener("input", function () { I18n.markMeaning(pole, pole.value); });
+    }
 
     przy.insertAdjacentElement("afterend", karta);
     otwarta = karta;

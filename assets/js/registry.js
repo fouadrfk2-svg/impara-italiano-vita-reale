@@ -94,7 +94,7 @@
 
   function i18nPaths(lang, files) {
     var base = global.I18n && global.I18n.contentLanguage ? global.I18n.contentLanguage(lang) : lang;
-    var overrides = global.I18n && global.I18n.courseOverrides ? global.I18n.courseOverrides(lang) : {};
+    var overrides = global.I18n && global.I18n.overlayOverrides ? global.I18n.overlayOverrides(lang) : {};
     var paths = files.filter(function (f) { return !i18nLoaded[base + "/" + f]; })
       .map(function (f) { return I18N_DIR + base + "/" + f; });
     if (base !== lang) files.forEach(function (f) {

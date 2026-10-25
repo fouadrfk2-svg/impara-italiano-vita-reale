@@ -44,7 +44,7 @@
         var p = Core.lessonState("conv-" + c.id);
         return '<button class="list-row" data-conv="' + esc(c.id) + '" style="text-align:left;cursor:pointer;width:100%">' +
           '<span style="font-size:1.6rem">' + esc(c.icon) + "</span>" +
-          '<span class="list-row__main"><b>' + esc(c.titleIt) + "</b><span>" + esc(c.title) + "</span></span>" +
+          '<span class="list-row__main"><b' + I18n.contentAttrs("it") + '>' + esc(c.titleIt) + "</b><span" + I18n.contentAttrs("conv:" + c.id) + ">" + esc(c.title) + "</span></span>" +
           '<span class="chip chip--cefr">' + esc(c.cefr) + "</span>" +
           (p ? '<span class="chip chip--green">✓</span>' : "") + "</button>";
       }).join("") + "</div>");
@@ -58,7 +58,7 @@
     if (!conv) { set(empty(t("talk.notFound"))); return; }
 
     set('<button class="btn btn--ghost btn--sm js-back" style="margin-bottom:18px">' + t("talk.backToList") + "</button>" +
-      pageHead(conv.cefr + " · " + conv.title, conv.titleIt, conv.setting) +
+      pageHead(conv.cefr + " · " + conv.title, conv.titleIt, conv.setting, { kicker: "conv:" + conv.id, title: "it", intro: "conv:" + conv.id }) +
       '<div class="card"><div class="dlg js-dlg"></div><div class="js-turn" style="margin-top:20px"></div></div>');
 
     el().querySelector(".js-back").addEventListener("click", function () { Audio2.stop(); App.go("conversazione"); });
@@ -94,9 +94,9 @@
       var d = document.createElement("div");
       d.className = "dlg__line" + (mine ? " dlg__line--b" : "");
       d.innerHTML = '<div class="dlg__who" aria-hidden="true">' + (mine ? "🙋" : esc(conv.icon)) + "</div>" +
-        '<div class="dlg__bubble"><span class="dlg__it">' + esc(it) +
+        '<div class="dlg__bubble"><span class="dlg__it" lang="it" dir="ltr">' + esc(it) +
         ' <button type="button" class="say-btn" data-say="' + esc(it) + '" aria-label="' + esc(t("a11y.listen")) + '">🔊</button></span>' +
-        (pl ? '<span class="dlg__pl">' + esc(pl) + "</span>" : "") + "</div>";
+        (pl ? '<span class="dlg__pl"' + I18n.contentAttrs("conv:" + conv.id) + '>' + esc(pl) + "</span>" : "") + "</div>";
       dlg.appendChild(d);
       Ex.wireSpeakers(d);
       d.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -129,8 +129,8 @@
              anyway. */
           var wzor = o.hintIt || (o.accept && o.accept[0]) || "";
           return '<button type="button" class="dlg-opt js-opt" data-opt="' + esc(wzor) + '">' +
-            "<i>" + esc(o.hintIt || wzor) + "</i>" +
-            (o.tr ? "<span>" + esc(o.tr) + "</span>" : "") + "</button>";
+            "<i" + I18n.contentAttrs("it") + ">" + esc(o.hintIt || wzor) + "</i>" +
+            (o.tr ? "<span" + I18n.contentAttrs("conv:" + conv.id) + ">" + esc(o.tr) + "</span>" : "") + "</button>";
         }).join("") + "</div>";
     }
 
@@ -155,14 +155,14 @@
              The Italian model stays under "Show the answer", that is where
              the student reaches for it deliberately. */
           (turnData.tr
-            ? '<p class="voice-pl" style="margin-bottom:14px">' + t("ex.hintLabel", { hint: "<i>" + esc(turnData.tr) + "</i>" }) + "</p>"
+            ? '<p class="voice-pl" style="margin-bottom:14px"' + I18n.contentAttrs("conv:" + conv.id) + '>' + t("ex.hintLabel", { hint: "<i>" + esc(turnData.tr) + "</i>" }) + "</p>"
             : "")) +
         (Audio2.sttSupported
           ? '<button type="button" class="mic js-mic" aria-label="' + esc(t("talk.speak")) + '">🎤</button><p class="voice-heard js-heard">' + t("talk.tapAndSpeak") + "</p>"
           : notaSttPokazana ? ""
             : '<div class="callout callout--trap"><b>' + t("talk.noSttLabel") + "</b> " + t("talk.noStt") + "</div>") +
         '<div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
-        '<input type="text" class="field js-in" style="max-width:340px" placeholder="' + esc(t(Audio2.sttSupported ? "talk.orType" : "talk.typeAnswer")) + '" autocomplete="off" spellcheck="false">' +
+        '<input type="text" lang="it" dir="ltr" class="field js-in" style="max-width:340px" placeholder="' + esc(t(Audio2.sttSupported ? "talk.orType" : "talk.typeAnswer")) + '" autocomplete="off" spellcheck="false">' +
         '<button class="btn btn--primary js-send">' + t("talk.send") + "</button>" +
         '<button class="btn btn--quiet js-skip">' + t("talk.reveal") + "</button></div>" +
         '<div class="fb js-fb" role="status"></div></div>';
@@ -347,7 +347,7 @@
       Core.recordLesson("conv-" + conv.id, score, Math.max(turns, 1), 0);
       App.refreshRail();
       turn.innerHTML = '<div class="summary"><div class="summary__score">' + score + "/" + turns + "</div>" +
-        '<p class="summary__msg">' + esc(conv.closing || t("talk.defaultClosing")) + "</p>" +
+        '<p class="summary__msg"' + (conv.closing ? I18n.contentAttrs("conv:" + conv.id) : "") + '>' + esc(conv.closing || t("talk.defaultClosing")) + "</p>" +
         '<div class="summary__acts">' +
         (maGalezie ? '<button class="btn btn--primary js-branch">' + t("talk.otherBranch") + "</button>" : "") +
         '<button class="btn ' + (maGalezie ? "btn--ghost" : "btn--primary") + ' js-again">' + t("talk.again") + "</button>" +

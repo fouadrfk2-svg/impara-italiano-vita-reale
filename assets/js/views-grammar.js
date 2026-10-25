@@ -27,8 +27,15 @@
       ref.forEach(function (sec) { (sec.items || []).forEach(function (it) { if (it.id === params.id) a = { sec: sec, it: it }; }); });
       if (a) {
         set('<button class="btn btn--ghost btn--sm js-back" style="margin-bottom:18px">' + t("gram.backToIndex") + "</button>" +
-          pageHead(a.sec.title + " · " + a.it.cefr, a.it.title, a.it.sub || "") +
-          '<div class="card"><div class="prose">' + a.it.body + "</div></div>");
+          pageHead(a.sec.title + " · " + a.it.cefr, a.it.title, a.it.sub || "", { kicker: "refsec:titles", title: "ref:" + a.it.id, intro: "ref:" + a.it.id }) +
+          '<div class="card"><div class="prose"' + I18n.contentAttrs("ref:" + a.it.id) + '>' + a.it.body + "</div></div>");
+        // Reference tables can overflow at mobile widths in either content language.
+        // Match the existing lesson/conjugator keyboard-scroll contract.
+        el().querySelectorAll(".prose .table-wrap").forEach(function (table) {
+          table.setAttribute("tabindex", "0");
+          table.setAttribute("role", "region");
+          table.setAttribute("aria-label", a.it.title);
+        });
         el().querySelector(".js-back").addEventListener("click", function () { App.go("grammatica"); });
         return;
       }
@@ -36,11 +43,11 @@
 
     set(pageHead(t("gram.kicker"), t("gram.title"), t("gram.intro")) +
       ref.map(function (sec) {
-        return '<section style="margin-bottom:30px"><h2 style="font-size:1.24rem;margin-bottom:12px">' + esc(sec.title) + "</h2>" +
+        return '<section style="margin-bottom:30px"><h2 style="font-size:1.24rem;margin-bottom:12px"' + I18n.contentAttrs("refsec:titles") + '>' + esc(sec.title) + "</h2>" +
           '<div class="stack">' + (sec.items || []).map(function (it) {
             return '<button class="list-row" data-gram="' + esc(it.id) + '" style="text-align:left;cursor:pointer;width:100%">' +
               '<span class="chip chip--cefr">' + esc(it.cefr) + "</span>" +
-              '<span class="list-row__main"><b>' + esc(it.title) + "</b><span>" + esc(it.sub || "") + "</span></span>" +
+              '<span class="list-row__main"><b' + I18n.contentAttrs("ref:" + it.id) + '>' + esc(it.title) + "</b><span" + I18n.contentAttrs("ref:" + it.id) + ">" + esc(it.sub || "") + "</span></span>" +
               "<span aria-hidden=\"true\">→</span></button>";
           }).join("") + "</div></section>";
       }).join(""));

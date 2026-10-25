@@ -42,8 +42,8 @@
 
   function wiersz(x) {
     return '<div class="list-row"><span class="chip chip--cefr">' + esc(x.cefr || "") + "</span>" +
-      '<span class="list-row__main"><b>' + esc(x.titleIt) + "</b>" +
-      "<span>" + esc(x.title || "") +
+      '<span class="list-row__main"><b' + I18n.contentAttrs("it") + '>' + esc(x.titleIt) + "</b>" +
+      "<span" + I18n.contentAttrs("read:" + x.id) + ">" + esc(x.title || "") +
       (dlugosc(x) > DLUGI ? " · " + esc(t("read.long", { n: dlugosc(x) })) : "") +
       "</span></span>" +
       '<button class="btn btn--primary btn--sm js-open" data-id="' + esc(x.id) + '">' +
@@ -108,7 +108,7 @@
 
   function widokTekstu(r, tryb) {
     set('<button class="btn btn--ghost btn--sm js-back" style="margin-bottom:14px">' + esc(t("read.back")) + "</button>" +
-      pageHead(t("read.kicker") + " · " + esc(r.cefr), r.titleIt, r.title || "") +
+      pageHead(t("read.kicker") + " · " + esc(r.cefr), r.titleIt, r.title || "", { title: "it", intro: "read:" + r.id }) +
       pasekTrybow(r, tryb) +
       '<div id="readBox"></div>');
 
@@ -140,8 +140,8 @@
     return '<div class="card" style="margin-top:18px"><h3 style="font-size:1rem;margin-bottom:8px">' +
       esc(t("read.glossary")) + "</h3><div class=\"stack\">" +
       r.glossIt.map(function (w, i) {
-        return '<div class="list-row"><span class="list-row__main"><b>' + esc(w) + "</b>" +
-          "<span>" + esc(r.gloss[i] || "") + "</span></span></div>";
+        return '<div class="list-row"><span class="list-row__main"><b' + I18n.contentAttrs("it") + '>' + esc(w) + "</b>" +
+          "<span" + I18n.contentAttrs("read:" + r.id) + ">" + esc(r.gloss[i] || "") + "</span></span></div>";
       }).join("") + "</div></div>";
   }
 

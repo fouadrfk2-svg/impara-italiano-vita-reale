@@ -45,7 +45,7 @@
             var when = c.due <= now ? t("lex.today") : (days <= 1 ? t("lex.tomorrow") : t("lex.inDays", { n: days }));
             return '<div class="list-row" data-t="' + esc((c.it + " " + Core.cardTr(c)).toLowerCase()) + '">' +
               '<button type="button" class="say-btn" data-say="' + esc(c.it) + '" aria-label="' + esc(t("a11y.listen")) + '">🔊</button>' +
-              '<span class="list-row__main"><b>' + esc(c.it) + "</b><span>" + esc(Core.cardTr(c)) + "</span></span>" +
+              '<span class="list-row__main"><b' + I18n.contentAttrs("it") + '>' + esc(c.it) + "</b><span" + I18n.meaningAttrs(Core.cardTr(c)) + ">" + esc(Core.cardTr(c)) + "</span></span>" +
               '<span class="chip">' + esc(when) + "</span>" +
               '<button type="button" class="btn btn--quiet btn--sm js-del" data-k="' + esc(c.key) + '">' + t("lex.delete") + "</button></div>";
           }).join("") + "</div>"

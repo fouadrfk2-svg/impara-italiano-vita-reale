@@ -69,7 +69,7 @@
       fb.className = "fb is-on " + (ok ? "fb--ok" : "fb--ko");
       var headTxt = ok ? t("ex.bravo")
         : (correctText ? t("ex.correctIs", { answer: correctText }) : t("ex.notYet"));
-      fb.innerHTML = esc(headTxt) + (why ? '<span class="fb__why">' + why + "</span>" : "");
+      fb.innerHTML = esc(headTxt) + (why ? '<span class="fb__why"' + (I18n.meaningAttrs ? I18n.meaningAttrs(stripTags(why)) : "") + '>' + why + "</span>" : "");
       if (komentarz) {
         var uwaga = global.document.createElement("span");
         uwaga.className = "fb__why";
@@ -77,6 +77,7 @@
         fb.appendChild(uwaga);
       }
     }
+    if (fb && I18n.isolateContent) I18n.isolateContent(fb);
     Core.recordAnswer(ok);
     onDone && onDone(ok);
   }

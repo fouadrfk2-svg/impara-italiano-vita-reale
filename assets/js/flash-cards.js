@@ -45,7 +45,7 @@
 
   /** The student's language, and the question under it. */
   function readPrompt(c) {
-    return '<p class="exq__prompt" style="font-size:1.3rem">' + esc(Core.cardTr(c)) + "</p>" +
+    return '<p class="exq__prompt" style="font-size:1.3rem"' + I18n.meaningAttrs(Core.cardTr(c)) + '>' + esc(Core.cardTr(c)) + "</p>" +
       '<p class="exq__sub">' + esc(t("srs.howInItalian")) + "</p>";
   }
 
@@ -138,7 +138,7 @@
   function flip(host, c, options, onGrade) {
     host.innerHTML = '<div class="exq">' +
       (c.fresh ? '<p class="exq__num"><span class="chip chip--gold">' + esc(t("flash.newWord")) + "</span></p>" : "") +
-      '<p class="exq__prompt" style="font-size:1.3rem" lang="it">' + esc(c.it) +
+      '<p class="exq__prompt" style="font-size:1.3rem" lang="it" dir="ltr">' + esc(c.it) +
       ' <button type="button" class="say-btn" data-say="' + esc(c.it) + '" aria-label="' +
       esc(t("a11y.listenTo", { what: c.it })) + '">🔊</button></p>' +
       '<p class="exq__sub">' + esc(t("flash.meaning")) + "</p>" +
@@ -153,7 +153,7 @@
 
     show.addEventListener("click", function () {
       fb.className = "fb is-on";
-      fb.innerHTML = "<b>" + esc(Core.cardTr(c)) + "</b>";
+      fb.innerHTML = "<b" + I18n.meaningAttrs(Core.cardTr(c)) + ">" + esc(Core.cardTr(c)) + "</b>";
       Audio2.speak(c.it);
       show.hidden = true;
       grade.hidden = false;

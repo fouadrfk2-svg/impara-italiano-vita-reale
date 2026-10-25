@@ -44,7 +44,7 @@
         var p = Core.levelProgress(lv);
         return '<button class="level-pill" data-level="' + esc(lv.code) + '" aria-pressed="' + (lv.code === level.code) + '">' +
           '<span class="level-pill__code">' + esc(lv.code) + "</span>" +
-          '<span class="level-pill__name">' + esc(lv.name) + "</span>" +
+          '<span class="level-pill__name"' + I18n.contentAttrs("level:" + lv.code) + '>' + esc(lv.name) + "</span>" +
           /* The bar alone is a tick at 2 of 50: the count says it. */
           (p.total ? '<span class="level-pill__count">' + p.done + "/" + p.total + "</span>" : "") +
           '<span class="level-pill__bar"><i style="width:' + pct(p.pct) + '%"></i></span>' +
@@ -63,7 +63,7 @@
     }
 
     set(podpowiedzPoziomu() + strip +
-      pageHead(t("path.levelKicker", { code: level.code, cefr: level.cefrLabel }), level.name, level.desc) +
+      pageHead(t("path.levelKicker", { code: level.code, cefr: level.cefrLabel }), level.name, level.desc, { title: "level:" + level.code, intro: "level:" + level.code }) +
       body);
 
     var doTestu = el().querySelector(".js-place");

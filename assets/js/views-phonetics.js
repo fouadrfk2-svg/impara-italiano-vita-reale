@@ -40,7 +40,7 @@
       '<div class="stack">' + zbiory().map(function (z) {
         var gotowe = (z.pairs || []).filter(maNagrania).length;
         return '<div class="list-row"><span class="chip chip--cefr">' + esc(z.cefr || "") + "</span>" +
-          '<span class="list-row__main"><b>' + esc(z.title || z.id) + "</b>" +
+          '<span class="list-row__main"><b' + I18n.contentAttrs("ph:" + z.id) + '>' + esc(z.title || z.id) + "</b>" +
           "<span>" + esc(t("sound.pairs", { n: gotowe })) + "</span></span>" +
           '<button class="btn btn--primary btn--sm js-set" data-set="' + esc(z.id) + '"' +
           (gotowe ? "" : " disabled") + ">" + esc(t("sound.start")) + "</button></div>";
@@ -69,11 +69,11 @@
 
     var idx = 0, dobre = 0;
 
-    set(pageHead(t("sound.kicker"), z.title || z.id, t("sound.setIntro")) +
-      (z.note ? '<div class="card" style="margin-bottom:14px"><p>' + z.note + "</p></div>" : "") +
+    set(pageHead(t("sound.kicker"), z.title || z.id, t("sound.setIntro"), { title: "ph:" + z.id }) +
+      (z.note ? '<div class="card" style="margin-bottom:14px"><p' + I18n.contentAttrs("ph:" + z.id) + '>' + z.note + "</p></div>" : "") +
       (z.contrast
         ? '<div class="card card--contrast" style="margin-bottom:20px"><h3 style="font-size:1rem;margin-bottom:6px">' +
-          esc(t("lesson.contrastLabel")) + "</h3><p>" + z.contrast + "</p></div>"
+          esc(t("lesson.contrastLabel")) + "</h3><p" + I18n.contentAttrs("ph:" + z.id) + ">" + z.contrast + "</p></div>"
         : "") +
       '<div id="soundBox"></div>');
 
@@ -108,8 +108,8 @@
     /** The explanation after answering: what one means and what the other does. */
     function glosa(para) {
       if (!para.glossA && !para.glossB) return "";
-      return esc(para.a) + " = " + esc(para.glossA || "?") + " · " +
-        esc(para.b) + " = " + esc(para.glossB || "?");
+      return "<bdi" + I18n.contentAttrs("it") + ">" + esc(para.a) + "</bdi> = " + esc(para.glossA || "?") + " · " +
+        "<bdi" + I18n.contentAttrs("it") + ">" + esc(para.b) + "</bdi> = " + esc(para.glossB || "?");
     }
 
     function koniec() {

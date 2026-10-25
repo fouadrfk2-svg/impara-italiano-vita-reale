@@ -35,7 +35,7 @@
       '<div class="stack">' + zadania().map(function (x) {
         var zapis = Writing.load(x.id);
         return '<div class="list-row"><span class="chip chip--cefr">' + esc(x.cefr || "") + "</span>" +
-          '<span class="list-row__main"><b>' + esc(x.title || x.titleIt) + "</b>" +
+          '<span class="list-row__main"><b' + I18n.contentAttrs("write:" + x.id) + '>' + esc(x.title || x.titleIt) + "</b>" +
           "<span>" + esc(t(x.kind === "translate" ? "write.kindTranslate" : "write.kindCompose")) +
           (zapis ? " · " + esc(t("write.saved", { n: zapis.words })) : "") + "</span></span>" +
           '<button class="btn btn--primary btn--sm js-open" data-id="' + esc(x.id) + '">' +
@@ -49,7 +49,7 @@
 
   function widok(w) {
     set('<button class="btn btn--ghost btn--sm js-back" style="margin-bottom:14px">' + esc(t("write.back")) + "</button>" +
-      pageHead(t("write.kicker") + " · " + esc(w.cefr), w.title || w.titleIt, w.brief || "") +
+      pageHead(t("write.kicker") + " · " + esc(w.cefr), w.title || w.titleIt, w.brief || "", { title: "write:" + w.id, intro: "write:" + w.id }) +
       '<div id="writeBox"></div>');
     Views.shell.root().querySelector(".js-back").addEventListener("click", function () { App.go("scrittura"); });
 
@@ -73,6 +73,7 @@
     box.innerHTML = zbudowane.map(function (b) { return b.html; }).join("") +
       '<div id="writeSum" style="margin-top:18px"></div>';
 
+    box.querySelectorAll(".exq__prompt").forEach(function (node) { I18n.markContent(node, "write:" + w.id); });
     var wezly = box.querySelectorAll(".exq");
     var zrobione = 0, dobre = 0;
     zbudowane.forEach(function (b, i) {
@@ -97,7 +98,7 @@
       '<div class="card" style="margin-bottom:16px"><h3 style="font-size:1rem;margin-bottom:8px">' +
       esc(t("write.mustUse")) + "</h3>" + listaWymagan(w, null) + "</div>" +
       '<label for="writeText" class="sr-only">' + esc(t("write.yourText")) + "</label>" +
-      '<textarea id="writeText" class="field js-text" rows="10" ' +
+      '<textarea id="writeText" lang="it" dir="ltr" class="field js-text" rows="10" ' +
       'placeholder="' + esc(t("write.placeholder", { n: w.minWords || 40 })) + '"></textarea>' +
       '<p class="exq__sub js-count" style="margin:8px 0 14px"></p>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
@@ -161,7 +162,7 @@
       '<div class="card card--contrast" style="margin-top:16px"><h3 style="font-size:1rem;margin-bottom:6px">' +
       esc(t("write.notChecked")) + "</h3><p>" + esc(t("write.notCheckedText")) + "</p>" +
       '<div class="stack" style="margin-top:10px">' + (w.checklist || []).map(function (c) {
-        return '<div class="list-row"><span class="list-row__main"><b>' + esc(c) + "</b></span></div>";
+        return '<div class="list-row"><span class="list-row__main"><b' + I18n.contentAttrs("write:" + w.id) + '>' + esc(c) + "</b></span></div>";
       }).join("") + "</div>" +
       /* The offer belongs HERE, inside the card that lists what the course
          cannot measure — sense, coherence, how it sounds. That is exactly

@@ -85,32 +85,50 @@
 
   /* A declared lesson is atomic: malformed/short overlays fall back in full.
      Theory is authored for the learner's language, not merged by index. */
-  function completePatch(base, patch, key) {
-    if (key === "theory") return Array.isArray(patch) && patch.length > 0;
-    if (Array.isArray(base)) return Array.isArray(patch) && base.length === patch.length && base.every(function (v, i) { return completePatch(v, patch[i]); });
+  function completePatch(base, patch, key, strict) {
+    if (!strict && key === "theory") return Array.isArray(patch) && patch.length > 0;
+    if (Array.isArray(base)) return Array.isArray(patch) && base.length === patch.length && base.every(function (v, i) { return completePatch(v, patch[i], undefined, strict); });
     if (base && typeof base === "object") {
       return !!patch && typeof patch === "object" && !Array.isArray(patch) &&
         Object.keys(base).length === Object.keys(patch).length &&
-        Object.keys(base).every(function (k) { return completePatch(base[k], patch[k], k); });
+        Object.keys(base).every(function (k) { return Object.prototype.hasOwnProperty.call(patch, k) && completePatch(base[k], patch[k], k, strict); });
     }
-    return typeof patch === typeof base;
+    return typeof patch === typeof base && (!strict || typeof base !== "string" || !base.trim() || !!patch.trim());
   }
 
   function entryLanguage(lang, key) {
     var base = global.I18n && global.I18n.contentLanguage ? global.I18n.contentLanguage(lang) : lang;
     if (base === lang) return lang;
-    var manifest = global.I18n.courseOverrides(lang);
-    var declared = Object.keys(manifest).some(function (file) { return manifest[file].indexOf(key) >= 0; });
+    var course = /^(lesson|unit):/.test(key);
+    var manifest = course ? global.I18n.courseOverrides(lang) : global.I18n.contentOverrides(lang);
+    var declared = Object.keys(manifest).some(function (file) {
+      return Array.isArray(manifest[file]) && manifest[file].indexOf(key) >= 0 &&
+        (course || global.I18n.supportsContent(file, key));
+    });
     var fallback = get(base, key), patch = get(lang, key);
-    return declared && fallback && patch && completePatch(fallback, patch) ? lang : base;
+    return declared && fallback && patch && completePatch(fallback, patch, undefined, !course) ? lang : base;
   }
+
+  function effective(lang, key) { return get(entryLanguage(lang, key), key); }
 
   function lessonLanguage(lang, id) { return entryLanguage(lang, "lesson:" + id); }
 
   /** Dictionary/reading saves may carry a gloss without its lesson id.
       Resolve its actual overlay, rather than recording Arabic under English. */
   function glossLanguage(lang, it, tr, source) {
+    // User-entered Arabic must never replace a saved English gloss.
+    if (lang === "ar" && /[\u0600-\u06ff]/.test(String(tr || ""))) return lang;
     var actual = lessonLanguage(lang, source);
+    var readingId = String(source || "").replace(/^lettura:/, "");
+    var reading = (global.READINGS || []).filter(function (r) { return r.id === readingId; })[0];
+    if (reading && entryLanguage(lang, "read:" + reading.id) === lang) {
+      var matched = [[reading.glossIt, reading.gloss], [reading.lexIt, reading.lex]].some(function (pair) {
+        return (pair[0] || []).some(function (word, i) {
+          return global.Txt.norm(word) === global.Txt.norm(it) && (pair[1] || [])[i] === tr;
+        });
+      });
+      if (matched) return lang;
+    }
     if (actual === lang || !tr) return actual;
     var manifest = global.I18n.courseOverrides(lang);
     var index = global.Core && global.Core.registry.lessonIndex || {};
@@ -148,13 +166,13 @@
   }
 
   function applyLevel(lv, lang) {
-    var p = get(lang, "level:" + lv.code);
+    var p = effective(lang, "level:" + lv.code);
     if (p) copy(lv, p, ["name", "desc"]);
     (lv.units || []).forEach(function (u) { applyUnit(u, lang); });
   }
 
   function applyConversation(c, lang) {
-    var p = get(lang, "conv:" + c.id);
+    var p = effective(lang, "conv:" + c.id);
     if (!p) return;
     copy(c, p, ["title", "setting", "closing"]);
     objByIndex(c.turns, p.turns, ["tr", "task"]);
@@ -170,11 +188,11 @@
 
   function applyRef(lang) {
     var secs = global.GRAMMAR_REF || [];
-    var heads = get(lang, "refsec:titles");
+    var heads = effective(lang, "refsec:titles");
     secs.forEach(function (sec, i) {
       if (heads && heads[i] !== undefined) sec.title = heads[i];
       (sec.items || []).forEach(function (it) {
-        var p = get(lang, "ref:" + it.id);
+        var p = effective(lang, "ref:" + it.id);
         if (p) copy(it, p, ["title", "sub", "body"]);
       });
     });
@@ -189,7 +207,7 @@
    */
   function applyPhonetics(lang) {
     (global.PHONETICS || []).forEach(function (zbior) {
-      var p = get(lang, "ph:" + zbior.id);
+      var p = effective(lang, "ph:" + zbior.id);
       if (!p) return;
       copy(zbior, p, ["title", "note", "contrast"]);
       objByIndex(zbior.pairs, p.pairs, ["glossA", "glossB"]);
@@ -202,7 +220,7 @@
    */
   function applyReadings(lang) {
     (global.READINGS || []).forEach(function (r) {
-      var p = get(lang, "read:" + r.id);
+      var p = effective(lang, "read:" + r.id);
       if (!p) return;
       copy(r, p, ["title"]);
       if (p.gloss) r.gloss = p.gloss;
@@ -221,7 +239,7 @@
    */
   function applyWriting(lang) {
     (global.WRITING || []).forEach(function (w) {
-      var p = get(lang, "write:" + w.id);
+      var p = effective(lang, "write:" + w.id);
       if (!p) return;
       copy(w, p, ["title", "brief", "checklist"]);
       byIndex(w.items, (p.items || []).map(function (x) { return x.q; }), "q");
@@ -256,11 +274,16 @@
     if (global.I18n && global.I18n.contentLanguage) lang = global.I18n.contentLanguage(lang);
     var reg = global.Core && global.Core.registry;
     if (reg) reg.levels.forEach(function (lv) { applyLevel(lv, lang); });
-    (global.CONVERSATIONS || []).forEach(function (c) { applyConversation(c, lang); });
-    applyRef(lang);
-    applyPhonetics(lang);
-    applyReadings(lang);
-    applyWriting(lang);
+    // Each supporting entry resolves independently against the English baseline.
+    if (reg && selected !== lang) reg.levels.forEach(function (lv) {
+      var p = effective(selected, "level:" + lv.code);
+      if (p) copy(lv, p, ["name", "desc"]);
+    });
+    (global.CONVERSATIONS || []).forEach(function (c) { applyConversation(c, selected); });
+    applyRef(selected);
+    applyPhonetics(selected);
+    applyReadings(selected);
+    applyWriting(selected);
     applyInterference(lang);
     // Only declared, complete lesson/test and unit entries override the base.
     // Do not reapply other families: missing false-friend entries clear fields.
@@ -278,6 +301,7 @@
   LINGUAI.addStrings = addStrings;
   LINGUAI.applyStrings = applyStrings;
   LINGUAI.hasStrings = hasLang;
+  LINGUAI.entryLanguage = entryLanguage;
   LINGUAI.lessonLanguage = lessonLanguage;
   LINGUAI.glossLanguage = glossLanguage;
 

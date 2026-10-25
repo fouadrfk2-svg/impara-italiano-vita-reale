@@ -39,7 +39,7 @@
     { code: "fr", flag: "🇫🇷", name: "Français" },
     { code: "de", flag: "🇩🇪", name: "Deutsch" },
     // Partial course pilot: English baseline plus explicitly declared lessons.
-    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en", courseOverrides: {"a1-01.js":["lesson:a1-u01-l1","lesson:a1-u01-l2","lesson:a1-u01-l3","unit:a1-u01","lesson:a1-u01-l4","lesson:a1-u01-test","unit:a1-u02","lesson:a1-u02-l1","lesson:a1-u02-l2","lesson:a1-u02-l3","lesson:a1-u02-l4","lesson:a1-u02-test","unit:a1-u03","lesson:a1-u03-l1","lesson:a1-u03-l2","lesson:a1-u03-l3","lesson:a1-u03-l4","lesson:a1-u03-test"],"a1-02.js":["unit:a1-u04","lesson:a1-u04-l1","lesson:a1-u04-l2","lesson:a1-u04-l3","lesson:a1-u04-l4","lesson:a1-u04-test","unit:a1-u05","lesson:a1-u05-l1","lesson:a1-u05-l2","lesson:a1-u05-l3","lesson:a1-u05-l4","lesson:a1-u05-test","unit:a1-u06","lesson:a1-u06-l1","lesson:a1-u06-l2","lesson:a1-u06-l3","lesson:a1-u06-l4","lesson:a1-u06-test","unit:a1-u07","lesson:a1-u07-l1","lesson:a1-u07-l2","lesson:a1-u07-l3","lesson:a1-u07-l4","lesson:a1-u07-test"],"a1-03.js":["unit:a1-u08","lesson:a1-u08-l1","lesson:a1-u08-l2","lesson:a1-u08-l3","lesson:a1-u08-l4","lesson:a1-u08-test","unit:a1-u09","lesson:a1-u09-l1","lesson:a1-u09-l2","lesson:a1-u09-l3","lesson:a1-u09-l4","lesson:a1-u09-test","unit:a1-u10","lesson:a1-u10-l1","lesson:a1-u10-l2","lesson:a1-u10-l3","lesson:a1-u10-l4","lesson:a1-u10-test"],"a2-01.js":["unit:a2-u01","lesson:a2-u01-l1","lesson:a2-u01-l2","lesson:a2-u01-l3","lesson:a2-u01-l4","lesson:a2-u01-test","unit:a2-u02","lesson:a2-u02-l1","lesson:a2-u02-l2","lesson:a2-u02-l3","lesson:a2-u02-l4","lesson:a2-u02-test","unit:a2-u03","lesson:a2-u03-l1","lesson:a2-u03-l2","lesson:a2-u03-l3","lesson:a2-u03-l4","lesson:a2-u03-test","unit:a2-u04","lesson:a2-u04-l1","lesson:a2-u04-l2","lesson:a2-u04-l3","lesson:a2-u04-l4","lesson:a2-u04-test"],"a2-02.js":["unit:a2-u05","lesson:a2-u05-l1","lesson:a2-u05-l2","lesson:a2-u05-l3","lesson:a2-u05-l4","lesson:a2-u05-test","unit:a2-u06","lesson:a2-u06-l1","lesson:a2-u06-l2","lesson:a2-u06-l3","lesson:a2-u06-l4","lesson:a2-u06-test","unit:a2-u07","lesson:a2-u07-l1","lesson:a2-u07-l2","lesson:a2-u07-l3","lesson:a2-u07-l4","lesson:a2-u07-test","unit:a2-u08","lesson:a2-u08-l1","lesson:a2-u08-l2","lesson:a2-u08-l3","lesson:a2-u08-l4","lesson:a2-u08-test"],"b1-01.js":["unit:b1-u01","lesson:b1-u01-l1","lesson:b1-u01-l2","lesson:b1-u01-l3","lesson:b1-u01-l4","lesson:b1-u01-test","unit:b1-u02","lesson:b1-u02-l1","lesson:b1-u02-l2","lesson:b1-u02-l3","lesson:b1-u02-l4","lesson:b1-u02-test","unit:b1-u03","lesson:b1-u03-l1","lesson:b1-u03-l2","lesson:b1-u03-l3","lesson:b1-u03-l4","lesson:b1-u03-test","unit:b1-u04","lesson:b1-u04-l1","lesson:b1-u04-l2","lesson:b1-u04-l3","lesson:b1-u04-l4","lesson:b1-u04-test"],"b2-01.js":["unit:b2-u01","lesson:b2-u01-l1","lesson:b2-u01-l2","lesson:b2-u01-l3","lesson:b2-u01-test","unit:b2-u02","lesson:b2-u02-l1","lesson:b2-u02-l2","lesson:b2-u02-l3","lesson:b2-u02-test","unit:b2-u03","lesson:b2-u03-l1","lesson:b2-u03-l2","lesson:b2-u03-l3","lesson:b2-u03-test","unit:b2-u04","lesson:b2-u04-l1","lesson:b2-u04-l2","lesson:b2-u04-l3","lesson:b2-u04-test"],"b2-02.js":["unit:b2-u05","lesson:b2-u05-l1","lesson:b2-u05-l2","lesson:b2-u05-l3","lesson:b2-u05-test"],"b2-03.js":["unit:b2-u06","lesson:b2-u06-l1","lesson:b2-u06-l2","lesson:b2-u06-l3","lesson:b2-u06-test"],"c1-01.js":["unit:c1-u01","lesson:c1-u01-l1","lesson:c1-u01-l2","lesson:c1-u01-l3","lesson:c1-u01-test","unit:c1-u02","lesson:c1-u02-l1","lesson:c1-u02-l2","lesson:c1-u02-l3","lesson:c1-u02-test","unit:c1-u03","lesson:c1-u03-l1","lesson:c1-u03-l2","lesson:c1-u03-l3","lesson:c1-u03-test"],"c1-02.js":["unit:c1-u04","lesson:c1-u04-l1","lesson:c1-u04-l2","lesson:c1-u04-l3","lesson:c1-u04-test"],"c1-03.js":["unit:c1-u05","lesson:c1-u05-l1","lesson:c1-u05-l2","lesson:c1-u05-l3","lesson:c1-u05-test"]} }
+    { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en", contentOverrides: {}, courseOverrides: {"a1-01.js":["lesson:a1-u01-l1","lesson:a1-u01-l2","lesson:a1-u01-l3","unit:a1-u01","lesson:a1-u01-l4","lesson:a1-u01-test","unit:a1-u02","lesson:a1-u02-l1","lesson:a1-u02-l2","lesson:a1-u02-l3","lesson:a1-u02-l4","lesson:a1-u02-test","unit:a1-u03","lesson:a1-u03-l1","lesson:a1-u03-l2","lesson:a1-u03-l3","lesson:a1-u03-l4","lesson:a1-u03-test"],"a1-02.js":["unit:a1-u04","lesson:a1-u04-l1","lesson:a1-u04-l2","lesson:a1-u04-l3","lesson:a1-u04-l4","lesson:a1-u04-test","unit:a1-u05","lesson:a1-u05-l1","lesson:a1-u05-l2","lesson:a1-u05-l3","lesson:a1-u05-l4","lesson:a1-u05-test","unit:a1-u06","lesson:a1-u06-l1","lesson:a1-u06-l2","lesson:a1-u06-l3","lesson:a1-u06-l4","lesson:a1-u06-test","unit:a1-u07","lesson:a1-u07-l1","lesson:a1-u07-l2","lesson:a1-u07-l3","lesson:a1-u07-l4","lesson:a1-u07-test"],"a1-03.js":["unit:a1-u08","lesson:a1-u08-l1","lesson:a1-u08-l2","lesson:a1-u08-l3","lesson:a1-u08-l4","lesson:a1-u08-test","unit:a1-u09","lesson:a1-u09-l1","lesson:a1-u09-l2","lesson:a1-u09-l3","lesson:a1-u09-l4","lesson:a1-u09-test","unit:a1-u10","lesson:a1-u10-l1","lesson:a1-u10-l2","lesson:a1-u10-l3","lesson:a1-u10-l4","lesson:a1-u10-test"],"a2-01.js":["unit:a2-u01","lesson:a2-u01-l1","lesson:a2-u01-l2","lesson:a2-u01-l3","lesson:a2-u01-l4","lesson:a2-u01-test","unit:a2-u02","lesson:a2-u02-l1","lesson:a2-u02-l2","lesson:a2-u02-l3","lesson:a2-u02-l4","lesson:a2-u02-test","unit:a2-u03","lesson:a2-u03-l1","lesson:a2-u03-l2","lesson:a2-u03-l3","lesson:a2-u03-l4","lesson:a2-u03-test","unit:a2-u04","lesson:a2-u04-l1","lesson:a2-u04-l2","lesson:a2-u04-l3","lesson:a2-u04-l4","lesson:a2-u04-test"],"a2-02.js":["unit:a2-u05","lesson:a2-u05-l1","lesson:a2-u05-l2","lesson:a2-u05-l3","lesson:a2-u05-l4","lesson:a2-u05-test","unit:a2-u06","lesson:a2-u06-l1","lesson:a2-u06-l2","lesson:a2-u06-l3","lesson:a2-u06-l4","lesson:a2-u06-test","unit:a2-u07","lesson:a2-u07-l1","lesson:a2-u07-l2","lesson:a2-u07-l3","lesson:a2-u07-l4","lesson:a2-u07-test","unit:a2-u08","lesson:a2-u08-l1","lesson:a2-u08-l2","lesson:a2-u08-l3","lesson:a2-u08-l4","lesson:a2-u08-test"],"b1-01.js":["unit:b1-u01","lesson:b1-u01-l1","lesson:b1-u01-l2","lesson:b1-u01-l3","lesson:b1-u01-l4","lesson:b1-u01-test","unit:b1-u02","lesson:b1-u02-l1","lesson:b1-u02-l2","lesson:b1-u02-l3","lesson:b1-u02-l4","lesson:b1-u02-test","unit:b1-u03","lesson:b1-u03-l1","lesson:b1-u03-l2","lesson:b1-u03-l3","lesson:b1-u03-l4","lesson:b1-u03-test","unit:b1-u04","lesson:b1-u04-l1","lesson:b1-u04-l2","lesson:b1-u04-l3","lesson:b1-u04-l4","lesson:b1-u04-test"],"b2-01.js":["unit:b2-u01","lesson:b2-u01-l1","lesson:b2-u01-l2","lesson:b2-u01-l3","lesson:b2-u01-test","unit:b2-u02","lesson:b2-u02-l1","lesson:b2-u02-l2","lesson:b2-u02-l3","lesson:b2-u02-test","unit:b2-u03","lesson:b2-u03-l1","lesson:b2-u03-l2","lesson:b2-u03-l3","lesson:b2-u03-test","unit:b2-u04","lesson:b2-u04-l1","lesson:b2-u04-l2","lesson:b2-u04-l3","lesson:b2-u04-test"],"b2-02.js":["unit:b2-u05","lesson:b2-u05-l1","lesson:b2-u05-l2","lesson:b2-u05-l3","lesson:b2-u05-test"],"b2-03.js":["unit:b2-u06","lesson:b2-u06-l1","lesson:b2-u06-l2","lesson:b2-u06-l3","lesson:b2-u06-test"],"c1-01.js":["unit:c1-u01","lesson:c1-u01-l1","lesson:c1-u01-l2","lesson:c1-u01-l3","lesson:c1-u01-test","unit:c1-u02","lesson:c1-u02-l1","lesson:c1-u02-l2","lesson:c1-u02-l3","lesson:c1-u02-test","unit:c1-u03","lesson:c1-u03-l1","lesson:c1-u03-l2","lesson:c1-u03-l3","lesson:c1-u03-test"],"c1-02.js":["unit:c1-u04","lesson:c1-u04-l1","lesson:c1-u04-l2","lesson:c1-u04-l3","lesson:c1-u04-test"],"c1-03.js":["unit:c1-u05","lesson:c1-u05-l1","lesson:c1-u05-l2","lesson:c1-u05-l3","lesson:c1-u05-test"]} }
   ];
 
   /* ═══════════════════════════════════════════════════════════
@@ -136,6 +136,75 @@
     return entry && entry.courseOverrides || {};
   }
 
+  /** Supporting entries are opt-in, separately from the unchanged course manifest.
+      Keep this empty until a complete existing entry has actually been translated. */
+  function contentOverrides(lang) {
+    var entry = LANGS.filter(function (l) { return l.code === lang; })[0];
+    return entry && entry.contentOverrides || {};
+  }
+
+  function supportsContent(file, key) {
+    if (typeof file !== "string" || typeof key !== "string") return false;
+    var families = {
+      "curriculum-index.js": /^level:/,
+      "grammar-reference.js": /^(ref:|refsec:titles$)/,
+      "conversations.js": /^conv:/,
+      "readings.js": /^read:r-/,
+      "writing.js": /^write:/,
+      "phonetics.js": /^ph:/
+    };
+    var library = /^library-(a1|a2|b1|b2|c1|c2)\.js$/.exec(file);
+    if (library) return key.indexOf("read:lib-" + library[1] + "-") === 0;
+    return Object.prototype.hasOwnProperty.call(families, file) && families[file].test(key);
+  }
+
+  /** The loader requests English first and only explicitly declared overlay files. */
+  function overlayOverrides(lang) {
+    var out = {}, course = courseOverrides(lang), content = contentOverrides(lang);
+    Object.keys(course).forEach(function (f) { out[f] = course[f].slice(); });
+    Object.keys(content).forEach(function (f) {
+      var keys = Array.isArray(content[f]) ? content[f].filter(function (k) { return supportsContent(f, k); }) : [];
+      if (keys.length) out[f] = (out[f] || []).concat(keys);
+    });
+    return out;
+  }
+
+  function languageAttrs(lang) {
+    var actual = lang === "it" || Object.prototype.hasOwnProperty.call(LOCALE, lang) ? lang : FALLBACK;
+    return ' lang="' + actual + '" dir="' + (actual === "ar" ? "rtl" : "ltr") + '" data-content-language="' + actual + '"';
+  }
+
+  function contentAttrs(key) {
+    return languageAttrs(key === "it" ? "it" : global.LINGUAI.entryLanguage(current, key));
+  }
+
+  /** Saved/user-edited meanings can have a different language from the interface. */
+  function meaningLanguage(text) {
+    return /[\u0600-\u06ff]/.test(String(text || "")) ? "ar" : contentLanguage(current);
+  }
+
+  function meaningAttrs(text) { return languageAttrs(meaningLanguage(text)); }
+
+  function markLanguage(node, lang) {
+    if (!node) return;
+    node.setAttribute("lang", lang);
+    node.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+    node.setAttribute("data-content-language", lang);
+  }
+
+  function markContent(node, key) {
+    markLanguage(node, global.LINGUAI.entryLanguage(current, key));
+  }
+
+  function markMeaning(node, text) { markLanguage(node, meaningLanguage(text)); }
+
+  /** Rich explanations can contain Italian examples and mixed-language tables. */
+  function isolateContent(root) {
+    root.querySelectorAll('[data-content-language="ar"] em,[data-content-language="ar"] i,[data-content-language="ar"] .gt th,[data-content-language="ar"] .gt td').forEach(function (node) {
+      markLanguage(node, /[\u0600-\u06ff]/.test(node.textContent) ? "ar" : "it");
+    });
+  }
+
   /**
    * The course language for a browser's preference list (navigator.languages),
    * by primary subtag: "fr-CA" -> "fr". Null when none of them is offered,
@@ -159,6 +228,15 @@
     locale: locale,
     contentLanguage: contentLanguage,
     courseOverrides: courseOverrides,
+    contentOverrides: contentOverrides,
+    supportsContent: supportsContent,
+    overlayOverrides: overlayOverrides,
+    contentAttrs: contentAttrs,
+    meaningAttrs: meaningAttrs,
+    markContent: markContent,
+    markMeaning: markMeaning,
+    isolateContent: isolateContent,
+    languageAttrs: languageAttrs,
     pickLang: pickLang,
     LANGS: LANGS,
     // exposed so that scripts/parity.mjs reads the map from here instead of

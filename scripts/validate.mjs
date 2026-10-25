@@ -111,7 +111,7 @@ ALL.forEach(f => run(join("data", "i18n", CONTENT_LANG, f)));
    Without them every long text reports a missing title, which is what this
    gate is for: the same complaint a student would see as an empty heading. */
 biblioteka.forEach(f => run(join("data", "i18n", CONTENT_LANG, f)));
-Object.keys(sandbox.I18n.courseOverrides(LANG)).forEach(f => run(join("data", "i18n", LANG, f)));
+Object.keys(sandbox.I18n.overlayOverrides(LANG)).forEach(f => run(join("data", "i18n", LANG, f)));
 sandbox.LINGUAI.applyStrings(LANG);
 
 /* ---------------- Validation ---------------- */

@@ -25,6 +25,7 @@
     var m = el();
     m.removeAttribute("data-lesson-language");
     m.innerHTML = html;
+    I18n.isolateContent(m);
     Ex.wireSpeakers(m);
     wireGuide(m);
     wireIntro(m);
@@ -85,11 +86,12 @@
     });
   }
 
-  function pageHead(kicker, title, sub) {
+  function pageHead(kicker, title, sub, content) {
+    content = content || {};
     return '<header class="view-head">' +
-      (kicker ? '<p class="view-head__kicker">' + esc(kicker) + "</p>" : "") +
-      "<h1>" + esc(title) + "</h1>" +
-      (sub ? '<p class="view-head__intro" id="viewIntro">' + esc(sub) + "</p>" +
+      (kicker ? '<p class="view-head__kicker"' + (content.kicker ? I18n.contentAttrs(content.kicker) : "") + '>' + esc(kicker) + "</p>" : "") +
+      "<h1" + (content.title ? I18n.contentAttrs(content.title) : "") + ">" + esc(title) + "</h1>" +
+      (sub ? '<p class="view-head__intro" id="viewIntro"' + (content.intro ? I18n.contentAttrs(content.intro) : "") + '>' + esc(sub) + "</p>" +
         '<button type="button" class="view-head__more" aria-controls="viewIntro" aria-expanded="false" hidden>' +
         esc(t("head.more")) + "</button>" : "") + "</header>";
   }
@@ -118,9 +120,9 @@
       var c = due[i];
       box.innerHTML = '<div class="exq">' +
         '<p class="exq__num">' + esc(t("srs.cardOf", { i: i + 1, n: due.length })) + "</p>" +
-        '<p class="exq__prompt" style="font-size:1.3rem">' + esc(Core.cardTr(c)) + "</p>" +
+        '<p class="exq__prompt" style="font-size:1.3rem"' + I18n.meaningAttrs(Core.cardTr(c)) + '>' + esc(Core.cardTr(c)) + "</p>" +
         '<p class="exq__sub">' + t("srs.howInItalian") + "</p>" +
-        '<div class="field-row"><input type="text" class="field js-in" placeholder="' + esc(t("srs.ph")) + '" autocomplete="off" spellcheck="false">' +
+        '<div class="field-row"><input type="text" lang="it" dir="ltr" class="field js-in" placeholder="' + esc(t("srs.ph")) + '" autocomplete="off" spellcheck="false">' +
         '<button class="btn btn--primary js-show">' + t("ex.check") + "</button></div>" +
         '<div class="fb" role="status"></div>' +
         '<div class="js-grade" style="margin-top:14px;display:none;gap:8px;flex-wrap:wrap">' +
