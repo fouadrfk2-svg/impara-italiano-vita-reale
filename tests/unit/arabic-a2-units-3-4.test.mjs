@@ -544,9 +544,14 @@ test('the complete prior A2 Units 1–2 Arabic content is preserved',()=>{
  assert.equal(Object.keys(prior).length,12);
  assert.equal(createHash('sha256').update(JSON.stringify(prior)).digest('hex'),'3b10a1f14a6ea8cb5f39d397e41c18c7f9995cb924b091cb30b975a68b5b3dd9');
 });
-test('the conditional label is Arabic and previous tense labels and fallback remain available',()=>{
+test('conditional and other tense labels stay Arabic and untranslated future UI keys still fall back',()=>{
  const box=setup();language(box,'ar');assert.match(box.sandbox.I18n.t('tense.condizionale'),/الشرطية/);assert.match(box.sandbox.I18n.t('tense.imperf'),/الماضي/);assert.match(box.sandbox.I18n.t('tense.futuro'),/المستقبل/);
- assert.equal(box.sandbox.I18n.t('tense.futAnt'), 'Future perfect');
+ // The interface is now complete: this formerly missing label is native Arabic.
+ assert.equal(box.sandbox.I18n.t('tense.futAnt'), 'المستقبل التام (futuro anteriore)');
+ box.sandbox.I18n.set('en');assert.equal(box.sandbox.I18n.t('tense.futAnt'), 'Future perfect');
+ // Keep testing the fallback mechanism independently of today's complete key set.
+ box.sandbox.LINGUAI.addUI('en',{'ui.futureFallbackProbe':'English fallback'});
+ box.sandbox.I18n.set('ar');assert.equal(box.sandbox.I18n.t('ui.futureFallbackProbe'),'English fallback');
 });
 test('every language restores exact A1/A2 content and untranslated C2 Unit 1 stays English',()=>{
  const box=setup(),snapshot=()=>plain([box.Core.registry.byCode.A1.units,box.Core.registry.byCode.A2.units]);

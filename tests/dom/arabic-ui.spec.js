@@ -1,0 +1,43 @@
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const AXE=fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
+let arabic;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../../data/i18n/ui-ar.js'),'utf8'),{LINGUAI:{addUI(_l,map){arabic=map;}}});
+const groups={
+ 'navigation, progress and search':[['percorso'],['oggi'],['progressi'],['cerca',{q:'casa'}]],
+ 'grammar, conjugation and vocabulary':[['grammatica'],['coniugatore'],['lessico'],['copertura']],
+ 'conversation, pronunciation and listening':[['conversazione'],['chiacchiere'],['shadowing'],['velocita'],['suoni']],
+ 'reading and writing':[['lettura'],['lettura',{id:'r-a1-mattina'}],['scrittura'],['scrittura',{id:'w-a2-giornata'}],['scrittura',{id:'w-a2-ieri'}]],
+ 'training, review, placement and exams':[['allenamento'],['ripasso'],['cinque'],['falsi'],['piazzamento'],['esame']],
+ 'settings, help and privacy':[['impostazioni'],['guida'],['privacy']]
+};
+async function ready(page){await page.goto('/index.html#/lezione?id=a1-u01-l1');await page.waitForFunction(()=>window.Core&&window.I18n&&window.I18n.lang==='ar'&&window.Core.registry.loaded.A1&&document.querySelector('.exq'));await page.evaluate(()=>{Core.state.settings.autoplay=false;Core.save();});}
+async function go(page,route,params={}){await page.evaluate(({route,params})=>App.go(route,params),{route,params});await expect(page.locator('#main > *').first()).toBeVisible();expect(await page.evaluate(()=>Router.current.route)).toBe(route);}
+async function language(page,lang){if(await page.locator('#railToggle').isVisible()&&!await page.locator('#rail').evaluate(n=>n.classList.contains('is-open')))await page.locator('#railToggle').click();await page.locator('#langToggle').click();await page.locator('#langList [data-lang="'+lang+'"]').click();await page.waitForFunction(l=>I18n.lang===l&&document.querySelector('#langList [data-lang="'+l+'"]').getAttribute('aria-selected')==='true',lang);}
+async function audit(page){expect(await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}))).toEqual(expect.objectContaining({width:expect.any(Number)}));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const violations=await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})));expect(violations).toEqual([]);expect(await page.evaluate(()=>I18n.missing())).toEqual([]);}
+for(const width of [390,1440])test.describe('Complete Arabic UI at '+width,()=>{
+ test.use({viewport:{width,height:920},locale:'ar-MA',serviceWorkers:'block'});
+ test.beforeEach(async({page})=>{await page.addInitScript(AXE);});
+ for(const[section,routes]of Object.entries(groups))test(section+' has Arabic UI, no missing labels and accessible responsive layout',async({page})=>{
+  test.setTimeout(60000);const errors=[];page.on('pageerror',e=>errors.push(e.message));await ready(page);
+  for(const[route,params]of routes){await test.step(route,async()=>{await go(page,route,params);if(['copertura','lettura'].includes(route)&&!params?.id)await page.waitForFunction(()=>Core.registry.levels.every(l=>Core.registry.loaded[l.code]));await expect(page.locator('html')).toHaveAttribute('dir','rtl');await audit(page);});}expect(errors).toEqual([]);
+ });
+ test('all 962 UI keys resolve in Arabic and interpolation/markup remain safe in the actual browser',async({page})=>{
+  await ready(page);const result=await page.evaluate(keys=>{const missing=[],untranslated=[],unresolved=[],badHtml=[];for(const key of keys){const vars={};I18n.set('en');const ref=I18n.t(key,{n:3});for(const m of ref.matchAll(/\{(\w+)\}/g))vars[m[1]]='قيمة';vars.n=3;I18n.set('ar');const text=I18n.t(key,vars);if(!/[\u0600-\u06ff]/.test(text))untranslated.push(key);if(/\{\w+\}/.test(text))unresolved.push(key);const box=document.createElement('div');box.innerHTML=text;if(box.querySelector('script,iframe,img,form,input,button'))badHtml.push(key);}missing.push(...I18n.missing());return{count:keys.length,missing,untranslated,unresolved,badHtml};},Object.keys(arabic));expect(result).toEqual({count:962,missing:[],untranslated:[],unresolved:[],badHtml:[]});
+ });
+ test('all seven existing generated drills use RTL instructions and LTR Italian expressions and answers',async({page})=>{
+  await ready(page);const topics=await page.evaluate(()=>Drills.TOPICS.map(t=>t.id));expect(topics).toHaveLength(7);for(const topic of topics){await go(page,'allenamento',{topic});const prompt=page.locator('.exq__prompt');await expect(prompt).toContainText(/[\u0600-\u06ff]/);expect(await prompt.evaluate(n=>getComputedStyle(n).direction)).toBe('rtl');const expressions=prompt.locator('b');expect(await expressions.evaluateAll(ns=>ns.every(n=>getComputedStyle(n).direction==='ltr'))).toBe(true);const fields=page.locator('.exq input[type="text"]');expect(await fields.evaluateAll(ns=>ns.every(n=>getComputedStyle(n).direction==='ltr'))).toBe(true);await audit(page);}
+ });
+ test('Arabic consent labels match independent controls, persistence and no unsolicited external requests',async({page})=>{
+  const external=[];page.on('request',r=>{if(!new URL(r.url()).hostname.match(/^(localhost|127\.0\.0\.1)$/))external.push(r.url());});await ready(page);await go(page,'impostazioni');const llm=page.locator('.js-llm-consent'),chat=page.locator('.js-chat-consent');await expect(llm).not.toBeChecked();await expect(chat).not.toBeChecked();await expect(llm.locator('..')).toContainText(arabic['llm.consent']);await expect(chat.locator('..')).toContainText(arabic['chat.consent']);await llm.check();await expect(chat).not.toBeChecked();await chat.check();await llm.uncheck();await expect(chat).toBeChecked();await page.reload();await page.waitForFunction(()=>document.querySelector('.js-chat-consent'));await expect(llm).not.toBeChecked();await expect(chat).toBeChecked();await chat.uncheck();await go(page,'privacy');await expect(page.locator('#p-modello')).toContainText(arabic['privacy.modello.p5'].split('{settings}')[0]);await expect(page.locator('#p-voce')).toContainText(arabic['privacy.voce.p2']);await audit(page);expect(external).toEqual([]);
+ });
+ test('Arabic-English-Arabic and every existing language preserve UI freshness, course content and saved progress',async({page})=>{
+  await ready(page);await page.evaluate(()=>{Core.recordLesson('a1-u01-l1',8,10,120);Core.addCard('ciao','مرحبًا','a1-u01-l1');
+   // This fixture represents a returning learner who already handled the
+   // storage invitation. Reload must not be mistaken for a language change.
+   Core.state.retention.pytanoOMiejsce=true;Core.save();});await go(page,'impostazioni');const state=()=>page.evaluate(()=>{const s=JSON.parse(JSON.stringify(Core.state));delete s.settings.lang;return s;}),before=await state();
+  for(const lang of ['en','pl','es','fr','de']){await language(page,lang);expect(await page.locator('.js-llm-clear').innerText()).toBe(await page.evaluate(()=>I18n.t('llm.forget')));await language(page,'ar');await expect(page.locator('.js-llm-clear')).toHaveText(arabic['llm.forget']);expect(await state()).toEqual(before);}await page.reload();await page.waitForFunction(()=>document.querySelector('.js-llm-clear'));expect(await state()).toEqual(before);await expect(page.locator('html')).toHaveAttribute('dir','rtl');expect(await page.evaluate(()=>I18n.contentLanguage('ar'))).toBe('en');expect(await page.evaluate(()=>LINGUAI.lessonLanguage('ar','a1-u01-l1'))).toBe('ar');expect(await page.evaluate(()=>LINGUAI.lessonLanguage('ar','c2-u01-l1'))).toBe('en');await audit(page);
+ });
+ test('Italian reading, writing inputs and conversation targets retain LTR alongside Arabic controls',async({page})=>{
+  await ready(page);await go(page,'lettura',{id:'r-a1-mattina'});expect(await page.locator('.lk-text').evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');await expect(page.locator('.js-mode[data-mode="read"]')).toHaveText(arabic['read.modeRead']);await go(page,'scrittura',{id:'w-a2-giornata'});await expect(page.locator('.js-check')).toHaveText(arabic['write.check']);expect(await page.locator('#writeText').evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');await page.evaluate(()=>{Audio2.speak=(_s,o)=>{if(o?.onend)o.onend();};});await go(page,'conversazione',{id:'bar-mattina'});await expect(page.locator('.js-send')).toHaveText(arabic['talk.send']);expect(await page.locator('.dlg__it').first().evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');expect(await page.locator('.js-turn .js-in').evaluate(n=>getComputedStyle(n).direction)).toBe('ltr');await audit(page);
+ });
+});

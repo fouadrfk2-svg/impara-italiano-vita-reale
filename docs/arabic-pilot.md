@@ -476,3 +476,36 @@ Refresh the existing shell fingerprint with
 node scripts/check_swversion.mjs --napraw after cached files change.
 No runtime dependency, account/database, licensing, attribution or deployment
 change is involved.
+
+## Complete Arabic interface
+
+All 962 original English interface keys have Arabic values. The 732 added
+entries preserve the original key set, HTML tags, interpolation names and
+technical identifiers. All 230 previous Arabic values remain unchanged;
+tests/fixtures/arabic-ui-baseline.cjs freezes them independently. New plural
+messages provide zero/one/two/few/many/other and retain dynamic values.
+Italian grammar names and provider/product identifiers remain intentional
+proper names, not missing translations.
+
+This completes the interface only. It does not register supporting-content
+overlays or translate C2. Course data, Italian, recordings, IDs, answers,
+grading, stored progress and other languages remain unchanged. English
+continues to be an optional interface language and a safe content fallback.
+
+The privacy text retains separate disclosures for remote speech recognition,
+optional answer checking, user-requested writing feedback, automatic exam
+reports when model checking is enabled, whole-conversation requests and
+local-only recordings. Consent controls and their persistence are tested
+independently without sending external requests or entering provider keys.
+
+Arabic UI instructions in generated exercises receive their actual language
+and direction when wired; embedded Italian expressions and answer inputs
+stay LTR. This changes presentation attributes only, not exercise generation
+or scoring. The horizontally scrollable progress chart is keyboard-focusable
+and labelled with its existing localized heading. No visual branding changes.
+
+Focused checks cover every interface section, native resolution of all keys,
+plural categories, placeholders, markup, original values, all language cycles
+and saved progress. Browser coverage audits existing sections at 390px/1440px
+with axe AA, overflow checks, mixed-language controls and consent persistence.
+Run CPU-heavy suites separately from the complete single-worker browser run.

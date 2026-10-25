@@ -143,7 +143,26 @@
     }
     var b = BUILDERS[ex.t];
     if (!b) return { html: '<div class="exq">' + esc(t("ex.unknownType", { t: ex.t })) + "</div>", wire: function () {} };
-    return b(ex, idx, seed || "s");
+    var built = b(ex, idx, seed || "s");
+    var wire = built.wire;
+    built.wire = function (root) {
+      // Generated UI instructions have no lesson-language wrapper. Resolve
+      // actual Arabic text while keeping embedded Italian and inputs LTR.
+      if (I18n.lang === "ar" && I18n.markMeaning) {
+        root.querySelectorAll(".exq__prompt,.exq__sub").forEach(function (node) {
+          if (!/[\u0600-\u06ff]/.test(node.textContent)) return;
+          I18n.markMeaning(node, node.textContent);
+          node.querySelectorAll("b,code").forEach(function (part) {
+            if (/[\u0600-\u06ff]/.test(part.textContent)) return;
+            part.setAttribute("lang", "it");
+            part.setAttribute("dir", "ltr");
+            part.setAttribute("data-content-language", "it");
+          });
+        });
+      }
+      return wire.apply(this, arguments);
+    };
+    return built;
   }
 
   /** Wires up the 🔊 buttons inside a container, globally. */

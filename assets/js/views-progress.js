@@ -46,7 +46,7 @@
          abbreviations have a minimum width of their own and push the chart
          off screen. Instead of truncating the labels we scroll horizontally
          — the same pattern the conjugation tables are wrapped in. */
-      '<div class="card" style="margin-bottom:28px"><div class="table-wrap" style="border:0"><div style="display:flex;gap:6px;align-items:flex-end;height:130px;min-width:320px">' +
+      '<div class="card" style="margin-bottom:28px"><div class="table-wrap" tabindex="0" role="region" aria-label="' + esc(t("prog.lastTwoWeeks")) + '" style="border:0"><div style="display:flex;gap:6px;align-items:flex-end;height:130px;min-width:320px">' +
       days.map(function (x) {
         var h = Math.max(4, Math.round(100 * x.v / max));
         return '<div style="flex:1;text-align:center">' +

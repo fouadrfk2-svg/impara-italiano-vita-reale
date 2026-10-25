@@ -606,9 +606,14 @@ test('Arabic adaptation follows Italian names, gender, aspect and qualified sour
  assert.match(ar['lesson:a2-u02-l3'].theory[0].p,/لا تعني.*حصرًا/);
  assert.match(ar['lesson:a2-u02-l3'].theory[1].p,/ليس تعرفة/);
 });
-test('only the two newly required conjugation-tense labels are Arabic and fallback remains available',()=>{
+test('required conjugation-tense labels stay Arabic and untranslated future UI keys still fall back',()=>{
  const box=setup();language(box,'ar');assert.match(box.sandbox.I18n.t('tense.imperf'),/الماضي/);assert.match(box.sandbox.I18n.t('tense.futuro'),/المستقبل/);
- assert.equal(box.sandbox.I18n.t('tense.futAnt'), 'Future perfect');
+ // The interface is now complete: this formerly missing label is native Arabic.
+ assert.equal(box.sandbox.I18n.t('tense.futAnt'), 'المستقبل التام (futuro anteriore)');
+ box.sandbox.I18n.set('en');assert.equal(box.sandbox.I18n.t('tense.futAnt'), 'Future perfect');
+ // Keep testing the fallback mechanism independently of today's complete key set.
+ box.sandbox.LINGUAI.addUI('en',{'ui.futureFallbackProbe':'English fallback'});
+ box.sandbox.I18n.set('ar');assert.equal(box.sandbox.I18n.t('ui.futureFallbackProbe'),'English fallback');
 });
 test('every language restores exact A1/A2 content and untranslated C2 Unit 1 stays English',()=>{
  const box=setup(),snapshot=()=>plain([box.Core.registry.byCode.A1.units,box.Core.registry.byCode.A2.units]);

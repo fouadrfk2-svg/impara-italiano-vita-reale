@@ -186,7 +186,7 @@ const frozen={
   "data/i18n/pl/phonetics.js": "63112bac0b84730c4042de87f0befc789c225a5223aa6e4cfae525e9ca6a2e31",
   "data/i18n/pl/readings.js": "e19ad5bab1e82d5a24e8fef5d73d120fba73fc298fd174e3f8ffaabfec264169",
   "data/i18n/pl/writing.js": "f575dcf58d469d81911fb74d3c6df268dd589c6ad5b502530d665ee18c657afc",
-  "data/i18n/ui-ar.js": "4128d1868dd1454ae463f982870021602ef79eff1ab47ee7b7e7976f2a289a8d",
+  "data/i18n/ui-ar.js": "61b12a80fba4c84f8238abfee25c2001ac0f41c5fa7b0cccf978d3bb65f63484",
   "data/i18n/ui-de.js": "a9609228de1a825c28630c415705049c712babd327dbe2bbd5212a26fb25569a",
   "data/i18n/ui-en.js": "805b43a2e8fd3a48b4c2cf83ebb2ae3a4fc374e160dd87b6793ff56535f1fdd8",
   "data/i18n/ui-es.js": "ac7997e1f4e92761a8f0f83f30a7ef70a65e6e1811b3ab3bd8c393fe07af0dd4",
