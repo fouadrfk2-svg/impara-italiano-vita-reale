@@ -1,4 +1,4 @@
-# Arabic interface and complete original A1–B2
+# Arabic interface and complete original A1–C1
 
 Arabic (العربية) is available from the welcome screen and language selector.
 The partial Arabic course covers all forty lessons and ten assessments in
@@ -7,7 +7,8 @@ All eight A2 units include 32 existing lessons, eight assessments and exactly
 405 existing exercises, with unit titles and grammar summaries. All four B1
 units add 16 original lessons, four assessments and 203 original exercises.
 All six B2 units add 18 original lessons, six assessments and 252 original
-exercises. C1–C2 and
+exercises. All five C1 units add 15 original lessons, five assessments and
+210 original exercises. C2 and
 untranslated supporting content continue to use English fallback. No curriculum
 unit, learner exercise, Italian example or topic is added.
 
@@ -15,11 +16,11 @@ unit, learner exercise, Italian example or topic is added.
 
 - I18n.contentLanguage("ar") remains "en". The complete English overlay is
   reapplied before Arabic, including after switching from another language.
-- I18n.courseOverrides("ar") declares exactly 162 complete entries: 60 for A1
+- I18n.courseOverrides("ar") declares exactly 187 complete entries: 60 for A1
   across a1-01.js, a1-02.js and a1-03.js, and 48 for A2 across a2-01.js
   (units 1–4) and a2-02.js (units 5–8), plus 24 for B1 in b1-01.js and 30 for B2 across b2-01.js,
-  b2-02.js and b2-03.js.
-  A1–B1 units declare four original lessons; B2 units declare three. Each includes
+  b2-02.js and b2-03.js, plus 25 for C1 across c1-01.js, c1-02.js and c1-03.js.
+  A1–B1 units declare four original lessons; B2–C1 units declare three. Each includes
   its original assessment and its unit summary.
   Registry loads only declared Arabic files, after English; failed files are
   retryable. No Arabic file is requested for untranslated levels.
@@ -369,6 +370,64 @@ Arabic restoration, scores and reload persistence. C1/C2 remain English fallback
 Final browser runs use one worker and zero retries. External QA configuration
 disables continuous traces to avoid filling the drive; failure screenshots,
 all assertions and test timeouts remain unchanged. No screenshot gallery is made.
+
+## Complete original C1 and inherited source concerns
+
+Units c1-u01 through c1-u05 are complete Arabic overlays: 15 lessons,
+five original assessments and exactly 210 exercises. All 25 entries retain
+the original fields and indexed lengths. Unit 4's assessment originally has
+no theory or objectives; none are invented. C2 and supporting content retain
+English fallback. A1, A2, B1, B2, all neutral Italian, recordings and keys
+remain byte-identical. No curriculum content is added.
+
+Arabic explains the existing material rather than translating English-specific
+comparisons literally. Original Italian table cells and Italian-to-Italian
+matching in c1-u03-l1 stay Italian LTR, including pagare and si tratta di.
+The other matching meanings are Arabic RTL. Response fixtures independently
+review every original exercise; browser tests cover every C1 lesson and
+assessment at 390px and 1440px, including wrong answers, retry, all answers,
+recorded Italian audio, axe AA, exact language restoration and saved progress.
+
+Inherited caveats (original Italian and answer keys are not corrected):
+
+- c1-u01-l1 cloze contains si lavorano troppe ore. The original key requires
+  si, although the idiomatic impersonal construction is singular si lavora;
+  ore is an extent-of-time expression. The source's direct-object test is a
+  useful heuristic, not an exhaustive account of every si construction.
+- c1-u02-l1 says all pronominal verbs take essere while its own ce l'ho fatta
+  shows avere. Arabic distinguishes cavarsela + essere from farcela + avere
+  using only those existing examples. The fixed la controls cavata/fatta,
+  regardless of the speaker's gender. Fregarsene has an informal, blunt tone.
+- c1-u02-l2 calls doveva essere presentato a compound-tense alternative,
+  though doveva itself is imperfetto. Arabic calls it an alternative obligation
+  construction. The presented necessity reading of andare is not its separate
+  lexical andare perso reading.
+- c1-u03's summary mentions reported speech, although its lessons principally
+  cover register and cohesion. Its perentorio/irricevibile examples are language
+  glosses, not legal advice or guarantees about an actual administrative case.
+- c1-u04 future forms are context-sensitive: Sarà stanco may be a real future
+  outside the guessing context. Arabic prompts identify the intended reading.
+  Magari + imperfect subjunctive expresses a wish perceived as unavailable;
+  it need not be universally impossible. Mica is informal; placement and use
+  extend beyond the simplified introductory description in the source.
+- c1-u05-l1 incorrectly offers four readings of one specific sentence; Arabic
+  attributes the four possible relations to gerundio in general and identifies
+  the temporal reading of the unchanged Uscendo di casa example. The present
+  gerund does not invariably express strict simultaneity.
+- c1-u05-l2's claimed exceptionless dopo + aver rule overlooks verbs with
+  essere. Arabic requires the perfect infinitive with the appropriate auxiliary,
+  retaining the exact existing dopo aver letto example.
+- c1-u05-l3's same-subject rule has stated exceptions for an explicit gerund
+  subject, impersonal constructions and independent participial clauses. Arabic
+  scopes it to an implied subject. Uscendo di casa, mia madre mi ha chiamato
+  is grammatical if the mother is leaving; the source's rejected option assumes
+  the intended leaver is the narrator. Its original options and key remain.
+- The English final C1 speaking gloss suggests ongoing three-year work;
+  Arabic follows the original completed Avendo lavorato qui tre anni wording.
+
+Final suites run sequentially. The external Playwright configuration disables
+continuous traces to control disk usage; assertions, timeouts, failure screenshots,
+single-worker coverage and zero retries remain intact. No gallery is generated.
 
 ## Direction and learner state
 

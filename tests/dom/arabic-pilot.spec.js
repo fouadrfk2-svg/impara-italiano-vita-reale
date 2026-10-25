@@ -133,12 +133,12 @@ for (const width of [1440, 390]) {
       const failed = []; page.on("response", r => { if (r.status() >= 400) failed.push(r.url()); });
       await page.goto("/index.html#/percorso"); await ready(page);
       await language(page, "es");
-      await page.evaluate(() => new Promise(resolve => window.Core.loadLevelData("C1", resolve)));
-      const spanish = await page.evaluate(() => window.Core.registry.byCode.C1.units[0].lessons[0].title);
+      await page.evaluate(() => new Promise(resolve => window.Core.loadLevelData("C2", resolve)));
+      const spanish = await page.evaluate(() => window.Core.registry.byCode.C2.units[0].lessons[0].title);
       await language(page, "ar");
-      const arabic = await page.evaluate(() => window.Core.registry.byCode.C1.units[0].lessons[0].title);
+      const arabic = await page.evaluate(() => window.Core.registry.byCode.C2.units[0].lessons[0].title);
       await language(page, "en");
-      expect(arabic).toBe(await page.evaluate(() => window.Core.registry.byCode.C1.units[0].lessons[0].title));
+      expect(arabic).toBe(await page.evaluate(() => window.Core.registry.byCode.C2.units[0].lessons[0].title));
       expect(arabic).not.toBe(spanish);
       expect(failed).toEqual([]);
     });
