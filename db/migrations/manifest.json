@@ -13,6 +13,11 @@
       "version": "0002",
       "file": "0002_guards_and_revision_functions.sql",
       "checksum": "d509d0c21be3e3750730b5e62b4430a68f6fc3a64013a7ea400a00dabd7800e0"
+    },
+    {
+      "version": "0003",
+      "file": "0003_runtime_access.sql",
+      "checksum": "1979b9d3c8ba61864d85600e1d60027939f432fd57c9812b08a914a0012bc17d"
     }
   ]
 }

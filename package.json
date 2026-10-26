@@ -18,7 +18,7 @@
     "serve": "node scripts/serve.mjs",
     "build": "node scripts/build-static.mjs",
     "check:db": "node scripts/check_db_migrations.mjs",
-    "test:db": "node --test tests/unit/pilot-schema.test.mjs"
+    "test:db": "node --test \"tests/unit/pilot-*.test.mjs\""
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.11",
