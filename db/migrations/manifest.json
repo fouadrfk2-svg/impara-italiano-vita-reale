@@ -1,0 +1,18 @@
+{
+  "schema": "vita_pilot",
+  "appId": "vita-reale-arabic",
+  "environment": "pilot",
+  "targetBranch": "vita-reale-arabic-pilot",
+  "migrations": [
+    {
+      "version": "0001",
+      "file": "0001_application_tables.sql",
+      "checksum": "f1c064963fc01df5b80cecef8fdd62063bd3a25bdd50f3c95baba91913a6328a"
+    },
+    {
+      "version": "0002",
+      "file": "0002_guards_and_revision_functions.sql",
+      "checksum": "d509d0c21be3e3750730b5e62b4430a68f6fc3a64013a7ea400a00dabd7800e0"
+    }
+  ]
+}
