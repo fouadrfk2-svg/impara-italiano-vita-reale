@@ -3,7 +3,7 @@ import { test,before,after,beforeEach,afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { validatedMigrations } from '../../scripts/check_db_migrations.mjs';
-const migrations=validatedMigrations(),last=migrations.at(-1).sql;
+const migrations=validatedMigrations(),last=migrations.find(m=>m.version==='0003').sql;
 const fixture=readFileSync(new URL('../fixtures/vita-pilot-synthetic.sql',import.meta.url),'utf8');
 const denials=readFileSync(new URL('../fixtures/vita-pilot-runtime-denials.sql',import.meta.url),'utf8');
 const B='10000000-0000-4000-8000-000000000002';

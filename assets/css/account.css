@@ -1,0 +1,17 @@
+/* Account-only additions. Reuse the existing palette, typography and controls. */
+.account-panel{max-width:58rem;color:var(--ink);background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r-m,1rem);padding:clamp(1rem,3vw,2rem);margin-block:1.5rem;overflow-wrap:anywhere}
+.account-panel [role="alert"]{color:var(--ink);font-weight:600;border-inline-start:3px solid var(--rosso-deep,var(--ink));padding-inline-start:.75rem}
+.account-fields{border:0;padding:0;margin:1.5rem 0;display:grid;gap:.75rem;max-width:36rem;min-width:0}
+.account-fields legend{font-weight:700;font-size:1.1rem;padding:0;margin-block-end:1rem}
+.account-fields input,.account-import input{box-sizing:border-box;display:block;width:100%;min-width:0;min-height:48px;padding:.75rem 1rem;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line-control,var(--ink-soft));border-radius:var(--r-s,.5rem)}
+.account-panel input:focus-visible,.account-panel button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.account-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-block:1rem}
+.account-panel .btn{white-space:normal;max-width:100%;min-height:44px;text-align:center}
+.account-note,.account-fields p{color:var(--ink-soft);font-size:1rem;line-height:1.7}
+.account-import{margin-block:1.5rem;border-inline-start:3px solid var(--salvia-deep,var(--ink));padding:1rem;background:var(--paper)}
+.account-import h2{font-size:1.25rem}
+.account-records{display:grid;gap:1rem}
+.account-record{min-width:0;border-block-end:1px solid var(--line);padding-block:1rem}
+.account-record h3{font:inherit;font-weight:600;font-size:1rem;margin:0;overflow-wrap:anywhere}
+.account-record time{font-size:1rem;overflow-wrap:anywhere}
+@media(max-width:430px){.account-panel{padding:1rem}.account-panel .account-actions>.btn{flex:1 1 11rem}.account-import{padding:.75rem}.account-fields .btn{width:100%}}

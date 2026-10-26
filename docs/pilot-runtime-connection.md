@@ -1,5 +1,7 @@
 # Secure pilot runtime connection
 
+> Current account integration: see [Pilot accounts, Admin and progress](pilot-account-system.md). This document records the earlier foundation/provisioning step; its health-only and four-function statements describe that checkpoint. The new account code and optional fifth-function policy are prepared, with runtime activation staged for a separately authorized deployment.
+
 ## Current result — 2026-10-26
 
 A new 384-bit cryptographically random credential was provisioned for the existing SQL-created **vita_pilot_app** role. It was authenticated through the maintained Neon driver, independently verified, and handed through private stdin to the authenticated Vercel CLI as a sensitive **DATABASE_URL**. The secret was never printed, placed in command arguments, saved in an environment/project file, or committed. The retained credential exists only in PostgreSQL's credential storage and the demo project's encrypted Secret storage, plus transient operator-process memory.

@@ -66,6 +66,7 @@
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <link rel="stylesheet" href="assets/css/app.css">
 <link rel="stylesheet" href="assets/css/rtl.css">
+<link rel="stylesheet" href="assets/css/account.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇮🇹</text></svg>">
 </head>
 <body>
@@ -133,6 +134,7 @@
       <div class="rail__group" role="group" aria-labelledby="rg-you">
         <p class="rail__group-title" id="rg-you" data-i18n="nav.g.you">Ty</p>
         <ul>
+        <li><button type="button" class="rail__item" data-route="account"><span class="rail__ico" aria-hidden="true">↗</span><span data-account-nav>حسابي</span></button></li>
         <li><button class="rail__item" data-route="progressi"><span class="rail__ico" aria-hidden="true">🌸</span><span data-i18n="nav.progress">Postępy</span></button></li>
         <li><button class="rail__item" data-route="guida"><span class="rail__ico" aria-hidden="true">❔</span><span data-i18n="nav.guide">Przewodnik</span></button></li>
         <li><button class="rail__item" data-route="impostazioni"><span class="rail__ico" aria-hidden="true">⚙️</span><span data-i18n="nav.settings">Ustawienia</span></button></li>
@@ -322,6 +324,9 @@
 <!-- the router before app.js: app hooks into Router.onRender at module execution -->
 <script src="assets/js/router.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/account-rules.js"></script>
+<script src="assets/js/account.js"></script>
+<script src="assets/js/views-account.js"></script>
 <!-- the rules before the registration: pwa.js asks PwaRules for every decision -->
 <script src="assets/js/pwa-rules.js"></script>
 <script src="assets/js/pwa.js"></script>

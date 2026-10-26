@@ -51,7 +51,7 @@
     ["grammatica", "nav.grammar"],
     ["coniugatore", "nav.verbs"], ["lessico", "nav.lexicon"], ["shadowing", "nav.shadow"],
     ["velocita", "nav.speed"], ["esame", "nav.exam"], ["falsi", "nav.falsi"],
-    ["copertura", "nav.coverage"], ["progressi", "nav.progress"], ["impostazioni", "nav.settings"],
+    ["copertura", "nav.coverage"], ["account", null], ["progressi", "nav.progress"], ["impostazioni", "nav.settings"],
     ["suoni", "sound.title"], ["lettura", "read.title"], ["scrittura", "write.title"],
     ["cerca", "search.title"], ["privacy", "privacy.title"]
   ];
@@ -64,8 +64,10 @@
 
   function mapaKursu() {
     return '<div class="stack" style="margin-top:14px">' + EKRANY.map(function (e) {
+      var name = e[0] === 'account' ? Account.t('account') : t(e[1]);
+      var description = e[0] === 'account' ? Account.t('guide') : t('guide.s.' + e[0]);
       return '<div class="list-row list-row--stack"><span class="list-row__main">' +
-        "<b>" + esc(t(e[1])) + "</b><span>" + esc(t("guide.s." + e[0])) + "</span></span>" +
+        "<b>" + esc(name) + "</b><span>" + esc(description) + "</span></span>" +
         '<button class="btn btn--ghost btn--sm js-goto" data-route="' + esc(e[0]) + '">' +
         esc(t("guide.open")) + "</button></div>";
     }).join("") + "</div>";

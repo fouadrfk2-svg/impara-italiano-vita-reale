@@ -1,5 +1,7 @@
 # Vita Reale server foundation
 
+> Current account integration: see [Pilot accounts, Admin and progress](pilot-account-system.md). This document records the earlier foundation/provisioning step; its health-only and four-function statements describe that checkpoint. The new account code and optional fifth-function policy are prepared, with runtime activation staged for a separately authorized deployment.
+
 ## Scope and boundaries
 
 The learner application remains static HTML/CSS/classic JavaScript. No Next.js migration, account UI, paywall, authentication, admin endpoint, purchase validation, schema creation or progress synchronisation is enabled. Browser state stays under **linguai.italiano.v2**, schema **2**. All existing string lesson IDs, Italian content/audio, Arabic translations, scoring and offline learning behavior remain intact.

@@ -34,7 +34,7 @@ const globals = require("globals");
    "readonly". The list comes from the `global.` assignments in assets/js/**,
    not from memory. */
 const KURS = [
-  "Anki", "App", "Audio2", "ChatRules", "ChatRun", "Cils", "CilsHtml", "CilsReport", "CilsRun", "Consent", "Core", "Drills", "Errors", "Ex",
+  "Account", "AccountRules", "Anki", "App", "Audio2", "ChatRules", "ChatRun", "Cils", "CilsHtml", "CilsReport", "CilsRun", "Consent", "Core", "Drills", "Errors", "Ex",
   "Frequency", "Fsrs", "I18n", "Keys", "Lemma", "LessonRun", "Lex", "LINGUAI", "Llm", "LlmKeys", "LlmNet",
   "LlmPrompts", "LlmProviders", "LlmRules", "Lookup",
   "Placement", "PWA", "Recorder", "Retention", "Router", "Search", "Talk", "Train", "Verbs", "Views", "Writing",
@@ -81,7 +81,7 @@ module.exports = defineConfig([
   js.configs.recommended,
 
   {
-    files: ["api/**/*.js", "server/**/*.cjs"],
+    files: ["api/**/*.js", "server/**/*.cjs", "tests/helpers/**/*.cjs"],
     languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node } },
     rules: { "no-unused-vars": NIEUZYWANE }
   },

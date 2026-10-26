@@ -25,6 +25,7 @@ SELECT 1 AS ok, COALESCE((SELECT
  AND has_schema_privilege(i.oid,to_regnamespace('vita_pilot'),'USAGE')
  AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_namespace n WHERE n.nspname NOT IN('pg_catalog','information_schema') AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp%' AND has_schema_privilege(i.oid,n.oid,'CREATE'))
  AND (SELECT count(*)=7 AND bool_and(c.relrowsecurity) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='vita_pilot' AND c.relkind='r' AND c.relname IN('learners','admin_principals','activation_codes','sessions','entitlements','learner_progress','admin_audit_log'))
+ AND (to_regclass('vita_pilot.admin_credentials') IS NULL OR (SELECT count(*)=4 AND bool_and(c.relrowsecurity) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='vita_pilot' AND c.relkind='r' AND c.relname IN('admin_credentials','admin_sessions','auth_budgets','lesson_catalog')))
  AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
    WHERE n.nspname NOT IN('pg_catalog','information_schema') AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp%'
    AND c.relkind IN('r','p','v','m','f') AND (has_table_privilege(i.oid,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') OR has_any_column_privilege(i.oid,c.oid,'SELECT,INSERT,UPDATE,REFERENCES')))
@@ -33,9 +34,12 @@ SELECT 1 AS ok, COALESCE((SELECT
  AND (SELECT count(*)=4 FROM approved a JOIN pg_catalog.pg_proc p ON p.oid=a.oid JOIN pg_catalog.pg_roles owner_role ON owner_role.oid=p.proowner
    WHERE has_function_privilege(i.oid,p.oid,'EXECUTE') AND NOT has_function_privilege(i.oid,p.oid,'EXECUTE WITH GRANT OPTION')
    AND p.prosecdef AND owner_role.rolname='vita_reale_test_owner' AND p.proconfig=ARRAY['search_path=pg_catalog, vita_pilot']::text[])
+ AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_proc optional JOIN pg_catalog.pg_roles owner_role ON owner_role.oid=optional.proowner
+   WHERE optional.oid=to_regprocedure('vita_pilot.account_request(text,jsonb)') AND has_function_privilege(i.oid,optional.oid,'EXECUTE')
+   AND (has_function_privilege(i.oid,optional.oid,'EXECUTE WITH GRANT OPTION') OR NOT optional.prosecdef OR owner_role.rolname<>'vita_reale_test_owner' OR optional.proconfig IS DISTINCT FROM ARRAY['search_path=pg_catalog, vita_pilot']::text[]))
  AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
    WHERE n.nspname NOT IN('pg_catalog','information_schema') AND (n.nspname='vita_pilot' OR p.prosecdef)
-   AND has_function_privilege(i.oid,p.oid,'EXECUTE') AND NOT EXISTS(SELECT 1 FROM approved a WHERE a.oid=p.oid))
+   AND has_function_privilege(i.oid,p.oid,'EXECUTE') AND NOT EXISTS(SELECT 1 FROM approved a WHERE a.oid=p.oid) AND p.oid IS DISTINCT FROM to_regprocedure('vita_pilot.account_request(text,jsonb)'))
  FROM identity i),false) AS identity_verified`;
 function parsePilotUrl(value,role=PILOT.role){
  try{

@@ -14,6 +14,7 @@
      the drawer on a narrow screen. The router does not know these elements. */
   Router.onRender = function (route) {
     markRail(route);
+    if (global.Account) global.Account.emit();
     closeRail();
   };
 

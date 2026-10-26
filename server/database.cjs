@@ -16,4 +16,14 @@ async function checkDatabaseHealth(){
   if(!Array.isArray(rows)||rows.length!==1||rows[0].ok!==1||rows[0].identity_verified!==true)throw Error();
  }catch{throw new Error('Database unavailable');}
 }
-module.exports={checkDatabaseHealth};
+async function accountRequest(action,payload){
+ const allowed=['redeem','session','logout','progress_read','progress_save','admin_login','admin_session','admin_logout','admin_list','admin_issue','admin_rotate','admin_revoke_code','admin_revoke_access','admin_grant'];
+ if(!allowed.includes(action))throw new Error('Database unavailable');
+ await checkDatabaseHealth();
+ try{
+  const rows=await client().query('SELECT vita_pilot.account_request($1::text,$2::jsonb) AS result',[action,JSON.stringify(payload)],{fetchOptions:{signal:AbortSignal.timeout(10000),cache:'no-store'}});
+  if(!Array.isArray(rows)||rows.length!==1||!rows[0].result||typeof rows[0].result!=='object')throw Error();
+  return rows[0].result;
+ }catch(error){const safe=new Error('Database unavailable');if(['42501','22023','23514','22P02','40001'].includes(error?.code))safe.code=error.code;throw safe;}
+}
+module.exports={checkDatabaseHealth,accountRequest};

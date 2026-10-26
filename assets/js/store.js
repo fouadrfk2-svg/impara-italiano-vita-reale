@@ -312,6 +312,7 @@
   }
 
   function persist() {
+    if (writeGuard && !writeGuard()) return false;
     var lost = false;
     for (;;) {
       try {
@@ -331,7 +332,9 @@
   }
 
   var saveTimer = null;
+  var subscribers = [], writeGuard = null;
   function save() {
+    subscribers.slice().forEach(function (fn) { try { fn(); } catch (e) { /* Account observers cannot break local learning persistence. */ } });
     if (saveTimer) return;
     saveTimer = global.setTimeout(function () {
       saveTimer = null;
@@ -502,6 +505,8 @@
     SCHEMA: SCHEMA,
     get state() { return state; },
     load: load, save: save, flush: flush,
+    subscribe: function (fn) { subscribers.push(fn); return function () { subscribers = subscribers.filter(function (f) { return f !== fn; }); }; },
+    setWriteGuard: function (fn) { writeGuard = fn; },
     isForbidden: isForbidden, cardKey: cardKey,
     exportState: exportState, importState: importState, resetState: resetState
   };

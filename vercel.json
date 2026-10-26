@@ -12,6 +12,10 @@
     "api/health.js": {
       "maxDuration": 10,
       "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/**/*.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
     }
   }
 }
