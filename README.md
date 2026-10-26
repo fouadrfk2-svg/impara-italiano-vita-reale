@@ -315,3 +315,8 @@ Impara l'Italiano is free to use. If you want to give something back, you can le
 [![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white&style=for-the-badge)](https://paypal.me/AndreaBonacci19)
 
 </div>
+
+
+## Vita Reale backend foundation
+
+The Arabic pilot now includes an optional server-only Vercel health API; the learner frontend still runs locally without an account or database connection. The new server dependency is not shipped to browsers. See [backend boundaries and planned authentication](docs/backend-foundation.md) for the isolated Neon setup, safe static publication and deferred account/entitlement work. No paid access is enabled.

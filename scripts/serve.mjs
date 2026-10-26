@@ -12,9 +12,11 @@
    No dependencies, like the rest of the project.
    ============================================================ */
 import { createServer } from "node:http";
-import { createReadStream, statSync } from "node:fs";
+import { createReadStream } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join, normalize, extname } from "node:path";
+import { dirname, join, extname } from "node:path";
+
+import { resolvePublicPath } from "./public-files.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = Number(process.argv[2] || process.env.PORT || 8080);
@@ -39,15 +41,7 @@ const TYPES = {
  * lead outside ROOT, not even on a test server.
  */
 function resolvePath(url) {
-  const clean = decodeURIComponent(url.split("?")[0].split("#")[0]);
-  const rel = normalize(clean).replace(/^(\.\.[/\\])+/, "");
-  const abs = join(ROOT, rel);
-  if (!abs.startsWith(ROOT)) return null;
-  try {
-    return statSync(abs).isDirectory() ? join(abs, "index.html") : abs;
-  } catch {
-    return null;
-  }
+  return resolvePublicPath(ROOT, url);
 }
 
 /**

@@ -281,6 +281,12 @@ self.addEventListener("fetch", function (e) {
      extension attaches. */
   if (url.origin !== self.location.origin) return;
 
+  /* API responses stay network-only, including encoded paths. Never cache them
+     or substitute the offline HTML shell for a failed API request. */
+  var apiPath;
+  try { apiPath = decodeURIComponent(url.pathname); } catch (e) { return; }
+  if (/^\/+api(?:\/|$)/i.test(apiPath)) return;
+
   if (isAudio(url)) {
     e.respondWith(
       caches.open(AUDIO_CACHE).then(function (c) {

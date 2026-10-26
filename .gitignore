@@ -29,3 +29,7 @@ reports/
 # dziennik pracy — zostaje na dysku i nadal się go uzupełnia,
 # ale nie wchodzi do repozytorium: to notatnik wewnętrzny, nie dokumentacja kursu
 docs/REPORT_ATTIVITA.md
+
+# Vercel local state and all environment variants (server-only secrets)
+.vercel/
+.env.*

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "git": {
+    "deploymentEnabled": {
+      "feat/arabic-pilot": false
+    }
+  },
+  "functions": {
+    "api/health.js": {
+      "maxDuration": 10,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    }
+  }
+}

@@ -66,6 +66,8 @@ module.exports = defineConfig([
       "audio/**",
       "test-results/**",
       "playwright-report/**",
+      "dist/**",
+      ".vercel/**",
       ".playwright-mcp/**",
       /* The design system is a reference kit dropped into the tree, not code
          this repository runs: React components, a prebuilt bundle and two
@@ -77,6 +79,12 @@ module.exports = defineConfig([
   },
 
   js.configs.recommended,
+
+  {
+    files: ["api/**/*.js", "server/**/*.cjs"],
+    languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node } },
+    rules: { "no-unused-vars": NIEUZYWANE }
+  },
 
   {
     files: ["assets/js/**/*.js"],
