@@ -1,5 +1,7 @@
 # Restricted PostgreSQL runtime access
 
+**Historical migration verification record.** The temporary-password status below describes the migration checkpoint. The later [runtime connection record](pilot-runtime-connection.md) supersedes it: a new retained restricted credential was provisioned and handed only to the demo project. Migration files and their checksums are unchanged.
+
 ## Result and target
 
 Migration **0003_runtime_access.sql** prepares the SQL-created **vita_pilot_app** role for the existing vita_pilot schema. Versions 0001/0002 and their checksums are unchanged. This is database access preparation: no login/admin UI, account API, frontend, lesson, translation, scoring, payment, environment variable or deployment is changed.

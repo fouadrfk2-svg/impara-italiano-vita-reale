@@ -1,0 +1,21 @@
+import { PGlite } from '@electric-sql/pglite';
+import { test,before,after,beforeEach,afterEach } from 'node:test';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { validatedMigrations } from '../../scripts/check_db_migrations.mjs';
+const require=createRequire(import.meta.url),{PILOT,RUNTIME_HEALTH_SQL,parsePilotUrl}=require('../../server/runtime-policy.cjs');
+const fake='postgresql://vita_pilot_app:synthetic-password@'+PILOT.directHost+'/'+PILOT.database+'?sslmode=require';
+let db;
+before(async()=>{const bootstrap=new PGlite();await bootstrap.exec('CREATE ROLE vita_reale_test_owner SUPERUSER LOGIN');await bootstrap.exec('CREATE DATABASE vita_reale_test OWNER vita_reale_test_owner');const image=await bootstrap.dumpDataDir('none');await bootstrap.close();db=new PGlite({loadDataDir:image,username:PILOT.owner,database:PILOT.database});await db.exec("BEGIN; SET LOCAL vita_pilot.migration_target='vita-reale-arabic-pilot'");for(const m of validatedMigrations())await db.exec(m.sql);await db.exec('COMMIT');});
+after(async()=>{await db?.close();});
+beforeEach(async()=>{await db.exec('SET SESSION AUTHORIZATION vita_reale_test_owner; RESET ROLE; BEGIN');});afterEach(async()=>{await db.exec('ROLLBACK; SET SESSION AUTHORIZATION vita_reale_test_owner; RESET ROLE');});
+async function verified(){return (await db.query(RUNTIME_HEALTH_SQL)).rows[0].identity_verified;}
+async function runtime(){await db.exec('SET LOCAL SESSION AUTHORIZATION vita_pilot_app');}
+test('exact restricted identity and reviewed grants pass the actual PostgreSQL catalog query',async()=>{await runtime();assert.equal(await verified(),true);});
+test('owner connection fails even when the database is healthy',async()=>{assert.equal(await verified(),false);});
+test('owner SET ROLE is not mistaken for a real restricted login',async()=>{await db.exec('SET LOCAL ROLE vita_pilot_app');assert.equal(await verified(),false);});
+for(const flag of ['SUPERUSER','BYPASSRLS','CREATEROLE','CREATEDB','REPLICATION','INHERIT'])test('privilege drift fails closed: '+flag,async()=>{await db.exec('ALTER ROLE vita_pilot_app '+flag);await runtime();assert.equal(await verified(),false);});
+test('unprivileged membership still fails closed because it may allow SET ROLE',async()=>{await db.exec('CREATE ROLE synthetic_group NOLOGIN; GRANT synthetic_group TO vita_pilot_app WITH INHERIT FALSE, SET TRUE');await runtime();assert.equal(await verified(),false);});
+for(const sql of ['GRANT SELECT ON vita_pilot.learners TO vita_pilot_app','GRANT SELECT(state_snapshot) ON vita_pilot.learners TO vita_pilot_app','GRANT CREATE ON SCHEMA vita_pilot TO vita_pilot_app','GRANT EXECUTE ON FUNCTION vita_pilot.write_learner_state(uuid,jsonb,bigint) TO vita_pilot_app','GRANT EXECUTE ON FUNCTION vita_pilot.read_my_state(bytea,smallint) TO vita_pilot_app WITH GRANT OPTION','ALTER TABLE vita_pilot.learners DISABLE ROW LEVEL SECURITY','REVOKE EXECUTE ON FUNCTION vita_pilot.read_my_state(bytea,smallint) FROM vita_pilot_app','ALTER FUNCTION vita_pilot.read_my_state(bytea,smallint) SET search_path=pg_catalog'])test('effective access or protection drift fails closed: '+sql.split(' ').slice(0,4).join(' '),async()=>{await db.exec(sql);await runtime();assert.equal(await verified(),false);});
+test('application object ownership fails closed',async()=>{await db.exec('ALTER TABLE vita_pilot.learners OWNER TO vita_pilot_app');await runtime();assert.equal(await verified(),false);});
+test('URL parser binds role, endpoint, database and TLS without exposing input',()=>{for(const host of [PILOT.directHost,PILOT.pooledHost])assert.equal(parsePilotUrl(fake.replace(PILOT.directHost,host)).hostname,host);for(const value of [fake.replace('vita_pilot_app:','vita_reale_test_owner:'),fake.replace(PILOT.directHost,'ep-other.eu-central-1.aws.neon.tech'),fake.replace('/'+PILOT.database,'/other'),fake+'&options=-crole=owner',fake+'&sslmode=disable',fake+'&channel_binding=disable',fake.replace('sslmode=require','sslmode=disable'),fake+'#private'])assert.throws(()=>parsePilotUrl(value),e=>e.message==='Database unavailable'&&!e.cause);});
