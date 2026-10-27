@@ -20,16 +20,17 @@
 const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** The prefix the site is published at, as it appears inside 404.html. */
-const PREFIKS = "/impara-italiano/";
+const PREFIKS = new URL(require("../../package.json").homepage).pathname;
 
 /** The five languages of explanation, in the order of I18n.LANGS. */
-const JEZYKI = ["pl", "en", "es", "fr", "de"];
+const JEZYKI = ["ar", "pl", "en", "es", "fr", "de"];
 
 /**
  * Serves the page the way Pages does: everything under the publication
  * prefix comes from the root of the local server.
  */
 async function bezPrefiksu(page) {
+  if (PREFIKS === "/") return;
   await page.route(`**${PREFIKS}**`, (route) => {
     const url = new URL(route.request().url());
     url.pathname = url.pathname.replace(PREFIKS, "/");

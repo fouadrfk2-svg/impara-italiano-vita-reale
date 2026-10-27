@@ -25,41 +25,26 @@
      given that up. `default-src 'self'` does not cover connect-src by extension —
      the directive is explicit, so it had to be edited by hand. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' blob:; connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://api.openai.com https://api.anthropic.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title data-i18n="app.title">Impara l'Italiano 🇮🇹 — kurs włoskiego od A1 do C2</title>
-<meta name="description" data-i18n-content="app.description" content="Kompletny kurs języka włoskiego po polsku: gramatyka, teoria, ćwiczenia, słuchanie i mówienie. Od A1 do poziomu native.">
-<!-- The preview a shared link shows. Three things about it are deliberate.
-
-     STATIC, with no `data-i18n`. Every other string on this page is rewritten
-     by I18n.apply() at runtime; these are not, and could not be: a crawler
-     reads the markup and never runs a line of our code, so a translated tag
-     would reach it in whatever language the file was saved in. Marking them
-     up as translatable would look right and change nothing.
-
-     ENGLISH, while <title> above defaults to Polish. The two serve different
-     people. The title belongs to a student who has already chosen a language;
-     the preview belongs to whoever is being handed the link for the first
-     time, and English is the one language this course can assume of someone
-     who has not opened it yet. It is the same call manifest.webmanifest makes
-     with "lang": "en-US". The course name itself stays Italian, as it does in
-     the rail and in every language of the interface.
-
-     ABSOLUTE URLs, which is the only place in this project where one appears.
-     Crawlers do not resolve relative addresses. The prefix is not written by
-     hand twice: it lives in "homepage" in package.json, and
-     scripts/check_ogtags.mjs fails the build if these tags drift away from
-     it, if the image is missing, or if it stops being exactly 1200x630. -->
+<title data-i18n="app.title">Vita Reale — تعلّم الإيطالية لحياتك في إيطاليا</title>
+<meta name="description" content="تعلّم الإيطالية بالعربية من A1 إلى C1. دروس وتسجيلات وتمارين ومراجعة، بالوتيرة التي تناسب حياتك في إيطاليا. 9.99€ شهريًا؛ التفعيل يدوي حاليًا.">
+<!-- Public Vita Reale metadata is static for crawlers. The isolated demo URL
+     matches package.json homepage; learner interface branding remains unchanged.
+     Original course attribution and licenses are retained below. -->
+<link rel="canonical" href="https://vita-reale-arabic-demo.vercel.app/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Impara l'Italiano">
-<meta property="og:url" content="https://andreabonn.github.io/impara-italiano/">
-<meta property="og:title" content="Impara l'Italiano — Italian for everyday life">
-<meta property="og:description" content="Italian lessons, audio and practice with explanations in your language. Sign in with an activation code to access the pilot and synchronize your progress.">
-<meta property="og:image" content="https://andreabonn.github.io/impara-italiano/assets/og/cover.png">
+<meta property="og:site_name" content="Vita Reale">
+<meta property="og:url" content="https://vita-reale-arabic-demo.vercel.app/">
+<meta property="og:title" content="Vita Reale — الإيطالية لحياتك في إيطاليا">
+<meta property="og:description" content="شرح بالعربية وتدريب بالإيطالية. A1–C1، تسجيلات وتمارين ومراجعة. 9.99€ شهريًا؛ طلب اشتراك وتفعيل يدوي حاليًا.">
+<meta property="og:image" content="https://vita-reale-arabic-demo.vercel.app/assets/marketing/social.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The name Impara l'Italiano over a warm cream background, next to a badge reading A1 to C2.">
-<meta property="og:locale" content="en_US">
+<meta property="og:image:alt" content="Vita Reale — تعلّم الإيطالية لحياتك في إيطاليا، من A1 إلى C1">
+<meta property="og:locale" content="ar_AR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://andreabonn.github.io/impara-italiano/assets/og/cover.png">
+<meta name="twitter:title" content="Vita Reale — الإيطالية لحياتك في إيطاليا">
+<meta name="twitter:description" content="شرح بالعربية وتدريب بالإيطالية. من A1 إلى C1، بالوتيرة التي تناسبك.">
+<meta name="twitter:image" content="https://vita-reale-arabic-demo.vercel.app/assets/marketing/social.png">
 
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#007a5e">

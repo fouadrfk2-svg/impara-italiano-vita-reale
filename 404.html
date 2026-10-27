@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- GitHub Pages serves this file for every address it cannot find, AT THE
-     DEPTH THE VISITOR ASKED FOR. A link to /impara-italiano/a/b/c/nothing is
+     DEPTH THE VISITOR ASKED FOR. A link to /a/b/c/nothing is
      answered with these bytes, and a relative href inside them would then
-     resolve against /impara-italiano/a/b/c/ - a directory that does not
+     resolve against /a/b/c/ - a directory that does not
      exist. So every reference here starts from the root, and that is the one
      thing scripts/check_404.mjs verifies.
 
      The consequence, and it is deliberate: opened through scripts/serve.mjs
-     this page arrives WITHOUT its stylesheet, because /impara-italiano/ is
+     this page arrives WITHOUT its stylesheet, because / is
      not a path in the working tree. The file is correct only under the
      prefix Pages puts it behind. That is why the gate reads the attributes
      instead of loading the page, and why tests/dom/notfound.spec.js rewrites
@@ -32,10 +32,10 @@
      reading them. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 
-<title>Questa pagina non esiste — Impara l'Italiano</title>
+<title>Questa pagina non esiste — Vita Reale</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#b72e42">
-<link rel="stylesheet" href="/impara-italiano/assets/css/app.css">
+<link rel="stylesheet" href="/assets/css/app.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇮🇹</text></svg>">
 
 <style>
@@ -91,6 +91,7 @@
   <h1 class="lost__title">Questa pagina non esiste.</h1>
 
   <ul class="lost__langs">
+    <li lang="ar" dir="rtl">هذه الصفحة غير موجودة.</li>
     <li lang="pl">Tej strony nie ma.</li>
     <li lang="en">This page does not exist.</li>
     <li lang="es">Esta página no existe.</li>
@@ -98,7 +99,7 @@
     <li lang="de">Diese Seite existiert nicht.</li>
   </ul>
 
-  <a class="lost__back" href="/impara-italiano/">Impara l'Italiano &rarr;</a>
+  <a class="lost__back" href="/">Vita Reale &rarr;</a>
 </main>
 
 </body>

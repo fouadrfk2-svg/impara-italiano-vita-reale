@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "description": "Static Italian learning frontend with an optional server-only Vercel API foundation.",
-  "homepage": "https://andreabonn.github.io/impara-italiano/",
+  "homepage": "https://vita-reale-arabic-demo.vercel.app/",
   "scripts": {
     "test": "node --test \"tests/unit/**/*.test.mjs\"",
     "test:dom": "playwright test",
