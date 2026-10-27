@@ -5,6 +5,7 @@ import {join} from 'node:path';
 import vm from 'node:vm';
 import {loadEngine,CORE,ROOT} from './_harness.mjs';
 import original from '../fixtures/arabic-ui-baseline.cjs';
+import corrections from '../fixtures/arabic-polish-corrections.cjs';
 
 function dictionary(lang){let bag;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n/ui-'+lang+'.js'),'utf8'),{LINGUAI:{addUI(code,map){assert.equal(code,lang);bag=JSON.parse(JSON.stringify(map));}}});return bag;}
 const en=dictionary('en'),ar=dictionary('ar'),categories=['zero','one','two','few','many','other'];
@@ -13,11 +14,11 @@ const tags=s=>s.match(/<\/?[a-z][^>]*>/gi)||[];
 const plain=v=>JSON.parse(JSON.stringify(v));
 function engine(){const b=loadEngine({files:[...CORE,'assets/js/i18n.js','assets/js/i18n-merge.js',...['en','ar','pl','es','fr','de'].map(l=>'data/i18n/ui-'+l+'.js')]});b.Core.load();return b;}
 
-test('Arabic UI has exactly the original 962 keys, with no missing, extra or duplicate declarations',()=>{
- assert.equal(Object.keys(en).length,962);assert.equal(Object.keys(ar).length,962);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
- const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,962);assert.equal(new Set(declared).size,962);
+test('Arabic UI has the original 962 keys plus the accessible brand label, with no missing, extra or duplicate declarations',()=>{
+ assert.equal(Object.keys(en).length,963);assert.equal(Object.keys(ar).length,963);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
+ const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,963);assert.equal(new Set(declared).size,963);
 });
-test('all 230 pre-existing translations remain exactly unchanged',()=>{assert.equal(Object.keys(original).length,230);for(const[k,v]of Object.entries(original))assert.deepEqual(ar[k],v,k);});
+test('all 230 original translations are preserved except explicitly reviewed copy corrections',()=>{assert.equal(Object.keys(original).length,230);for(const[k,v]of Object.entries(original))assert.deepEqual(ar[k],corrections[k]?.after??v,k);for(const[k,v]of Object.entries(corrections)){if(k in original)assert.deepEqual(v.before,original[k],k+' original snapshot');assert.deepEqual(ar[k],v.after,k+' exact reviewed correction');}});
 
 for(const section of new Set(Object.keys(en).map(k=>k.split('.')[0])))test('complete Arabic interface section: '+section,()=>{
  for(const[k,value]of Object.entries(en).filter(([k])=>k.startsWith(section+'.'))){assert.equal(typeof ar[k],typeof value,k);const texts=typeof ar[k]==='object'?Object.values(ar[k]):[ar[k]];for(const text of texts){assert.equal(typeof text,'string',k);assert.match(text,/[\u0600-\u06ff]/,k);assert(text.trim(),k);assert(!/\b(?:TODO|FIXME|translate me|undefined)\b/i.test(text),k);}

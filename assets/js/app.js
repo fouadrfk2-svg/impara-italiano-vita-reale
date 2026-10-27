@@ -211,6 +211,12 @@
     document.querySelectorAll(".rail__item, .bottom-nav__item[data-route]").forEach(function (b) {
       b.addEventListener("click", function () { App.go(b.getAttribute("data-route")); });
     });
+    document.querySelector(".rail__brand").addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      // Router.go also redraws Today and closes the drawer when the hash is unchanged.
+      App.go("oggi");
+    });
     document.querySelector(".bottom-nav .js-more").addEventListener("click", openRail);
     document.getElementById("railStats").addEventListener("click", function () { App.go("progressi"); });
     document.getElementById("railToggle").addEventListener("click", function () {

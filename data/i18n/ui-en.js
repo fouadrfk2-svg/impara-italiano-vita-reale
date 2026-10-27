@@ -10,7 +10,8 @@
 LINGUAI.addUI("en", {
 
   /* ---------------- Shell ---------------- */
-  "app.title": "Impara l'Italiano 🇮🇹 — Italian from A1 to C2",
+  "app.title": "Vita Reale — Italian from A1 to C2",
+  "app.brandHome": "Vita Reale — return to your learning dashboard",
   "app.description": "A complete Italian course explained in English: grammar, theory, exercises, listening and speaking. From A1 to near-native.",
   "app.skipToContent": "Skip to content",
   "app.openMenu": "Open menu",

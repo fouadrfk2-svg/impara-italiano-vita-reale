@@ -11,7 +11,8 @@
 LINGUAI.addUI("pl", {
 
   /* ---------------- Powłoka ---------------- */
-  "app.title": "Impara l'Italiano 🇮🇹 — kurs włoskiego od A1 do C2",
+  "app.title": "Vita Reale — kurs włoskiego od A1 do C2",
+  "app.brandHome": "Vita Reale — wróć do panelu nauki",
   "app.description": "Kompletny kurs języka włoskiego po polsku: gramatyka, teoria, ćwiczenia, słuchanie i mówienie. Od A1 do poziomu native.",
   "app.skipToContent": "Przejdź do treści",
   "app.openMenu": "Otwórz menu",

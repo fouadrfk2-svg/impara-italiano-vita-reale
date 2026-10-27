@@ -9,8 +9,8 @@ import {checkPartialCourse} from '../../scripts/parity.mjs';
 import plans from '../fixtures/arabic-a2-final-plans.cjs';
 const preservedHashes={
   "data/i18n/ar/a1-01.js": "fb0816c334408a20991cf77404e68a54e6712f1ee5cb283588abad73e0d291d0",
-  "data/i18n/ar/a1-02.js": "6efe8ff0f4149d59ea4d692a59ac2d91d296593afbec9646241162232d83d439",
-  "data/i18n/ar/a1-03.js": "8aafa4ddf1a7c722691879d3f42e824184efc04decb930ef2b7322c20dcd8c38",
+  "data/i18n/ar/a1-02.js": "e1268fec9b02af562f38366e7af9e89bbe31f0bcde31e05a471423048fd596b7",
+  "data/i18n/ar/a1-03.js": "cf87821e14692288c36882199e334becdd95ba8ad4425b53dd8ba310d71db488",
   "data/i18n/ar/a2-01.js": "c592ad5679f501e8dd6a4a0f1715bcc6534b05efb55e83c8c392ec2249837ef2",
   "data/core/a2-01.js": "7a7dea523610a596b05f280edead1b954da3950e57400ebb76ff0b88cb9d8c5a",
   "data/core/a2-02.js": "e8f70cf2523bf046b7d5301c9655720c25f69251c014e747a79e8bc287c43f75"

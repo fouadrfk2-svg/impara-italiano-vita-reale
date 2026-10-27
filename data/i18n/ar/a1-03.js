@@ -460,7 +460,7 @@ LINGUAI.addStrings("ar", {
           "Secondo me",
           "Secondo mio"
         ],
-        "why": "بعد secondo نستعمل الضمير المنفصل me أوte أوlui أوlei، لا ضمير الفاعل io."
+        "why": "بعد secondo نستعمل الضمير المنفصل me أو te أو lui أو lei، لا ضمير الفاعل io."
       },
       {
         "q": "أكمل بالصفة التي تعني «لطيفة / مهذّبة»: <bdi lang=\"it\" dir=\"ltr\">Mia collega è molto ___.</bdi> ملاحظة: في الصياغة المعتادة نقول <bdi lang=\"it\" dir=\"ltr\">La mia collega</bdi> مع الأداة."
@@ -505,7 +505,7 @@ LINGUAI.addStrings("ar", {
     "title": "أطول منك: المقارنة والتفضيل",
     "objectives": [
       "المقارنة بين شخصين أو شيئين",
-      "اختيار di أوche بحسب نوع المقارنة",
+      "اختيار di أو che بحسب نوع المقارنة",
       "استعمال migliore وpeggiore"
     ],
     "theory": [
@@ -646,7 +646,7 @@ LINGUAI.addStrings("ar", {
         "q": "ترجم إلى الإيطالية: «ميلانو أغلى من بولونيا.» استعمل صيغة المؤنّث مع المدينة."
       },
       {
-        "q": "أكمل باستعمال di أوche.",
+        "q": "أكمل باستعمال di أو che.",
         "tr": "روما أكبر من فلورنسا، لكن الكلام بالإيطالية أسهل من الكتابة بها."
       },
       {
@@ -733,7 +733,7 @@ LINGUAI.addStrings("ar", {
     "title": "التحدّث عن هواياتك واقتراح نشاط",
     "objectives": [
       "التحدّث عمّا تفعله في وقت الفراغ",
-      "اختيار fare أوgiocare أوsuonare بحسب النشاط",
+      "اختيار fare أو giocare أو suonare بحسب النشاط",
       "اقتراح الخروج وقبول الدعوة أو الاعتذار عنها"
     ],
     "theory": [
@@ -1550,7 +1550,7 @@ LINGUAI.addStrings("ar", {
         "q": "ممَّ يتكوّن passato prossimo؟",
         "opts": [
           "فعلان في المضارع",
-          "avere أوessere مع participio passato",
+          "avere أو essere مع participio passato",
           "essere مع الفعل في المصدر"
         ]
       },

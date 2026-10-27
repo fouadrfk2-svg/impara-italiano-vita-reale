@@ -86,3 +86,8 @@ test("exactly one way back, and it opens the course", async ({ page }) => {
   await page.waitForFunction(() => window.Core && window.Views);
   await expect(page.locator("#main")).toBeVisible();
 });
+
+for(const width of [390,1440])test('standalone error page loads the real Arabic font at '+width,async({page,context})=>{
+ await page.setViewportSize({width,height:900});await bezPrefiksu(page);await page.goto('/404.html');await page.evaluate(()=>document.fonts.ready);const arabic=page.locator('li[lang="ar"]');await expect(arabic).toHaveText('هذه الصفحة غير موجودة.');expect(await arabic.evaluate(e=>getComputedStyle(e).direction)).toBe('rtl');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ const cdp=await context.newCDPSession(page);await cdp.send('DOM.enable');await cdp.send('CSS.enable');const doc=await cdp.send('DOM.getDocument'),{nodeId}=await cdp.send('DOM.querySelector',{nodeId:doc.root.nodeId,selector:'li[lang="ar"]'}),fonts=await cdp.send('CSS.getPlatformFontsForNode',{nodeId});expect(fonts.fonts.some(f=>f.familyName==='Noto Sans Arabic'&&f.isCustomFont&&f.glyphCount>0)).toBe(true);await cdp.detach();if(process.env.ARABIC_POLISH_DIR)await page.screenshot({path:require('node:path').join(process.env.ARABIC_POLISH_DIR,'error-page-'+width+'.png')});
+});

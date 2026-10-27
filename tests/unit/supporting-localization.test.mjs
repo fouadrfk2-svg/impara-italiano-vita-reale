@@ -40,8 +40,8 @@ const frozen={
   "data/core/readings.js": "e3930ad98391099a55503a3b86e17f06721cf2b3ce8ca47d6a574ccaa1c5c7ff",
   "data/core/writing.js": "6013fd46b4aab041b94626539d0c3fb5cab5da6fa894e1ae140c2c264f4d41b3",
   "data/i18n/ar/a1-01.js": "fb0816c334408a20991cf77404e68a54e6712f1ee5cb283588abad73e0d291d0",
-  "data/i18n/ar/a1-02.js": "6efe8ff0f4149d59ea4d692a59ac2d91d296593afbec9646241162232d83d439",
-  "data/i18n/ar/a1-03.js": "8aafa4ddf1a7c722691879d3f42e824184efc04decb930ef2b7322c20dcd8c38",
+  "data/i18n/ar/a1-02.js": "e1268fec9b02af562f38366e7af9e89bbe31f0bcde31e05a471423048fd596b7",
+  "data/i18n/ar/a1-03.js": "cf87821e14692288c36882199e334becdd95ba8ad4425b53dd8ba310d71db488",
   "data/i18n/ar/a2-01.js": "c592ad5679f501e8dd6a4a0f1715bcc6534b05efb55e83c8c392ec2249837ef2",
   "data/i18n/ar/a2-02.js": "2624a3934b50862a9e99f58c2aa5eff65dc22fe9a0f78771987282ec841c3f14",
   "data/i18n/ar/b1-01.js": "84689c17a13a31c754e9b825217437d9f00acf1ec77f999dd49684f775ab9b62",
@@ -186,12 +186,12 @@ const frozen={
   "data/i18n/pl/phonetics.js": "63112bac0b84730c4042de87f0befc789c225a5223aa6e4cfae525e9ca6a2e31",
   "data/i18n/pl/readings.js": "e19ad5bab1e82d5a24e8fef5d73d120fba73fc298fd174e3f8ffaabfec264169",
   "data/i18n/pl/writing.js": "f575dcf58d469d81911fb74d3c6df268dd589c6ad5b502530d665ee18c657afc",
-  "data/i18n/ui-ar.js": "61b12a80fba4c84f8238abfee25c2001ac0f41c5fa7b0cccf978d3bb65f63484",
-  "data/i18n/ui-de.js": "a9609228de1a825c28630c415705049c712babd327dbe2bbd5212a26fb25569a",
-  "data/i18n/ui-en.js": "805b43a2e8fd3a48b4c2cf83ebb2ae3a4fc374e160dd87b6793ff56535f1fdd8",
-  "data/i18n/ui-es.js": "ac7997e1f4e92761a8f0f83f30a7ef70a65e6e1811b3ab3bd8c393fe07af0dd4",
-  "data/i18n/ui-fr.js": "a2c1e722dca06ba7ea6766ea2e809075946b6a5513febbb0d211c73271779e31",
-  "data/i18n/ui-pl.js": "bad46b342c46a7d4c2bb2d2adf9e21bcf86fb07b4f7d928fb1b8b0d89240d23a"
+  "data/i18n/ui-ar.js": "7cbb4d8d3ac87d4bc3c27832f1e5ad601db35f4379cd27dba10f1f091a1eed69",
+  "data/i18n/ui-de.js": "e00a9f24defa97bbda991bb8d86e1575dc79e319f4493a84d6915932b080e873",
+  "data/i18n/ui-en.js": "c40c721633b1e7318430c62dd9c207b1298d5486911b4e227212ade2f1f82862",
+  "data/i18n/ui-es.js": "9e9b6b2693411db5a5f7d6ea90b2ba5cbde925ec9c47c6ad6ff89e5151e0d046",
+  "data/i18n/ui-fr.js": "9c0cf96d97a119286079a27332f8c6944cc1160a254dec38e51cadfb26cea1d8",
+  "data/i18n/ui-pl.js": "ccad2ca936560c65d3f31dd920f0d3cb9a7ea319367e925d2f7a7eadcb3d080f"
 };
 const plain=v=>JSON.parse(JSON.stringify(v)),read=f=>readFileSync(join(ROOT,f),'utf8');
 const files=Object.keys(fixture.selections),allFiles=files.concat('interference.js','a1-01.js');

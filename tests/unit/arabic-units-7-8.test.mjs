@@ -453,7 +453,7 @@ const plans=[
     "title": "اختبار الوحدة الثامنة"
   }
 ];
-const previousHash="f475023eeec52602bd0bf6ee74ac53f900ba99399e61a556f30891d6f0f89056";
+const previousHash="5396589fbc97a4be7f8eade34e996b9a22634a689bbfad4a71224c5a2afc0b33";
 const plain=value=>JSON.parse(JSON.stringify(value));
 const files=['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js','c1-01.js','c1-02.js','c1-03.js'];
 function bag(lang,file){let result;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n',lang,file),'utf8'),{LINGUAI:{addStrings(_lang,map){result=plain(map);}}});return result;}

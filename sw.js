@@ -1,7 +1,7 @@
 /* Public shell only. Private course data/audio are network-only and require
    a fresh server session. Downloaded copies from older releases cannot be
    remotely revoked; activation removes their legacy Cache Storage entries. */
-var SW_VERSION = "v36.ce8000b1b51f";
+var SW_VERSION = "v36.1a29620001b1";
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 var PRECACHE = [
   "./assets/marketing/vita-italia.svg",
@@ -109,6 +109,7 @@ var PRECACHE = [
   "./assets/fonts/spectral-700-latin.woff2",
   "./assets/fonts/spectral-700-latin-ext.woff2",
   "./assets/fonts/manrope-latin.woff2",
+  "./assets/fonts/noto-sans-arabic-arabic.woff2",
   "./assets/fonts/manrope-latin-ext.woff2",
   "./assets/fonts/jetbrainsmono-latin.woff2",
   "./assets/css/guest.css",

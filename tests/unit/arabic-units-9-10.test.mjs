@@ -248,7 +248,7 @@ const plans=[
       "Ieri sera ho letto un libro molto interessante."
     ],
     "keys": [
-      "avere أوessere مع participio passato",
+      "avere أو essere مع participio passato",
       "parlato",
       "creduto",
       "finito",
@@ -524,7 +524,7 @@ const plans=[
     "title": "الاختبار الختامي للمستوى A1"
   }
 ];
-const previousHash="8b59a205af0deb775bc1b265222ee0afb4217d7d231a8ad5d59a7ea20093c945";
+const previousHash="4f23414933849c2e97bed956b624f8cc88dfdb8195dff8a836dbfee91496982e";
 const plain=value=>JSON.parse(JSON.stringify(value));
 const files=['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js','c1-01.js','c1-02.js','c1-03.js'];
 function bag(lang,file){let result;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n',lang,file),'utf8'),{LINGUAI:{addStrings(_lang,map){result=plain(map);}}});return result;}

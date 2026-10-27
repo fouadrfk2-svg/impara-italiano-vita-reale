@@ -10,8 +10,8 @@ import plans from '../fixtures/arabic-b1-plans.cjs';
 const preservedHashes={
   "data/core/b1-01.js": "84ceb6712f58ad6e1d50116cf7315b9e9bdaaf02a213ba46b9984534f1756573",
   "data/i18n/ar/a1-01.js": "fb0816c334408a20991cf77404e68a54e6712f1ee5cb283588abad73e0d291d0",
-  "data/i18n/ar/a1-02.js": "6efe8ff0f4149d59ea4d692a59ac2d91d296593afbec9646241162232d83d439",
-  "data/i18n/ar/a1-03.js": "8aafa4ddf1a7c722691879d3f42e824184efc04decb930ef2b7322c20dcd8c38",
+  "data/i18n/ar/a1-02.js": "e1268fec9b02af562f38366e7af9e89bbe31f0bcde31e05a471423048fd596b7",
+  "data/i18n/ar/a1-03.js": "cf87821e14692288c36882199e334becdd95ba8ad4425b53dd8ba310d71db488",
   "data/i18n/ar/a2-01.js": "c592ad5679f501e8dd6a4a0f1715bcc6534b05efb55e83c8c392ec2249837ef2",
   "data/i18n/ar/a2-02.js": "2624a3934b50862a9e99f58c2aa5eff65dc22fe9a0f78771987282ec841c3f14"
 };

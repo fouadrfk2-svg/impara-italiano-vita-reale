@@ -1,19 +1,36 @@
 {
-  "name": "Impara l'Italiano",
-  "short_name": "Italiano",
-  "description": "Italian course from A1 to C2, with real recordings and spaced repetition. Works offline.",
+  "name": "Vita Reale",
+  "short_name": "Vita Reale",
+  "description": "تعلّم الإيطالية لحياتك في إيطاليا. شرح بالعربية ودروس وتدريب ومراجعة، بالوتيرة التي تناسبك.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#fbf8f3",
   "theme_color": "#007a5e",
-  "lang": "en-US",
-  "dir": "ltr",
-  "categories": ["education"],
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": [
+    "education"
+  ],
   "icons": [
-    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

@@ -23,7 +23,7 @@ for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
   try{
    await c.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,settings:{lang:'ar'},lessons:{'a1-u01-l1':{done:true,total:9,score:9,best:1}},writing:{private:{text:'SYNTHETIC_PRIVATE_DRAFT'}}})));
    await guest(p);await expect(p.locator('#rail')).toBeHidden();await expect(p.locator('.bottom-nav')).toBeHidden();await expect(p.locator('#main')).not.toContainText('SYNTHETIC_PRIVATE_DRAFT');await audit(p);
-   await p.evaluate(()=>App.go('privacy'));await expect(p.locator('#main h1')).toContainText('بيانات');await p.evaluate(()=>App.go('home'));
+   await p.evaluate(()=>App.go('privacy'));await expect(p.locator('#main h1')).toContainText('حسابك وخصوصيتك');await p.evaluate(()=>App.go('home'));
    for(const route of ['percorso','lezione?id=a1-u01-l1','ripasso','conversazione?id=bar-mattina','progressi','letture','scrittura','guida','unknown']){await p.evaluate(r=>{location.hash='#/'+r;},route);await expect(p.locator('.guest-page')).toBeVisible();await expect(p.locator('#rail')).toBeHidden();await expect(p.locator('.exq')).toHaveCount(0);}
    await p.locator('.js-guest-language').selectOption('en');await expect(p.locator('#guest-title')).toContainText('Learn with confidence');expect(await p.locator('html').getAttribute('dir')).toBe('ltr');await audit(p);
    await p.locator('.js-guest-language').selectOption('ar');expect(await p.locator('html').getAttribute('dir')).toBe('rtl');await expect(p.locator('#guest-title')).toContainText('تعلّم');
@@ -47,9 +47,9 @@ for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
  test('revoked learner closes the interface and cannot reload course data; Admin alone never unlocks learning',async({browser})=>{
   const c=await context(browser,width),p=await c.newPage();try{
    await guest(p);await p.evaluate(()=>App.go('admin'));await p.locator('#pilot-admin-key').fill(helper.ADMIN_KEY);await p.locator('.js-admin-login').click();await expect(p.locator('.js-issue')).toBeVisible();
-   await p.evaluate(()=>App.go('percorso'));await expect(p.locator('.guest-page')).toBeVisible();expect((await c.request.get(base+'/data/core/a1-01.js')).status()).toBe(401);
+   await p.locator('.rail__brand').evaluate(e=>e.click());await expect(p).toHaveURL(/#\/home$/);await expect(p.locator('.guest-page')).toBeVisible();expect((await c.request.get(base+'/data/core/a1-01.js')).status()).toBe(401);
    await signIn(p,await code());const learner=await p.evaluate(()=>Account.snapshot().active.id);const admin=helper.client(db);await admin.request('admin/login',{key:helper.ADMIN_KEY});expect((await admin.request('admin/operation',{action:'revoke_access',id:learner,requestId:crypto.randomUUID()})).statusCode).toBe(200);
-   await p.evaluate(()=>Account.refresh());await expect(p.locator('.guest-page')).toBeVisible();await expect(p.locator('#rail')).toBeHidden();expect((await c.request.get(base+'/data/core/a1-01.js')).status()).toBe(401);await p.reload();await expect(p.locator('.guest-page')).toBeVisible();await audit(p);
+   await p.evaluate(()=>Account.refresh());await p.locator('.rail__brand').evaluate(e=>e.click());await expect(p).toHaveURL(/#\/home$/);await expect(p.locator('.guest-page')).toBeVisible();await expect(p.locator('#rail')).toBeHidden();expect((await c.request.get(base+'/data/core/a1-01.js')).status()).toBe(401);await p.reload();await expect(p.locator('.guest-page')).toBeVisible();await audit(p);
   }finally{await c.close();}
  });
  test('expired learner session denies the shell and direct content',async({browser})=>{
@@ -57,7 +57,7 @@ for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
   const raw='E'.repeat(43),{mac}=require('../../server/account-api.cjs');
   await db.exec('SET LOCAL SESSION AUTHORIZATION vita_reale_test_owner');
   try{await db.query("INSERT INTO vita_pilot.sessions(learner_id,created_at,expires_at,token_hash,hash_key_version) VALUES($1::uuid,clock_timestamp()-interval '2 days',clock_timestamp()-interval '1 day',decode($2,'hex'),1)",[login.body.learnerId,mac('learner_session',raw)]);}finally{await db.exec('SET LOCAL SESSION AUTHORIZATION vita_pilot_app');}
-  const c=await context(browser,width),p=await c.newPage();try{await c.addCookies([{name:'__Host-vita_pilot',value:raw,url:base.replace('http:','https:')+'/',httpOnly:true,secure:true,sameSite:'Strict'}]);await guest(p,'#/percorso');await expect(p.locator('#rail')).toBeHidden();expect((await c.request.get(base+'/data/core/a1-01.js')).status()).toBe(401);await audit(p);}finally{await c.close();}
+  const c=await context(browser,width),p=await c.newPage();try{await c.addCookies([{name:'__Host-vita_pilot',value:raw,url:base.replace('http:','https:')+'/',httpOnly:true,secure:true,sameSite:'Strict'}]);await guest(p,'#/percorso');await p.locator('.rail__brand').evaluate(e=>e.click());await expect(p).toHaveURL(/#\/home$/);await expect(p.locator('#rail')).toBeHidden();expect((await c.request.get(base+'/data/core/a1-01.js')).status()).toBe(401);await audit(p);}finally{await c.close();}
  });
  test('delayed session never flashes protected UI, network failures fail closed and retry recovers',async({browser})=>{
   const c=await context(browser,width),p=await c.newPage();let release;const held=new Promise(r=>release=r);await p.route('**/api/auth/session',async route=>{await held;await route.abort('failed');});

@@ -15,7 +15,8 @@
 LINGUAI.addUI("de", {
 
   /* ---------------- Grundgerüst ---------------- */
-  "app.title": "Impara l'Italiano 🇮🇹 — Italienisch auf Deutsch, von A1 bis C2",
+  "app.title": "Vita Reale — Italienisch auf Deutsch, von A1 bis C2",
+  "app.brandHome": "Vita Reale — zurück zur Lernübersicht",
   "app.description": "Vollständiger Italienischkurs auf Deutsch erklärt: Grammatik, Theorie, Übungen, Hörverstehen und Aussprache. Von A1 bis nahezu muttersprachlich.",
   "app.skipToContent": "Zum Inhalt springen",
   "app.openMenu": "Menü öffnen",

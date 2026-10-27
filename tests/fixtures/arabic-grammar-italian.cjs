@@ -1351,8 +1351,8 @@ module.exports={
   "_preserved": {
     "data/core/grammar-reference.js": "44134eb886beeb551d5053c1a7b3a3264a73355dc28966657800867abc226343",
     "data/i18n/ar/a1-01.js": "fb0816c334408a20991cf77404e68a54e6712f1ee5cb283588abad73e0d291d0",
-    "data/i18n/ar/a1-02.js": "6efe8ff0f4149d59ea4d692a59ac2d91d296593afbec9646241162232d83d439",
-    "data/i18n/ar/a1-03.js": "8aafa4ddf1a7c722691879d3f42e824184efc04decb930ef2b7322c20dcd8c38",
+    "data/i18n/ar/a1-02.js": "e1268fec9b02af562f38366e7af9e89bbe31f0bcde31e05a471423048fd596b7",
+    "data/i18n/ar/a1-03.js": "cf87821e14692288c36882199e334becdd95ba8ad4425b53dd8ba310d71db488",
     "data/i18n/ar/a2-01.js": "c592ad5679f501e8dd6a4a0f1715bcc6534b05efb55e83c8c392ec2249837ef2",
     "data/i18n/ar/a2-02.js": "2624a3934b50862a9e99f58c2aa5eff65dc22fe9a0f78771987282ec841c3f14",
     "data/i18n/ar/b1-01.js": "84689c17a13a31c754e9b825217437d9f00acf1ec77f999dd49684f775ab9b62",
@@ -1365,6 +1365,6 @@ module.exports={
     "data/i18n/ar/conversations.js": "f9cb32e366129b86051765dd0d85b24831e52c7d52f5ae7da1f9ea4d3c2bf8af",
     "data/i18n/ar/curriculum-index.js": "323fc926117c024c6944ac76fa9f66ede7c7917f466b447fafcfb82a3e62d739",
     "data/i18n/en/grammar-reference.js": "803628efe2a0f2e5a8b86b5583f4a20cbe0dc911fa25e7e2cc1ff1f3d6da58d7",
-    "data/i18n/ui-ar.js": "61b12a80fba4c84f8238abfee25c2001ac0f41c5fa7b0cccf978d3bb65f63484"
+    "data/i18n/ui-ar.js": "7cbb4d8d3ac87d4bc3c27832f1e5ad601db35f4379cd27dba10f1f091a1eed69"
   }
 };

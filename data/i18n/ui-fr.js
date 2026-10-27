@@ -15,7 +15,8 @@
 LINGUAI.addUI("fr", {
 
   /* ---------------- Structure ---------------- */
-  "app.title": "Impara l'Italiano 🇮🇹 — l'italien en français, de A1 à C2",
+  "app.title": "Vita Reale — l'italien en français, de A1 à C2",
+  "app.brandHome": "Vita Reale — revenir au tableau de bord",
   "app.description": "Cours complet d'italien expliqué en français : grammaire, théorie, exercices, compréhension orale et prononciation. De A1 à un niveau proche du natif.",
   "app.skipToContent": "Aller au contenu",
   "app.openMenu": "Ouvrir le menu",
