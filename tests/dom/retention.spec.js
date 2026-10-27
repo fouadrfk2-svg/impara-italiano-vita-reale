@@ -16,7 +16,7 @@
    by deleting it before the page's own scripts run, which is the same
    situation from the code's point of view.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** Opens the settings with the chosen browser APIs removed. */
 async function ustawienia(page, opcje) {

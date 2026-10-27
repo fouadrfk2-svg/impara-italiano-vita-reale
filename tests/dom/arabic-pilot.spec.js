@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect, expectAudioResponse } = require("../helpers/learner-fixture.cjs");
 const path = require("node:path");
 const { readFileSync } = require("node:fs");
 const AXE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
@@ -36,10 +36,10 @@ for (const width of [1440, 390]) {
     test.use({ viewport: { width, height: 920 }, locale: "ar-MA" });
     test.beforeEach(async ({ page }) => { await page.addInitScript(AXE); });
 
-    test("first visit has Arabic navigation, usable selector and RTL without overflow", async ({ page }, testInfo) => {
+    test("authenticated onboarding has Arabic navigation, usable selector and RTL without overflow", async ({ page }, testInfo) => {
       const errors = []; page.on("pageerror", e => errors.push(e.message));
       const failed = []; page.on("response", r => { if (r.status() >= 400) failed.push(r.url()); });
-      await page.goto("/index.html"); await ready(page);
+      await page.goto("/index.html#/benvenuto"); await ready(page);
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
       await expect(page.locator('.welcome-lang [data-lang="ar"]')).toHaveText("العربية");
@@ -101,7 +101,7 @@ for (const width of [1440, 390]) {
       const audio = page.locator(".vocab-card [data-say]").first();
       const italian = await audio.getAttribute("data-say");
       const recording = page.waitForResponse(r => /\/audio\/.*\.mp3$/.test(r.url()));
-      await audio.click(); expect((await recording).status()).toBe(200);
+      await audio.click(); await expectAudioResponse(await recording);
       expect(italian).toBeTruthy();
       await overflow(page); await a11y(page);
       await shot(page, testInfo, "lesson-" + width + ".png");

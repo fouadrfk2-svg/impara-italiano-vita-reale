@@ -1,7 +1,7 @@
 /* ============================================================
    Sesja dnia: jeden przycisk zamiast trzech decyzji.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function oggi(page) {
   await page.goto("/index.html#/oggi");
@@ -243,7 +243,8 @@ test("a student who has started opens the course on Today", async ({ page }) => 
 
 test("a student who has only looked around still opens on the path", async ({ page }) => {
   await profil(page, zdane([]));
-  await page.goto("/index.html");
+  // An explicit path bookmark is preserved; the default returning route is Today.
+  await page.goto("/index.html#/percorso");
   await page.waitForFunction(() => window.App && window.Router && window.Router.current);
   await page.waitForTimeout(300);
   await expect(page).not.toHaveURL(/#\/oggi/);

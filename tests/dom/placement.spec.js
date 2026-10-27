@@ -6,7 +6,7 @@
    NOT saved without the student's consent, and whether the number of lessons
    to be marked is shown BEFORE the decision rather than after it.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function wejscie(page) {
   await page.goto("/index.html#/piazzamento");

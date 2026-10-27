@@ -11,7 +11,7 @@
    by the screen being shown. Set too early, it means an accidental refresh
    takes that one answer away from the student for good.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const KLUCZ = "linguai.italiano.v2";
 
@@ -27,8 +27,8 @@ async function gotowe(page) {
   await page.waitForFunction(() => window.Router.current.route !== null);
 }
 
-test("pusty profil trafia na powitanie", async ({ page }) => {
-  await page.goto("/index.html");
+test("an authenticated learner can open the original onboarding screen", async ({ page }) => {
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   await expect(page.locator(".js-zero")).toBeVisible();
   await expect(page).toHaveURL(/#\/benvenuto/);
@@ -51,11 +51,11 @@ test("adres z linku wygrywa nad powitaniem", async ({ page }) => {
 });
 
 test("the choice ends the welcome, merely looking at it does not", async ({ page }) => {
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
 
   /* A refresh with no choice: the question has to come back. */
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   await expect(page.locator(".js-zero")).toBeVisible();
 
@@ -77,11 +77,11 @@ test("the choice ends the welcome, merely looking at it does not", async ({ page
   await page.goto("/index.html");
   await gotowe(page);
   await expect(page.locator(".js-zero")).toHaveCount(0);
-  expect(await page.evaluate(() => window.Router.current.route)).toBe("percorso");
+  expect(await page.evaluate(() => window.Router.current.route)).toBe("oggi");
 });
 
 test("the road through the placement test leads to the test", async ({ page }) => {
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   await page.locator(".js-test").click();
   await expect(page).toHaveURL(/#\/piazzamento/);
@@ -89,7 +89,7 @@ test("the road through the placement test leads to the test", async ({ page }) =
 });
 
 test("after the choice the learning path has something to draw itself from", async ({ page }) => {
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   await page.locator(".js-look").click();
   /* The level loads under the welcome screen, so the lessons have to be here
@@ -103,7 +103,7 @@ test("after the choice the learning path has something to draw itself from", asy
    quietly falls back to the list of levels — that is, it does the very thing
    this button must not do. */
 test("from scratch lands on the first lesson of the course, not on the list", async ({ page }) => {
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   await page.locator(".js-zero").click();
   await expect(page).toHaveURL(/#\/lezione\?id=/);
@@ -114,7 +114,7 @@ test("from scratch lands on the first lesson of the course, not on the list", as
 });
 
 test("the welcome strings exist in five languages", async ({ page }) => {
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   const braki = await page.evaluate(async () => {
     const out = {};
@@ -135,7 +135,7 @@ test.describe("a first visit from a French browser", () => {
 
   /* Fresh visitors start Arabic independently of browser locale. */
   test("the welcome is Arabic regardless of the browser language", async ({ page }) => {
-    await page.goto("/index.html");
+    await page.goto("/index.html#/benvenuto");
     await gotowe(page);
     await expect(page.locator(".js-zero")).toBeVisible();
     expect(await page.evaluate(() => window.I18n.lang)).toBe("ar");
@@ -144,7 +144,7 @@ test.describe("a first visit from a French browser", () => {
 
 test("a saved choice of language beats the browser", async ({ page }) => {
   await zProfilem(page, { schema: 2, settings: { lang: "de" }, stats: { lessonsDone: 0, correct: 0, wrong: 0, days: {} } });
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   expect(await page.evaluate(() => window.I18n.lang)).toBe("de");
 });
@@ -152,7 +152,7 @@ test("a saved choice of language beats the browser", async ({ page }) => {
 /* On a phone the language switch is behind the menu: whoever lands in the
    wrong language must be able to change it where they are. */
 test("the welcome offers every language of explanation", async ({ page }) => {
-  await page.goto("/index.html");
+  await page.goto("/index.html#/benvenuto");
   await gotowe(page);
   const wybor = page.locator(".welcome-lang [data-lang]");
   const ile = await page.evaluate(() => window.I18n.LANGS.length);
@@ -174,7 +174,7 @@ test.describe("a profile saved before the current format", () => {
       localStorage.setItem("linguai.italiano.pl.v1", JSON.stringify({ lessons: {}, srs: {}, stats: { lessonsDone: 0, correct: 0, wrong: 0, days: {} }, settings: {} }));
       sessionStorage.setItem("seeded", "1");
     });
-    await page.goto("/index.html");
+    await page.goto("/index.html#/benvenuto");
     await gotowe(page);
     expect(await page.evaluate(() => window.I18n.lang)).toBe("pl");
   });

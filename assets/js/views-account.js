@@ -8,7 +8,7 @@
  function bindEnter(input,button){input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();button.click();}});}
  global.Views.account=function(){
   if(accountUnsubscribe)accountUnsubscribe();var s=A.snapshot(),identity=viewKey(s);if(!s.checked)A.refresh();
-  var html=shell.head(t('account'),t('title'),t('intro'))+'<section class="account-panel"><p data-account-status role="status" aria-live="polite">'+esc(t(s.status))+'</p><p data-account-error role="alert" hidden></p>';
+  var html=(!s.authenticated?'<p><a class="btn btn--quiet" href="#/home">'+esc(global.Guest.t('home'))+'</a></p>':'')+shell.head(t('account'),t('title'),t('intro'))+'<section class="account-panel"><p data-account-status role="status" aria-live="polite">'+esc(t(s.status))+'</p><p data-account-error role="alert" hidden></p>';
   if(s.authenticated&&s.active){
    html+='<div class="account-actions">'+button('continue','js-continue')+button('retry','js-sync')+button('logout','js-logout')+'</div><p class="account-note">'+esc(t('device'))+'</p>';
    if(s.active.importAvailable)html+='<section class="account-import"><h2>'+esc(t('importTitle'))+'</h2><p>'+esc(t('importHelp'))+'</p>'+button('import','js-import')+'</section>';
@@ -16,14 +16,14 @@
    html+=button('export','js-export');
   }else{
    html+='<fieldset class="account-fields"><legend>'+esc(t('login'))+'</legend><label for="pilot-code">'+esc(t('code'))+'</label><input id="pilot-code" dir="ltr" lang="en" type="text" maxlength="64" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="pilot-login-help"><p id="pilot-login-help">'+esc(t('intro'))+'</p><button type="button" class="btn btn--primary js-login">'+esc(t('login'))+'</button></fieldset>';
-   if(s.active)html+=button('export','js-export');
+   // Retain cached drafts, but expose their export only after learner verification.
   }
-  var root=shell.set(html+'</section>');
+  var root=shell.publicSet(html+'</section>');
   function wire(cls,fn){var n=root.querySelector(cls);if(n)n.addEventListener('click',fn);}
-  wire('.js-login',async function(){var b=this,input=root.querySelector('#pilot-code');b.disabled=true;var value=input.value;input.value='';var ok=await A.login(value);if(ok)global.Views.account();else{b.disabled=false;status();input.focus();}});
+  wire('.js-login',async function(){var b=this,input=root.querySelector('#pilot-code');b.disabled=true;var value=input.value;input.value='';var ok=await A.login(value);if(ok&&global.App.enterCourse)await global.App.enterCourse();else if(ok)global.Views.account();else{b.disabled=false;status();input.focus();}});
   var code=root.querySelector('#pilot-code');if(code)bindEnter(code,root.querySelector('.js-login'));
   wire('.js-continue',function(){global.App.go('percorso');});wire('.js-sync',A.refresh);wire('.js-import',function(){A.importAnonymous();global.Views.account();});wire('.js-resolve',function(){A.resolve();global.Views.account();});wire('.js-export',A.exportPending);
-  wire('.js-logout',async function(){this.disabled=true;if(await A.logout())global.Views.account();else{this.disabled=false;status();}});
+  wire('.js-logout',async function(){this.disabled=true;if(await A.logout())global.App.go('home');else{this.disabled=false;status();}});
   accountUnsubscribe=A.subscribe(function(){var n=A.snapshot();if(viewKey(n)!==identity)global.Views.account();else status();});
   global.Views.onLeave=function(){if(accountUnsubscribe)accountUnsubscribe();accountUnsubscribe=null;var input=root.querySelector('#pilot-code');if(input)input.value='';};status();
  };
@@ -45,7 +45,7 @@
      html+='</div><div class="account-actions">'+button('previous','js-previous')+button('next','js-next')+'</div>';
     }
    }
-   var root=shell.set(html+'</section>');
+   var root=shell.publicSet(html+'</section>');
    function on(cls,fn){var n=root.querySelector(cls);if(n)n.addEventListener('click',fn);}
    function message(text){var n=root.querySelector('.js-admin-message');if(n)n.textContent=text;}
    function dates(){var c=root.querySelector('#pilot-code-expiry'),a=root.querySelector('#pilot-access-expiry');return {codeExpiresAt:new Date(c.value).toISOString(),accessExpiresAt:new Date(a.value).toISOString()};}

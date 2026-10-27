@@ -18,7 +18,7 @@
    an external parser reads `oklch(0.31 0.035 350)` as a blue channel of 350.
    Contrast lives in contrast.spec.js, measured through the browser.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 

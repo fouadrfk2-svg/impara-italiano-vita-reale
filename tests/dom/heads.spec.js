@@ -5,7 +5,7 @@
    introduction; on a phone the first useful thing arrived halfway down the
    screen. The introduction now folds to two lines, and opens on request.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function oggi(page) {
   await page.goto("/index.html#/oggi");

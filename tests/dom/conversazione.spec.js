@@ -11,7 +11,7 @@
    Refusing dessert has to be visible on the bill a few turns LATER, not only
    in the waiter's next line.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /* The dialogue waits for the END of a recording before showing the next
    turn, and these conversations hold a dozen or so recordings of two or

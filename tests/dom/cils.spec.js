@@ -10,7 +10,7 @@
    test that waits them out is a test about patience. We replace the times in
    the data right after the page loads, before entering the simulation.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test.describe.configure({ timeout: 60000 });
 
@@ -110,9 +110,10 @@ test.describe("simulazione d'esame", () => {
        aperti, non il comportamento visibile: il difetto non si vedeva. */
     await page.addInitScript(() => {
       window.__vivi = 0;
-      const si = window.setInterval, ci = window.clearInterval;
-      window.setInterval = function (...a) { window.__vivi++; return si.apply(window, a); };
-      window.clearInterval = function (id) { if (id != null) window.__vivi--; return ci.call(window, id); };
+      const si = window.setInterval, ci = window.clearInterval, examTimers = new Set();
+      // Count the exam clock, independently of the account-session refresh timer.
+      window.setInterval = function (...a) { const id = si.apply(window, a); if (a[1] === 1000) { window.__vivi++; examTimers.add(id); } return id; };
+      window.clearInterval = function (id) { if (examTimers.delete(id)) window.__vivi--; return ci.call(window, id); };
     });
     await otworz(page);
     expect(await page.evaluate(() => window.__vivi)).toBe(1);

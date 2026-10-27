@@ -5,7 +5,7 @@
    System synthesis confuses exactly the sounds this is about, so falling
    back to it would not be lower quality but a task with no answer.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function suoni(page) {
   await page.goto("/index.html#/suoni");

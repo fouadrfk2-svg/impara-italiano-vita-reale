@@ -11,7 +11,7 @@
    somebody fixes a sentence in a lesson. A separate test below checks that
    every type present in the real data can be built.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /* One per builder. `truefalse` runs through buildMcq but has a path of its
    own in Ex.build (it adds the options), so it sits separately. */

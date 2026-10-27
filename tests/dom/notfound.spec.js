@@ -17,7 +17,7 @@
    The console assertion is the reason the font assertion stands next to it:
    "nothing went wrong" also passes on a page that drew nothing at all.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** The prefix the site is published at, as it appears inside 404.html. */
 const PREFIKS = "/impara-italiano/";

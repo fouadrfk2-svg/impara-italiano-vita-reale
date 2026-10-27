@@ -1,7 +1,7 @@
 /* ============================================================
    Writing: what the course measures, what it does not, and what it will not do.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function lista(page) {
   await page.goto("/index.html#/scrittura");

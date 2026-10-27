@@ -5,7 +5,7 @@
    key, the simulator scores two skills): it read as a failure. And an empty
    vocabulary showed three zero tiles above the message, with no way out.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function trasa(page, r) {
   await page.goto("/index.html#/" + r);

@@ -17,7 +17,7 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: 1,
   reporter: process.env.CI ? "list" : [["list"]],
 
   use: {
@@ -52,7 +52,7 @@ module.exports = defineConfig({
   ],
 
   webServer: {
-    command: `node scripts/serve.mjs ${PORT}`,
+    command: `node tests/helpers/renderer-server.mjs ${PORT}`,
     url: `http://localhost:${PORT}/index.html`,
     reuseExistingServer: false,
     timeout: 20000

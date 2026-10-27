@@ -7,7 +7,7 @@
    of the explanation language, which replaces the content inside the same
    objects.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** Loads every level, not only the A1 that comes in at startup. */
 async function wczytajWszystko(page) {

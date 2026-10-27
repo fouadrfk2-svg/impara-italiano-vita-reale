@@ -7,7 +7,7 @@
    the preview alone would give a false sense of safety: one place inserting
    it through innerHTML is enough and the defence is worth nothing.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const OSTILE = '<img src=x onerror=window.__wykonane=1>';
 

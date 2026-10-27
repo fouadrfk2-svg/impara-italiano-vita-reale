@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="light">
+<html lang="ar" dir="rtl" data-access="checking" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,8 +51,8 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Impara l'Italiano">
 <meta property="og:url" content="https://andreabonn.github.io/impara-italiano/">
-<meta property="og:title" content="Impara l'Italiano — a free Italian course, A1 to C2">
-<meta property="og:description" content="An Italian course that runs in your browser, works offline, and explains the grammar in the language you already speak. No account, no tracking.">
+<meta property="og:title" content="Impara l'Italiano — Italian for everyday life">
+<meta property="og:description" content="Italian lessons, audio and practice with explanations in your language. Sign in with an activation code to access the pilot and synchronize your progress.">
 <meta property="og:image" content="https://andreabonn.github.io/impara-italiano/assets/og/cover.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -67,6 +67,7 @@
 <link rel="stylesheet" href="assets/css/app.css">
 <link rel="stylesheet" href="assets/css/rtl.css">
 <link rel="stylesheet" href="assets/css/account.css">
+<link rel="stylesheet" href="assets/css/guest.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇮🇹</text></svg>">
 </head>
 <body>
@@ -188,8 +189,8 @@
 
 <!-- ══════════ ENGINE ══════════ -->
 <!-- the recording index has to be loaded before recordings.js: that one reads it at startup -->
-<script src="data/audio-index.js"></script>
-<script src="assets/js/recordings.js"></script>
+<script type="application/json" data-course-src="data/audio-index.js"></script>
+<script type="application/json" data-course-src="assets/js/recordings.js"></script>
 <script src="assets/js/fsrs.js"></script>
 <!-- before core.js: core re-exposes these functions under its own names -->
 <script src="assets/js/text.js"></script>
@@ -201,97 +202,97 @@
 <script src="assets/js/i18n.js"></script>
 <!-- attaching the student's texts to the course content: separate from the interface strings -->
 <script src="assets/js/i18n-merge.js"></script>
-<script src="assets/js/consent.js"></script>
+<script type="application/json" data-course-src="assets/js/consent.js"></script>
 <!-- the second judge: the provider tables and the rules before the file that
      makes the request, the same order as verbs-data.js before verbs.js. llm.js
      reads all three, and llm-rules.js reads Txt at call time -->
-<script src="assets/js/llm-providers.js"></script>
-<script src="assets/js/llm-prompts.js"></script>
-<script src="assets/js/llm-rules.js"></script>
-<script src="assets/js/llm-keys.js"></script>
-<script src="assets/js/llm-net.js"></script>
-<script src="assets/js/llm.js"></script>
-<script src="assets/js/audio.js"></script>
+<script type="application/json" data-course-src="assets/js/llm-providers.js"></script>
+<script type="application/json" data-course-src="assets/js/llm-prompts.js"></script>
+<script type="application/json" data-course-src="assets/js/llm-rules.js"></script>
+<script type="application/json" data-course-src="assets/js/llm-keys.js"></script>
+<script type="application/json" data-course-src="assets/js/llm-net.js"></script>
+<script type="application/json" data-course-src="assets/js/llm.js"></script>
+<script type="application/json" data-course-src="assets/js/audio.js"></script>
 <!-- the return hook: the rules and the calendar file before the half that
      touches the browser, the same order as pwa-rules.js before pwa.js.
      retention.js reads RetentionRules while its module body runs -->
-<script src="assets/js/retention-rules.js"></script>
-<script src="assets/js/ics.js"></script>
-<script src="assets/js/retention.js"></script>
+<script type="application/json" data-course-src="assets/js/retention-rules.js"></script>
+<script type="application/json" data-course-src="assets/js/ics.js"></script>
+<script type="application/json" data-course-src="assets/js/retention.js"></script>
 <!-- the Italian tables before the conjugation engine: verbs.js reads them at startup -->
-<script src="assets/js/verbs-data.js"></script>
-<script src="assets/js/verbs.js"></script>
+<script type="application/json" data-course-src="assets/js/verbs-data.js"></script>
+<script type="application/json" data-course-src="assets/js/verbs.js"></script>
 <script src="assets/js/exercises.js"></script>
 <!-- the families of exercise types: they call Ex.register and must come in before the first lesson -->
-<script src="assets/js/exercises-choice.js"></script>
-<script src="assets/js/exercises-text.js"></script>
-<script src="assets/js/exercises-voice.js"></script>
+<script type="application/json" data-course-src="assets/js/exercises-choice.js"></script>
+<script type="application/json" data-course-src="assets/js/exercises-text.js"></script>
+<script type="application/json" data-course-src="assets/js/exercises-voice.js"></script>
 <!-- card identity before the deck; after exercises.js, because the deck wraps Ex.build -->
-<script src="assets/js/errors-key.js"></script>
-<script src="assets/js/errors.js"></script>
+<script type="application/json" data-course-src="assets/js/errors-key.js"></script>
+<script type="application/json" data-course-src="assets/js/errors.js"></script>
 <!-- the lexicon before the generators, the generators before the practice view -->
-<script src="assets/js/drills-lex.js"></script>
-<script src="assets/js/drills.js"></script>
+<script type="application/json" data-course-src="assets/js/drills-lex.js"></script>
+<script type="application/json" data-course-src="assets/js/drills.js"></script>
 <script src="assets/js/views.js"></script>
 <!-- screens split out of views.js: they consume Views.shell, their order among themselves does not matter -->
-<script src="assets/js/views-path.js"></script>
-<script src="assets/js/lesson-run.js"></script>
-<script src="assets/js/views-lesson.js"></script>
-<script src="assets/js/views-review.js"></script>
-<script src="assets/js/flash-rules.js"></script>
-<script src="assets/js/flash-modes.js"></script>
-<script src="assets/js/flash-run.js"></script>
-<script src="assets/js/flash-cards.js"></script>
-<script src="assets/js/views-flash.js"></script>
-<script src="assets/js/views-grammar.js"></script>
-<script src="assets/js/views-conjugator.js"></script>
-<script src="assets/js/views-lexicon.js"></script>
-<script src="assets/js/views-progress.js"></script>
-<script src="assets/js/views-settings.js"></script>
+<script type="application/json" data-course-src="assets/js/views-path.js"></script>
+<script type="application/json" data-course-src="assets/js/lesson-run.js"></script>
+<script type="application/json" data-course-src="assets/js/views-lesson.js"></script>
+<script type="application/json" data-course-src="assets/js/views-review.js"></script>
+<script type="application/json" data-course-src="assets/js/flash-rules.js"></script>
+<script type="application/json" data-course-src="assets/js/flash-modes.js"></script>
+<script type="application/json" data-course-src="assets/js/flash-run.js"></script>
+<script type="application/json" data-course-src="assets/js/flash-cards.js"></script>
+<script type="application/json" data-course-src="assets/js/views-flash.js"></script>
+<script type="application/json" data-course-src="assets/js/views-grammar.js"></script>
+<script type="application/json" data-course-src="assets/js/views-conjugator.js"></script>
+<script type="application/json" data-course-src="assets/js/views-lexicon.js"></script>
+<script type="application/json" data-course-src="assets/js/views-progress.js"></script>
+<script type="application/json" data-course-src="assets/js/views-settings.js"></script>
 <!-- after views.js: consumes Views.shell, defined at the end of that file -->
-<script src="assets/js/talk-run.js"></script>
-<script src="assets/js/views-talk.js"></script>
+<script type="application/json" data-course-src="assets/js/talk-run.js"></script>
+<script type="application/json" data-course-src="assets/js/views-talk.js"></script>
 <!-- the free conversation: the rules and the run before the view, the same
      order as talk-run.js before views-talk.js -->
-<script src="assets/js/chat-rules.js"></script>
-<script src="assets/js/chat-run.js"></script>
-<script src="assets/js/views-chat.js"></script>
+<script type="application/json" data-course-src="assets/js/chat-rules.js"></script>
+<script type="application/json" data-course-src="assets/js/chat-run.js"></script>
+<script type="application/json" data-course-src="assets/js/views-chat.js"></script>
 <!-- after views.js: adds the practice tabs to the already defined views -->
-<script src="assets/js/views-train.js"></script>
+<script type="application/json" data-course-src="assets/js/views-train.js"></script>
 <!-- after views-train.js: the daily session uses Train.topicLabel -->
-<script src="assets/js/views-today.js"></script>
-<script src="assets/js/placement.js"></script>
-<script src="assets/js/views-phonetics.js"></script>
-<script src="assets/js/views-placement.js"></script>
-<script src="assets/js/views-welcome.js"></script>
-<script src="assets/js/views-guide.js"></script>
+<script type="application/json" data-course-src="assets/js/views-today.js"></script>
+<script type="application/json" data-course-src="assets/js/placement.js"></script>
+<script type="application/json" data-course-src="assets/js/views-phonetics.js"></script>
+<script type="application/json" data-course-src="assets/js/views-placement.js"></script>
+<script type="application/json" data-course-src="assets/js/views-welcome.js"></script>
+<script type="application/json" data-course-src="assets/js/views-guide.js"></script>
 <script src="assets/js/views-privacy.js"></script>
-<script src="assets/js/writing.js"></script>
-<script src="assets/js/cils.js"></script>
+<script type="application/json" data-course-src="assets/js/writing.js"></script>
+<script type="application/json" data-course-src="assets/js/cils.js"></script>
 <!-- the rules of form before the verdict: lemma.js reads LemmaMorf at module execution -->
-<script src="assets/js/lemma-morf.js"></script>
-<script src="assets/js/lemma.js"></script>
+<script type="application/json" data-course-src="assets/js/lemma-morf.js"></script>
+<script type="application/json" data-course-src="assets/js/lemma.js"></script>
 <!-- after lemma.js: the word card consumes it; before views-reading.js, which calls that card -->
-<script src="assets/js/views-lookup.js"></script>
-<script src="assets/js/anki.js"></script>
-<script src="assets/js/frequency.js"></script>
-<script src="assets/js/views-frequency.js"></script>
-<script src="assets/js/recorder.js"></script>
-<script src="assets/js/views-shadow.js"></script>
-<script src="assets/js/views-speed.js"></script>
+<script type="application/json" data-course-src="assets/js/views-lookup.js"></script>
+<script type="application/json" data-course-src="assets/js/anki.js"></script>
+<script type="application/json" data-course-src="assets/js/frequency.js"></script>
+<script type="application/json" data-course-src="assets/js/views-frequency.js"></script>
+<script type="application/json" data-course-src="assets/js/recorder.js"></script>
+<script type="application/json" data-course-src="assets/js/views-shadow.js"></script>
+<script type="application/json" data-course-src="assets/js/views-speed.js"></script>
 <!-- the guard on what the model may say about an exam paper: read by llm.js
      at call time, so it only has to be loaded before the summary -->
-<script src="assets/js/cils-report.js"></script>
-<script src="assets/js/cils-run.js"></script>
+<script type="application/json" data-course-src="assets/js/cils-report.js"></script>
+<script type="application/json" data-course-src="assets/js/cils-run.js"></script>
 <!-- the markup before the view: views-cils.js reads CilsHtml at module execution -->
-<script src="assets/js/cils-html.js"></script>
-<script src="assets/js/views-cils.js"></script>
-<script src="assets/js/views-falsi.js"></script>
-<script src="assets/js/views-reading.js"></script>
-<script src="assets/js/views-writing.js"></script>
-<script src="assets/js/search.js"></script>
+<script type="application/json" data-course-src="assets/js/cils-html.js"></script>
+<script type="application/json" data-course-src="assets/js/views-cils.js"></script>
+<script type="application/json" data-course-src="assets/js/views-falsi.js"></script>
+<script type="application/json" data-course-src="assets/js/views-reading.js"></script>
+<script type="application/json" data-course-src="assets/js/views-writing.js"></script>
+<script type="application/json" data-course-src="assets/js/search.js"></script>
 <!-- the character bar and the shortcuts: they attach to a finished DOM, order does not matter -->
-<script src="assets/js/keys.js"></script>
+<script type="application/json" data-course-src="assets/js/keys.js"></script>
 
 <!-- ══════════ DATA ══════════ -->
 <!-- the interface dictionaries: every language at once, because switching has to be
@@ -304,17 +305,17 @@
 <script src="data/i18n/ui-de.js"></script>
 <script src="data/i18n/ui-ar.js"></script>
 <!-- the language-neutral layer: structure, Italian, answer keys -->
-<script src="data/core/curriculum-index.js"></script>
-<script src="data/core/grammar-reference.js"></script>
-<script src="data/core/conversations.js"></script>
-<script src="data/core/chat-scenarios.js"></script>
-<script src="data/core/phonetics.js"></script>
-<script src="data/core/cils.js"></script>
-<script src="data/core/readings.js"></script>
-<script src="data/core/interference.js"></script>
+<script type="application/json" data-course-src="data/core/curriculum-index.js"></script>
+<script type="application/json" data-course-src="data/core/grammar-reference.js"></script>
+<script type="application/json" data-course-src="data/core/conversations.js"></script>
+<script type="application/json" data-course-src="data/core/chat-scenarios.js"></script>
+<script type="application/json" data-course-src="data/core/phonetics.js"></script>
+<script type="application/json" data-course-src="data/core/cils.js"></script>
+<script type="application/json" data-course-src="data/core/readings.js"></script>
+<script type="application/json" data-course-src="data/core/interference.js"></script>
 <!-- the frequency list: 44 KB, read only by the Coverage view -->
-<script src="data/core/frequenza.js"></script>
-<script src="data/core/writing.js"></script>
+<script type="application/json" data-course-src="data/core/frequenza.js"></script>
+<script type="application/json" data-course-src="data/core/writing.js"></script>
 <!-- The overlays are deliberately NOT here: a language written in would be
      privileged, and a student with a different one saved in their settings would
      see empty fields. app.js fetches them at startup, following
@@ -323,10 +324,11 @@
 <!-- ══════════ START ══════════ -->
 <!-- the router before app.js: app hooks into Router.onRender at module execution -->
 <script src="assets/js/router.js"></script>
-<script src="assets/js/app.js"></script>
 <script src="assets/js/account-rules.js"></script>
 <script src="assets/js/account.js"></script>
 <script src="assets/js/views-account.js"></script>
+<script src="assets/js/guest.js"></script>
+<script src="assets/js/app.js"></script>
 <!-- the rules before the registration: pwa.js asks PwaRules for every decision -->
 <script src="assets/js/pwa-rules.js"></script>
 <script src="assets/js/pwa.js"></script>

@@ -158,6 +158,9 @@
       "</section>";
   }
 
+  // Still-accurate optional voice/AI notices are reused by the pilot summary.
+  Views.privacyFeatures = function () { return SEKCJE.filter(function (s) { return s.id === "voce" || s.id === "modello"; }).map(sekcja).join(""); };
+
   Views.privacy = function () {
     set(pageHead(t("privacy.kicker"), t("privacy.title"), t("privacy.intro")) +
       '<p class="exq__sub" style="margin:-8px 0 20px">' +

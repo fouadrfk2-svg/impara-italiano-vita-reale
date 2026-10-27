@@ -6,7 +6,7 @@
    matters: whether the message really appears on the page and really stays,
    while an ordinary toast disappears.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** Longer than the 3.2 s after which a toast disappears — otherwise the test tells nothing apart. */
 const DŁUŻEJ_NIŻ_TOAST = 4200;

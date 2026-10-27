@@ -14,7 +14,7 @@
    - the decision of ADR-009 is that no machine marks this exam. A model that
      sends a mark must reach a screen that does not show one.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /**
  * Sets the course up before any of its scripts run.

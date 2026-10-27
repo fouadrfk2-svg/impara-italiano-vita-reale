@@ -57,7 +57,7 @@
     var params = {};
     (m[2] || "").split("&").filter(Boolean).forEach(function (pair) {
       var kv = pair.split("=");
-      params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || "");
+      try { var key = decodeURIComponent(kv[0]); if (!["__proto__", "constructor", "prototype"].includes(key)) params[key] = decodeURIComponent(kv[1] || ""); } catch (e) { /* Ignore malformed parameters. */ }
     });
     return { route: m[1], params: params };
   }
@@ -70,6 +70,7 @@
    * router itself.
    */
   function render(route, params) {
+    if (typeof Router.beforeRender === "function" && Router.beforeRender(route, params || {}) === false) return;
     if (global.Audio2) global.Audio2.stop();
 
     var Views = global.Views;
@@ -81,7 +82,7 @@
     current = { route: route, params: params };
     Views.keepFocus = false;
 
-    var fn = Views[route];
+    var fn = Object.prototype.hasOwnProperty.call(Views, route) ? Views[route] : null;
     if (!fn) { Views[DOMYSLNA]({}); route = DOMYSLNA; }
     else fn(params);
 
@@ -119,6 +120,7 @@
     get current() { return current; },
     /** Attached by the shell (app.js), called after every render. */
     onRender: null,
+    beforeRender: null,
     listen: function () { global.addEventListener("hashchange", onHashChange); }
   };
 

@@ -7,7 +7,7 @@
    headless Chromium then returns a different error than the user's browser.
    That path is mapped in recorder.js and declared unverified.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test.describe("shadowing", () => {
   test("the recording cycle: the button state and the playback appear only after a recording", async ({ page }) => {

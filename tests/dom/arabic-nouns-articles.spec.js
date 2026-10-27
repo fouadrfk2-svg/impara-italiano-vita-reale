@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect, expectAudioResponse } = require("../helpers/learner-fixture.cjs");
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
@@ -62,7 +62,7 @@ for (const width of [1440,390]) for (const lesson of lessons) {
       await expect(page.locator(active+" .js-sel").first()).toHaveAttribute("dir","ltr");
       await page.locator(active+" .js-sel").first().focus();await expect(page.locator(active+" .js-sel").first()).toBeFocused();
       const recording=page.waitForResponse(r=>/\/audio\/.*\.mp3$/.test(r.url()));
-      await page.locator(".vocab-card [data-say]").first().click();expect((await recording).status()).toBe(200);
+      await page.locator(".vocab-card [data-say]").first().click();await expectAudioResponse(await recording);
       await audit(page);await screenshot(page,info,lesson.id+"-"+width+".png");
       await language(page,"en");
       const en=await page.evaluate(id=>JSON.stringify(window.Core.getLesson(id).lesson),lesson.id);expect(en).not.toBe(ar);

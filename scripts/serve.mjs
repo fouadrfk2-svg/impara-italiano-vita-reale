@@ -17,6 +17,8 @@ import { fileURLToPath } from "node:url";
 import { dirname, join, extname } from "node:path";
 
 import { resolvePublicPath } from "./public-files.mjs";
+import content from "../server/content-api.cjs";
+import contentPaths from "../server/content-path.cjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = Number(process.argv[2] || process.env.PORT || 8080);
@@ -62,7 +64,10 @@ function resolvePath(url) {
 export function serwer(opcje) {
   const podmiany = (opcje && opcje.podmiany) || {};
 
+  const privateContent = content.createContentHandler({ root: ROOT, run: opcje && opcje.accountRun });
   return createServer((req, res) => {
+    let candidate; try { candidate = decodeURIComponent((req.url || "").split("?")[0]).slice(1); } catch { candidate = ""; }
+    if (candidate === "api/content" || contentPaths.isPrivateContent(candidate)) { privateContent(req, res); return; }
     const adres = (req.url || "/").split("?")[0];
     const naglowki = { "Cache-Control": "no-store" };
 

@@ -6,7 +6,7 @@
    flow of a lesson, and whether it changes the progress counter along the
    way, which rests on that same onDone.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** Goes to an A1 lesson and waits until the exercises are wired up. */
 async function otworzLekcje(page, id) {

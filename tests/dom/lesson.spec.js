@@ -1,7 +1,7 @@
 /* ============================================================
    The lesson screen: what the student reads before the exercises.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function lezione(page, id) {
   await page.goto("/index.html#/lezione?id=" + id);

@@ -7,7 +7,7 @@ let db,server,base,previous;
 const routes={'/api/auth/redeem':'auth/redeem','/api/auth/session':'auth/session','/api/auth/logout':'auth/logout','/api/progress':'learner/progress','/api/admin/login':'admin/login','/api/admin/session':'admin/session','/api/admin/logout':'admin/logout','/api/admin/list':'admin/list','/api/admin/operation':'admin/operation'};
 test.beforeAll(async()=>{
  previous=process.env.PILOT_AUTH_SECRET;process.env.PILOT_AUTH_SECRET='A'.repeat(43);db=await helper.createDatabase();
- const {serwer}=await import('../../scripts/serve.mjs'),staticServer=serwer(),run=helper.runtime(db);
+ const {serwer}=await import('../../scripts/serve.mjs'),staticServer=serwer({accountRun:helper.runtime(db)}),run=helper.runtime(db);
  server=http.createServer((req,res)=>{const route=routes[new URL(req.url,'http://localhost').pathname];if(route)return createHandler(route,{run})(req,res);staticServer.emit('request',req,res);});
  await new Promise(r=>server.listen(0,'localhost',r));base='http://localhost:'+server.address().port;
 });
@@ -17,7 +17,7 @@ async function ready(page,route='account'){if(!page.__accountAxe){await page.add
 async function audit(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);expect(await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})))).toEqual([]);}
 async function adminLogin(page){await ready(page,'admin');await page.locator('#pilot-admin-key').fill(helper.ADMIN_KEY);await page.locator('.js-admin-login').click();await expect(page.locator('.js-issue')).toBeVisible();}
 async function issue(page){await page.locator('.js-issue').click();await expect(page.locator('#pilot-issued-code')).toBeVisible();return await page.locator('#pilot-issued-code').inputValue();}
-async function login(page,code){await ready(page);await page.locator('#pilot-code').fill(code);await page.locator('.js-login').click();await expect(page.locator('.js-logout')).toBeVisible();}
+async function login(page,code){await ready(page);await page.locator('#pilot-code').fill(code);await page.locator('.js-login').click();await page.waitForFunction(()=>Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner');await page.evaluate(()=>App.go('account'));await expect(page.locator('.js-logout')).toBeVisible();}
 async function saved(page){await expect(page.locator('[data-account-status]')).toContainText('تم حفظ');await page.waitForFunction(()=>window.Account.snapshot().status==='saved'&&!window.Account.snapshot().active.pending);}
 async function lesson(page){
  await page.evaluate(()=>App.go('lezione',{id:'a1-u01-l1'}));await page.waitForFunction(()=>window.Core.registry.loaded.A1&&document.querySelector('.exq'));
@@ -43,11 +43,11 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
   try{
    await adminLogin(admin);const code=await issue(admin);await audit(admin);await login(a,code);await audit(a);
    const cookies=await a.context().cookies();expect(cookies.some(c=>c.name==='__Host-vita_pilot'&&c.httpOnly&&c.secure&&c.sameSite==='Strict')).toBe(true);expect(await a.evaluate(()=>document.cookie)).not.toContain('__Host-vita_pilot');
-   await lesson(a);await a.locator('.js-logout').click();await expect(a.locator('#pilot-code')).toBeVisible();
+   await lesson(a);await a.locator('.js-logout').click();await expect(a.locator('.guest-page')).toBeVisible();
    await login(b,code);expect(await b.evaluate(()=>Core.state.lessons['a1-u01-l1'].best)).toBe(1);expect(await b.evaluate(()=>Core.state.srs.grazie.tr.ar)).toBe('شكرًا');
    await b.reload();await expect(b.locator('.js-logout')).toBeVisible();expect(await b.evaluate(()=>Core.state.lessons['a1-u01-l1'].done)).toBe(true);await audit(b);
    const learnerId=await b.evaluate(()=>Account.snapshot().active.id);await admin.locator('.js-admin-refresh').click();const card=admin.locator('.account-record').filter({hasText:learnerId}).filter({has:admin.locator('[data-action="revoke_access"]')});
-   admin.once('dialog',d=>d.accept());await card.locator('[data-action="revoke_access"]').click();await expect(admin.locator('.js-issue')).toBeEnabled();await b.locator('.js-sync').click();await expect(b.locator('[data-account-status]')).toContainText('انتهت');
+   admin.once('dialog',d=>d.accept());await card.locator('[data-action="revoke_access"]').click();await expect(admin.locator('.js-issue')).toBeEnabled();await b.locator('.js-sync').click();await expect(b.locator('.guest-page')).toBeVisible();expect(await b.evaluate(()=>Account.snapshot().authenticated)).toBe(false);
    expect(urls.every(u=>!u.includes(code)&&!u.includes('Buongiorno%2C')&&!u.includes('Sono%20dalla'))).toBe(true);expect(errors).toEqual([]);
    const locals=await b.evaluate(()=>JSON.stringify(localStorage));expect(locals).not.toContain(code);expect(locals).not.toContain(helper.ADMIN_KEY);
   }finally{await Promise.allSettled(contexts.map(c=>c.close()));}
@@ -55,14 +55,14 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
  test('anonymous progress requires opt-in; offline edits survive reload and sync after reconnect',async({browser})=>{
   const adminContext=await browser.newContext({viewport:{width,height:920}}),context=await browser.newContext({viewport:{width,height:920}}),admin=await adminContext.newPage(),page=await context.newPage();
   try{
-   await adminLogin(admin);const code=await issue(admin);await ready(page,'lezione?id=a1-u01-l1');await page.waitForFunction(()=>window.Core.registry.loaded.A1&&document.querySelector('.exq'));await page.evaluate(()=>{Core.recordLesson('a1-u01-l2',7,9,30);Core.state.writing['w-a2-giornata']={text:'Versione anonima.'};Core.save();});
+   await adminLogin(admin);const code=await issue(admin);await ready(page);await page.evaluate(()=>{Core.state.lessons['a1-u01-l2']={done:true,score:7,total:9,best:7/9,attempts:1};Core.state.writing['w-a2-giornata']={text:'Versione anonima.'};Core.save();});
    await login(page,code);expect(await page.evaluate(()=>Core.state.lessons['a1-u01-l2'])).toBeUndefined();await expect(page.locator('.js-import')).toBeVisible();await page.locator('.js-import').click();
    // Import may require review of independently changed default fields; the backup remains local.
    if(await page.locator('.js-resolve').isVisible())await page.locator('.js-resolve').click();await saved(page);expect(await page.evaluate(()=>Core.state.lessons['a1-u01-l2'].done)).toBe(true);
    await context.setOffline(true);await page.evaluate(()=>{Core.state.writing['w-a2-giornata']={text:'Bozza offline privata.'};Core.save();});await page.waitForFunction(()=>Account.snapshot().active.pending);
    await page.reload();await page.waitForFunction(()=>window.Account&&window.Core);expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Bozza offline privata.');
    await context.setOffline(false);await page.evaluate(()=>window.dispatchEvent(new Event('online')));await page.evaluate(()=>App.go('account'));await saved(page);await audit(page);
-   await page.locator('.js-logout').click();await expect(page.locator('#pilot-code')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Versione anonima.');
+   await page.locator('.js-logout').click();await expect(page.locator('.guest-page')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Versione anonima.');
   }finally{await context.close();await adminContext.close();}
  });
  test('conflicting drafts keep the newer account version and a recoverable local backup',async({browser})=>{
@@ -73,7 +73,7 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
    await a.evaluate(()=>{Core.state.writing['w-a2-giornata']={text:'Bozza iniziale.'};Core.save();});await saved(a);await login(b,code);
    await a.context().setOffline(true);await a.evaluate(()=>{Core.state.writing['w-a2-giornata']={text:'Bozza locale non inviata.'};Core.save();});
    await b.evaluate(()=>{Core.state.writing['w-a2-giornata']={text:'Versione recente del secondo dispositivo.'};Core.save();});await saved(b);
-   await a.context().setOffline(false);await a.evaluate(()=>window.dispatchEvent(new Event('online')));await expect(a.locator('.js-resolve')).toBeVisible();
+   await a.context().setOffline(false);await a.evaluate(()=>Account.refresh());await a.evaluate(()=>App.go('account'));await expect(a.locator('.js-resolve')).toBeVisible();
    expect(await a.evaluate(()=>{var id=Account.snapshot().active.id;return JSON.parse(localStorage.getItem('vita.pilot.account.'+id)).conflictBackup.writing['w-a2-giornata'].text;})).toBe('Bozza locale non inviata.');
    expect(await b.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Versione recente del secondo dispositivo.');
    await a.locator('.js-resolve').click();await saved(a);expect(await a.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Versione recente del secondo dispositivo.');await audit(a);
@@ -85,7 +85,7 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
    await adminLogin(admin);const code=await issue(admin);await login(page,code);let lost=false,acknowledge;const committed=new Promise(resolve=>acknowledge=resolve);
    await page.route('**/api/progress',async route=>{if(route.request().method()==='POST'&&!lost){lost=true;const response=await route.fetch();expect(response.status()).toBe(200);await route.abort('failed');acknowledge();}else await route.continue();});
    const expected=await page.evaluate(()=>{const event={k:'ciao',t:Date.now(),q:4};Core.state.reviews.push(event);Core.state.xp+=3;Core.save();return {event,xp:Core.state.xp};});
-   await committed;await page.waitForFunction(()=>Account.snapshot().status==='offline');await page.locator('.js-sync').click();await saved(page);
+   await committed;await page.waitForFunction(()=>Account.snapshot().status==='offline');await expect(page.locator('.guest-page')).toBeVisible();await page.evaluate(()=>Account.refresh());await page.evaluate(()=>App.go('account'));await saved(page);
    const restored=await page.evaluate(async()=>{const r=await Account.request('progress');return {reviews:r.state.reviews,xp:r.state.xp};});expect(restored.reviews).toEqual([expected.event]);expect(restored.xp).toBe(expected.xp);expect(await page.evaluate(()=>Core.state.reviews.length)).toBe(1);await audit(page);
   }finally{await context.close();await adminContext.close();}
  });
@@ -96,8 +96,8 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
    await page.route('**/api/progress',async route=>{if(route.request().method()==='GET'){arrived();await gate;}await route.continue();});
    await page.locator('#pilot-code').fill(code);await page.locator('.js-login').click();await waiting;
    await page.evaluate(()=>{Core.state.writing['w-a2-giornata']={text:'Bozza anonima durante accesso.'};Core.save();});release();
-   await expect(page.locator('.js-logout')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'])).toBeUndefined();
-   await page.locator('.js-logout').click();await expect(page.locator('#pilot-code')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Bozza anonima durante accesso.');
+   await page.waitForFunction(()=>Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner');await page.evaluate(()=>App.go('account'));await expect(page.locator('.js-logout')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'])).toBeUndefined();
+   await page.locator('.js-logout').click();await expect(page.locator('.guest-page')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Bozza anonima durante accesso.');
   }finally{await context.close();await adminContext.close();}
  });
  test('language preferences and voice/AI consent remain device-local through reload and account sync',async({browser})=>{

@@ -1,7 +1,7 @@
 /* ============================================================
    Trening: hub i przebieg serii.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function hub(page) {
   await page.goto("/index.html#/allenamento");

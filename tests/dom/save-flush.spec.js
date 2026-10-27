@@ -6,7 +6,7 @@
    cannot prove is that a real browser fires pagehide on a reload in time for
    the write to land, and that is the only part the student depends on.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test("a graded card survives a reload inside the save debounce", async ({ page }) => {
   await page.goto("/index.html");

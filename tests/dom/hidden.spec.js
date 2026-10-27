@@ -9,7 +9,7 @@
    This defect has happened twice already — the drawer scrim and the "next"
    button in training — so it is checked once, for all of them.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test("the drawer scrim is hidden while the menu is closed", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });

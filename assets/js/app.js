@@ -9,12 +9,12 @@
   "use strict";
 
   var App = {};
+  var courseReady = false, courseLoading = null, intended = null, hadSession = false, accessStarted = false;
 
   /* The shell after every render: highlighting the rail entry and closing
      the drawer on a narrow screen. The router does not know these elements. */
   Router.onRender = function (route) {
     markRail(route);
-    if (global.Account) global.Account.emit();
     closeRail();
   };
 
@@ -35,6 +35,7 @@
   }
 
   App.refreshRail = function () {
+    if (!courseReady || !global.Errors) return;
     var s = Core.state;
     var box = document.getElementById("railStats");
     if (box) {
@@ -184,6 +185,7 @@
    * the previous language despite a correctly loaded state.
    */
   App.applyLang = function (lang) {
+    if (!courseReady || !global.Account.snapshot().authenticated) { Core.state.settings.lang = lang; Core.save(); I18n.set(lang); applyTheme(Core.state.settings.theme || "light"); renderLangPicker(); Router.render(Router.current.route, Router.current.params); return; }
     Core.setLanguage(lang, function (missing) {
       I18n.set(lang);
       applyTheme(Core.state.settings.theme || "light");
@@ -222,67 +224,22 @@
     });
     Router.listen();
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { Audio2.stop(); closeRail(); }
+      if (e.key === "Escape") { if (global.Audio2) global.Audio2.stop(); closeRail(); }
     });
 
-    // The texts in the student's language are always pulled: index.html does not know the chosen language.
-    Core.setLanguage(lang, function (missing) {
-      if (missing.length) Core.toast(I18n.t("lang.partial", { n: missing.length }));
-      startRouting();
-    });
-    Core.touchDay();
-    /* Last, and after the state is loaded: everything it does depends on how
-       many lessons are behind the student, and one of the four asks the
-       browser for a permission we only ever get to ask for once. */
-    Retention.start();
+    /* Learner content is loaded only after the server verifies the session. */
+    startAccess();
   }
 
-  /**
-   * Whether this is the student's first encounter with the course.
-   *
-   * Three conditions, not one: `onboarded` is an ADDED field, so a profile
-   * from before that screen loads with `false` and the marker alone would
-   * redirect somebody with forty lessons behind them to the welcome page.
-   * The address from the hash always wins: whoever arrives with a link to a
-   * specific lesson gets that lesson, not the welcome screen.
-   */
-  function pierwszeUruchomienie() {
-    var s = Core.state;
-    if (global.location.hash) return false;
-    return !s.onboarded && !s.placement && s.stats.lessonsDone === 0;
-  }
 
   /** The first render: the level the student is coming back to. */
   function startRouting() {
-    var powitanie = pierwszeUruchomienie();
-    /* Whoever has started the course opens it on Today, not on the path: the
-       path is a long page, and someone coming back daily wants the next step.
-       Only for an EMPTY address, and replaceState fires no hashchange, so
-       the render below is the only one. */
-    var s = Core.state;
-    if (!global.location.hash && !powitanie && (s.stats.lessonsDone > 0 || s.placement)) {
-      global.history.replaceState(null, "", "#/oggi");
-    }
-    var d = Router.decode(global.location.hash);
+    var d = intended || { route: "oggi", params: {} }; intended = null;
+    if (!Object.prototype.hasOwnProperty.call(global.Views, d.route) || typeof global.Views[d.route] !== "function") d = { route: "oggi", params: {} };
+    if (d.route === "lezione" && !/^[a-c][12]-u\d{2}-(?:l\d|test)$/.test(d.params.id || "")) d = { route: "oggi", params: {} };
     var wanted = d.params.level || guessLevel(d);
-    /* The level is loaded under the welcome screen too: by the time the
-       student finishes reading three sentences, the path already has
-       something to draw itself from.
-       Drawing after the load asks about the CURRENT route, not about how
-       things were at startup: under the welcome screen there is nothing to
-       refresh, but once the student has made a choice, the path is waiting
-       for that data and without this would stay on "loading material" for
-       the rest of the session. */
-    if (wanted) {
-      Core.loadLevelData(wanted, function () {
-        if (Router.current.route !== "benvenuto") Router.onHashChange();
-      });
-      // show the skeleton right away, without waiting for the file
-      if (!powitanie) Router.render(d.route, d.params);
-    }
-    if (powitanie) App.go("benvenuto");
-    else if (!wanted) Router.onHashChange();
-    App.refreshRail();
+    if (wanted) Core.loadLevelData(wanted, function () { if (global.Account.snapshot().authenticated) Router.onHashChange(); });
+    Router.go(d.route, d.params); App.refreshRail();
   }
 
   /** Which level to load at startup: the one with unfinished progress. */
@@ -299,6 +256,85 @@
     return levels.length ? levels[0].code : null;
   }
 
+  function publicRoute(route) { return ["home", "account", "admin", "privacy"].indexOf(route) >= 0; }
+  function remember(route, params) {
+    if (!/^[a-z]+$/.test(route) || publicRoute(route)) return;
+    var safe = {};
+    ["id", "level", "unit", "tab", "topic", "mode", "set", "s", "go"].forEach(function (k) { if (typeof params[k] === "string" && /^[a-zA-Z0-9_-]{1,60}$/.test(params[k])) safe[k] = params[k]; });
+    if (route === "cerca" && typeof params.q === "string" && params.q.length <= 160) safe.q = params.q;
+    intended = { route: route, params: safe };
+  }
+  Router.beforeRender = function (route, params) {
+    if (publicRoute(route)) return true;
+    if (courseReady && global.Account.snapshot().authenticated) return true;
+    remember(route, params); global.history.replaceState(null, "", "#/home"); Router.render("home", {}); return false;
+  };
+  function closeCourse() {
+    remember(Router.current.route, Router.current.params);
+    document.documentElement.setAttribute("data-access", "guest");
+    if (global.Audio2) global.Audio2.stop();
+    global.Guest.clearPrivateCaches();
+    Router.go("home");
+  }
+  async function prepareCourseLanguage() {
+    var lang = Core.state.settings.lang;
+    var missing = await new Promise(function (resolve) { Core.setLanguage(lang, resolve); });
+    if (missing.length) {
+      // A missing optional overlay may fall back only after access is reverified.
+      await global.Account.refresh();
+      if (!global.Account.snapshot().authenticated || I18n.contentLanguage(lang) === lang || missing.some(function (p) { return p.indexOf("data/i18n/" + lang + "/") !== 0; })) throw Error("Content unavailable");
+      Core.toast(I18n.t("lang.partial", { n: missing.length }));
+    }
+    return lang;
+  }
+  App.enterCourse = async function (keepPublic) {
+    if (!global.Account.snapshot().authenticated) return;
+    var preparedLanguage = null;
+    if (!courseReady) {
+      if (!courseLoading) courseLoading = (async function () {
+        var scripts = document.querySelectorAll("script[data-course-src]");
+        for (var i = 0; i < scripts.length; i++) {
+          if (!global.Account.snapshot().authenticated) throw Error("Session unavailable");
+          await global.Guest.loadScript(scripts[i].getAttribute("data-course-src"));
+        }
+        var prepared = await prepareCourseLanguage();
+        Object.keys(global.Views).forEach(function (name) {
+          if (!/^[a-z]+$/.test(name) || publicRoute(name) || typeof global.Views[name] !== "function") return;
+          var view = global.Views[name]; global.Views[name] = function (params) { if (!global.Account.snapshot().authenticated) return; return view(params); };
+        });
+        courseReady = true; Core.touchDay(); Retention.start(); return prepared;
+      })().catch(function () { courseLoading = null; throw Error("Content unavailable"); });
+      try { preparedLanguage = await courseLoading; } catch (e) { document.documentElement.setAttribute("data-access", "guest"); Router.render("home", { unavailable: true }); return; }
+    }
+    if (!global.Account.snapshot().authenticated) { closeCourse(); return; }
+    try { if (preparedLanguage !== Core.state.settings.lang) await prepareCourseLanguage(); } catch (e) { document.documentElement.setAttribute("data-access", "guest"); Router.render("home", { unavailable: true }); return; }
+    if (!global.Account.snapshot().authenticated) { closeCourse(); return; }
+    document.documentElement.setAttribute("data-access", "learner");
+    App.refreshRail();
+    if (keepPublic) Router.render(keepPublic.route, keepPublic.params); else startRouting();
+  };
+  async function startAccess() {
+    var d = Router.decode(global.location.hash), explicit = !!global.location.hash;
+    if (explicit && !publicRoute(d.route)) remember(d.route, d.params);
+    Router.render("home", { checking: true });
+    global.Account.subscribe(function () {
+      var authenticated = global.Account.snapshot().authenticated;
+      var previous = hadSession; hadSession = authenticated;
+      if (previous && !authenticated) closeCourse();
+      else if (!previous && authenticated && (courseReady || accessStarted) && Router.current.route === "home") App.enterCourse();
+    });
+    await global.Guest.clearPrivateCaches();
+    await global.Account.refresh(); hadSession = global.Account.snapshot().authenticated;
+    // Respect a public destination selected while verification was in flight.
+    d = Router.decode(global.location.hash); explicit = !!global.location.hash;
+    if (hadSession) await App.enterCourse(explicit && publicRoute(d.route) && d.route !== "home" ? d : null);
+    else { document.documentElement.setAttribute("data-access", "guest"); Router.go(explicit && publicRoute(d.route) ? d.route : "home", {}); }
+    accessStarted = true;
+    global.addEventListener("offline", function () { global.Account.suspend(); });
+    global.addEventListener("focus", function () { if (global.Account.snapshot().authenticated) global.Account.refresh(); });
+    document.addEventListener("visibilitychange", function () { if (document.hidden) return; global.Account.refresh(); });
+    global.setInterval(function () { if (!document.hidden && global.Account.snapshot().authenticated) global.Account.refresh(); }, 45000);
+  }
   global.App = App;
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect, expectAudioResponse } = require("../helpers/learner-fixture.cjs");
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
@@ -62,7 +62,7 @@ for (const width of [1440, 390]) {
       const audio = page.locator(".vocab-card [data-say]").first();
       await expect(audio).toHaveAttribute("data-say", "buongiorno");
       const response = page.waitForResponse(r => /\/audio\/.*\.mp3$/.test(r.url()));
-      await audio.click(); expect((await response).status()).toBe(200);
+      await audio.click(); await expectAudioResponse(await response);
       await language(page, "en");
       await expect(page.locator(".view-head > p")).toHaveText("Greetings and your first order");
       await expect(page.locator(".vocab-card__pl").first()).toContainText("good morning");

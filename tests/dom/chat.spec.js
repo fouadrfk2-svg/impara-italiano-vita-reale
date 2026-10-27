@@ -17,7 +17,7 @@
    - without a key the screen has to say so before the student types a
      sentence into a field that will not send it.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** Sets keys, consent and a scripted reply before the page's scripts run. */
 async function przygotuj(page, opcje) {

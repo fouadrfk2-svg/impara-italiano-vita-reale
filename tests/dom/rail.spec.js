@@ -5,7 +5,7 @@
    start, and three whole screens (reading, writing, minimal pairs) were only
    reachable from the bottom of Training.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function otworz(page, lang) {
   if (lang) {

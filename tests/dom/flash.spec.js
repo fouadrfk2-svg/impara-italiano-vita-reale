@@ -7,7 +7,7 @@
    and that leaving the screen stops the clock instead of letting it announce
    "time is up" over another view.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /**
  * n due cards straight in the deck, then the screen drawn from scratch.
@@ -34,6 +34,22 @@ async function zTalia(page, n, pisane) {
   }, [n, !!pisane]);
   await page.evaluate(() => window.App.go("cinque"));
   await page.waitForSelector(".view-head");
+}
+
+/** Advance the study clock without advancing account/network request deadlines. */
+async function installStudyClock(page) {
+  await page.evaluate(() => {
+    let now = Date.now();
+    Date.now = () => now;
+    const timers = new Map(), si = window.setInterval.bind(window), ci = window.clearInterval.bind(window);
+    window.setInterval = (fn, ms, ...args) => {
+      const id = si(fn, ms, ...args);
+      if (ms === 1000) timers.set(id, () => fn(...args));
+      return id;
+    };
+    window.clearInterval = id => { timers.delete(id); return ci(id); };
+    window.__advanceStudyClock = ms => { now += ms; for (const tick of timers.values()) tick(); };
+  });
 }
 
 /** Answers whatever card is on screen, in the way its mode asks. */
@@ -65,13 +81,13 @@ test("thirty due cards: the session stops at twenty and every answer is in the j
 });
 
 test("time runs out on an open card: that card still counts, the next one never shows", async ({ page }) => {
-  await page.clock.install();
   await zTalia(page, 10);
+  await installStudyClock(page);
   await page.locator(".js-start").click();
   await odpowiedz(page);
   await odpowiedz(page);
 
-  await page.clock.fastForward("05:01");
+  await page.evaluate(() => window.__advanceStudyClock(301000));
   await expect(page.locator(".flash__note")).not.toBeEmpty();
   await expect(page.locator(".flash__card .exq"), "the open card stays").toBeVisible();
 
@@ -82,8 +98,8 @@ test("time runs out on an open card: that card still counts, the next one never 
 });
 
 test("the clock counts down and leaving the screen stops it", async ({ page }) => {
-  await page.clock.install();
   await zTalia(page, 3);
+  await installStudyClock(page);
   /* A leaked interval draws nothing: it ticks on nodes already detached from
      the page. The only way to see it is to count the intervals alive. */
   await page.evaluate(() => {
@@ -94,7 +110,7 @@ test("the clock counts down and leaving the screen stops it", async ({ page }) =
   });
   await page.locator(".js-start").click();
   await expect(page.locator(".flash__clock")).toHaveText("5:00");
-  await page.clock.fastForward("01:00");
+  await page.evaluate(() => window.__advanceStudyClock(60000));
   await expect(page.locator(".flash__clock")).toHaveText("4:00");
   expect(await page.evaluate(() => window.__zyweInterwaly.size), "the running session has its clock").toBe(1);
 

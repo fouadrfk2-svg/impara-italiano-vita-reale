@@ -10,7 +10,7 @@
    Hence the check goes through several routes, and the last of them is a
    lesson, that is the screen that redraws #main most often.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const PROFIL = "https://github.com/AndreaBonn";
 

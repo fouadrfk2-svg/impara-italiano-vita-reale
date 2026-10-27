@@ -1,4 +1,4 @@
-const {test,expect}=require('@playwright/test');
+const { test, expect, expectAudioResponse }=require('../helpers/learner-fixture.cjs');
 const {readFileSync}=require('node:fs');
 const path=require('node:path'),vm=require('node:vm');
 const AXE=readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
@@ -362,7 +362,7 @@ for(const width of [1440,390])test.describe('Arabic units five and six at '+widt
    for(const head of heads){const arabic=/[\u0600-\u06ff]/.test(head.text);expect(head.lang).toBe(arabic?'ar':'it');expect(head.dir).toBe(arabic?'rtl':'ltr');if(head.text==="l'")expect(head.apostropheAfterLetter).toBe(true);}
    const cells=await page.locator('.gt td').evaluateAll(nodes=>nodes.map(n=>({text:n.textContent,lang:n.lang,dir:getComputedStyle(n).direction})));
    for(const cell of cells){const ar=/[\u0600-\u06ff]/.test(cell.text);expect(cell.lang).toBe(ar?'ar':'it');expect(cell.dir).toBe(ar?'rtl':'ltr');}
-   if(await page.locator('[data-say]').count()){const audio=page.waitForResponse(r=>/\/audio\/.*\.mp3$/.test(r.url()));await page.locator('[data-say]').first().click();expect((await audio).status()).toBe(200);}
+   if(await page.locator('[data-say]').count()){const audio=page.waitForResponse(r=>/\/audio\/.*\.mp3$/.test(r.url()));await page.locator('[data-say]').first().click();await expectAudioResponse(await audio);}
    await shot(page,info,lesson.id+'-ar-'+width+'.png');
    await language(page,'en');const english=await snapshot();expect(english).not.toBe(arabic);
    for(const lang of ['ar','en','ar']){await language(page,lang);expect(await snapshot()).toBe(lang==='ar'?arabic:english);}

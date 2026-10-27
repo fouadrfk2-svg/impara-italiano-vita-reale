@@ -9,7 +9,7 @@
 
    Neither of the two is visible in the code or on the screen.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function przewodnik(page) {
   await page.goto("/index.html#/guida");

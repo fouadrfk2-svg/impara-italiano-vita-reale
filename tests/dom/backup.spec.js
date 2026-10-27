@@ -7,7 +7,7 @@
    the counter really starts from zero. A reminder whose button does nothing
    passes every logic test and saves nobody's progress.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const PROG = 10;
 

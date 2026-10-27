@@ -13,9 +13,92 @@
       "maxDuration": 10,
       "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
     },
-    "api/**/*.js": {
+    "api/content.js": {
+      "maxDuration": 15,
+      "includeFiles": "{data/**/*.js,audio/**/*.mp3,assets/js/verbs-data.js,assets/js/drills-lex.js}",
+      "excludeFiles": "{.env,.env.*,dist/**,tests/**,docs/**}"
+    },
+    "api/auth/redeem.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/auth/session.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/auth/logout.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/progress.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/admin/login.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/admin/session.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/admin/logout.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/admin/list.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/admin/operation.js": {
       "maxDuration": 15,
       "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/data/core/:path*",
+      "destination": "/api/content?path=data/core/:path*"
+    },
+    {
+      "source": "/data/audio-index.js",
+      "destination": "/api/content?path=data/audio-index.js"
+    },
+    {
+      "source": "/data/i18n/ar/:path*",
+      "destination": "/api/content?path=data/i18n/ar/:path*"
+    },
+    {
+      "source": "/data/i18n/en/:path*",
+      "destination": "/api/content?path=data/i18n/en/:path*"
+    },
+    {
+      "source": "/data/i18n/pl/:path*",
+      "destination": "/api/content?path=data/i18n/pl/:path*"
+    },
+    {
+      "source": "/data/i18n/es/:path*",
+      "destination": "/api/content?path=data/i18n/es/:path*"
+    },
+    {
+      "source": "/data/i18n/fr/:path*",
+      "destination": "/api/content?path=data/i18n/fr/:path*"
+    },
+    {
+      "source": "/data/i18n/de/:path*",
+      "destination": "/api/content?path=data/i18n/de/:path*"
+    },
+    {
+      "source": "/audio/:path*",
+      "destination": "/api/content?path=audio/:path*"
+    },
+    {
+      "source": "/assets/js/verbs-data.js",
+      "destination": "/api/content?path=assets/js/verbs-data.js"
+    },
+    {
+      "source": "/assets/js/drills-lex.js",
+      "destination": "/api/content?path=assets/js/drills-lex.js"
+    }
+  ]
 }

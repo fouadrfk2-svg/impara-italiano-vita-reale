@@ -12,7 +12,7 @@
 
    WCAG 2.2 AA thresholds: text 4.5, large text 3, UI elements 3.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const TEKST = 4.5;
 const UI = 3;

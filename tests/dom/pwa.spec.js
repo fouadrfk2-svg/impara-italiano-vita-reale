@@ -70,15 +70,16 @@ test("with the network gone the page still opens", async ({ page, context }) => 
   await workerGotowy(page);
   /* The first visit fills the cache; only then do we cut the network. */
   await page.reload();
-  await page.waitForFunction(() => window.Core && window.Core.registry.levels.length > 0);
+  await page.waitForFunction(() => window.Account && window.Account.snapshot().checked);
 
   await context.setOffline(true);
   await page.reload();
 
   await expect(page.locator("#main")).toBeVisible();
   await page.waitForFunction(() => window.Core && window.Views && window.Ex, null, { timeout: 10000 });
-  const poziomy = await page.evaluate(() => window.Core.registry.levels.length);
-  expect(poziomy, "the level index survived the loss of network").toBeGreaterThan(0);
+  await expect(page.locator(".guest-page")).toBeVisible();
+  await expect(page.locator("#rail")).toBeHidden();
+  expect(await page.evaluate(() => window.Core.registry.levels.length)).toBe(0);
 
   await context.setOffline(false);
 });
@@ -98,32 +99,12 @@ test("the code is fetched from the network while there is a network", async ({ p
   expect(zadania.length, "core.js went to the network rather than straight to the cache").toBeGreaterThan(0);
 });
 
-test("recordings are not fetched a second time", async ({ page }) => {
-  await workerGotowy(page);
-
-  const wynik = await page.evaluate(async () => {
-    /* We take the first hash from the index: the file certainly exists. */
-    const hash = window.AUDIO_INDEX.slice(0, 16);
-    const url = "audio/" + hash.slice(0, 2) + "/" + hash + ".mp3";
-    await fetch(url);
-    await new Promise(r => setTimeout(r, 300));
-    /* The cache is looked up by prefix and not by full name on purpose: the
-       suffix on AUDIO_CACHE is bumped whenever the audio at unchanged
-       addresses changes, that is on a change of voice (sw.js). A name written
-       out here would turn that bump into a red test about nothing, and the
-       property under test is "the recording landed in the audio cache", not
-       what that cache is called today. */
-    const nazwy = (await caches.keys()).filter(n => n.indexOf("linguai-audio") === 0);
-    const trafienia = [];
-    for (const n of nazwy) {
-      const klucze = await (await caches.open(n)).keys();
-      if (klucze.some(k => k.url.endsWith(url))) trafienia.push(n);
-    }
-    return { url: url, wPamieci: trafienia.length > 0, nazwy: nazwy };
-  });
-
-  expect(wynik.nazwy.length, "there is no audio cache at all").toBeGreaterThan(0);
-  expect(wynik.wPamieci, `the recording ${wynik.url} did not reach the cache ${wynik.nazwy}`).toBe(true);
+test("recordings are network-only and cannot be reopened anonymously or offline",async({page,context})=>{
+ await workerGotowy(page);const url='/audio/00/0000000000000000.mp3';
+ expect(await page.evaluate(async u=>(await fetch(u)).status,url)).toBe(401);
+ expect(await page.evaluate(async u=>!!(await caches.match(u)),url)).toBe(false);
+ await context.setOffline(true);expect(await page.evaluate(async u=>{try{await fetch(u);return false;}catch{return true;}},url)).toBe(true);
+ await context.setOffline(false);
 });
 
 test("a foreign origin is not intercepted", async ({ page }) => {

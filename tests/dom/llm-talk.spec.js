@@ -14,7 +14,7 @@
      invisible on screen;
    - a promotion has to move the scene, not merely say something nice.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /**
  * Sets the course up before any of its scripts run.

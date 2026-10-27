@@ -16,7 +16,7 @@
    DIFFERENCE between them: a test that only confirms "a wrong answer is
    wrong" would also pass on a builder that always says "wrong".
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /* Synthetic exercises, not from the course: a description of the engine's
    contract must not fall over when somebody fixes a sentence in a lesson.

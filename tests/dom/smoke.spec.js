@@ -2,7 +2,7 @@
    A check on the DOM test setup itself.
    If this fails, no other result in this directory means anything.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test("the page comes up with no console errors", async ({ page }) => {
   const errors = [];

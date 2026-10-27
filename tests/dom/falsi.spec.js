@@ -5,7 +5,7 @@
    REPLACES the set rather than adding to the previous one, and that the
    exercise calls onDone exactly once, like all the others.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function otworz(page, lang) {
   await page.goto("/index.html#/falsi");

@@ -12,7 +12,7 @@
    Nothing here falls over when it breaks: the screen shows a smaller number
    with the same confidence. Hence a test rather than an eye.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test("the ceiling counts every level, not only the ones already in memory", async ({ page }) => {
   await page.goto("/index.html#/copertura");

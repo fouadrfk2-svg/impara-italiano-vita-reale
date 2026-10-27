@@ -5,7 +5,7 @@
    one useful action (five minutes on the words of those lessons) used to be a
    secondary button under an explanation of the scheduling algorithm.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function ripasso(page, profil) {
   if (profil) {

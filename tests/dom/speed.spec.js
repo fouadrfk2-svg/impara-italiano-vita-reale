@@ -6,7 +6,7 @@
    throws no error — the recording simply plays the same way, and an
    exercise about tempo stops being about anything.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 test.describe("tempo mowy", () => {
   test("the sentence stays covered until the student reveals it", async ({ page }) => {

@@ -67,7 +67,7 @@ function zasobyStrony() {
   const html = readFileSync(join(ROOT, "index.html"), "utf8").replace(/<!--[\s\S]*?-->/g, "");
   const out = [];
 
-  for (const m of html.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/gi)) {
+  for (const m of html.matchAll(/<script\b[^>]*\ssrc\s*=\s*["']([^"']+)["']/gi)) {
     out.push(norm(m[1]));
   }
   for (const m of html.matchAll(/<link\b[^>]*>/gi)) {

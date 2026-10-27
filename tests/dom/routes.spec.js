@@ -17,7 +17,7 @@
    catches a missing file), and then whether it drew anything (that catches
    a file that loaded but blows up on its first run).
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /* The routes from the side menu plus the ones reachable only from inside the course. */
 const TRASY = [

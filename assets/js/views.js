@@ -21,8 +21,10 @@
 
   function el() { return mount || (mount = document.getElementById("main")); }
 
-  function set(html) {
-    var m = el();
+  function set(html, publicSurface) {
+    // Late callbacks from a departed lesson must never replace the guest screen.
+    var locked = global.Account && !global.Account.snapshot().authenticated;
+    var m = locked && !publicSurface ? document.createElement("div") : el();
     m.removeAttribute("data-lesson-language");
     m.innerHTML = html;
     I18n.isolateContent(m);
@@ -167,7 +169,7 @@
    * set/pageHead/el locally — three copies of the same thing, drifting
    * apart at the first change to the header.
    */
-  Views.shell = { set: set, head: pageHead, root: el, empty: empty, pct: pct,
+  Views.shell = { set: set, publicSet: function (html) { return set(html, true); }, head: pageHead, root: el, empty: empty, pct: pct,
                   runCards: runCards, guideLink: guideLink };
 
   global.Views = Views;

@@ -1,7 +1,7 @@
 /* ============================================================
    Searching the course, and the character bar.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function szukaj(page, q) {
   await page.goto("/index.html#/cerca" + (q ? "?q=" + encodeURIComponent(q) : ""));

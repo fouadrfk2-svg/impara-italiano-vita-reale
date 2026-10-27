@@ -1,7 +1,7 @@
 /* ============================================================
    The "Mistakes" tab inside Reviews.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /** Creates a mistake card without going through the lesson interface. */
 async function zepsujOdpowiedz(page, lekcjaId, indeks) {

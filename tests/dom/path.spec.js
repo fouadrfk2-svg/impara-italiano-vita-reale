@@ -5,7 +5,7 @@
    looked like "your turn" and only one was; and all ten units stood open, a
    page of about 6500 px with the current one lost among them.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const DWIE = {
   schema: 2, onboarded: true, settings: { lang: "en" },

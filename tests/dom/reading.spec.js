@@ -1,7 +1,7 @@
 /* ============================================================
    Reading, continuous listening, dictation.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function lista(page) {
   await page.goto("/index.html#/lettura");

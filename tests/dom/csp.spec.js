@@ -11,7 +11,7 @@
    walks them: every hash change adds a view to the same document, so one
    violation in any of them will report itself here.
    ============================================================ */
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 const TRASY = [
   "oggi", "percorso", "ripasso", "allenamento", "conversazione", "grammatica",
