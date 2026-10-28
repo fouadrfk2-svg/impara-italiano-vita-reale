@@ -1,9 +1,20 @@
 /* Public shell only. Private course data/audio are network-only and require
    a fresh server session. Downloaded copies from older releases cannot be
    remotely revoked; activation removes their legacy Cache Storage entries. */
-var SW_VERSION = "v36.1a29620001b1";
+var SW_VERSION = "v36.94cdd641c5cc";
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 var PRECACHE = [
+  "./assets/branding/header_public_light.svg",
+  "./assets/branding/header_learning_dark.svg",
+  "./assets/branding/footer_light.svg",
+  "./assets/branding/footer_dark.svg",
+  "./assets/icons/favicon.svg",
+  "./assets/icons/favicon.ico",
+  "./assets/icons/icon-180.png",
+  "./assets/icons/icon-maskable-192.png",
+  "./assets/icons/icon-maskable-512.png",
+  "./assets/marketing/social.png",
+  "./assets/css/branding.css",
   "./assets/marketing/vita-italia.svg",
   "./assets/marketing/learning-desk.svg",
   "./assets/css/account.css",

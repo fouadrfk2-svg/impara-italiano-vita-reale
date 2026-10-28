@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="300"
+   height="300"
+   viewBox="0 0 300 300"
+   role="img"
+   aria-label="Vita Reale"
+   version="1.1"
+   id="svg11"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6">
+    <linearGradient
+       id="forest"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         offset="0"
+         stop-color="#08664E"
+         id="stop1" />
+      <stop
+         offset="1"
+         stop-color="#064B3A"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       id="light"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         offset="0"
+         stop-color="#FFFFFF"
+         id="stop3" />
+      <stop
+         offset="1"
+         stop-color="#E7F2E9"
+         id="stop4" />
+    </linearGradient>
+    <linearGradient
+       id="logo-green"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         offset="0"
+         stop-color="#08694F"
+         id="stop5" />
+      <stop
+         offset="1"
+         stop-color="#034533"
+         id="stop6" />
+    </linearGradient>
+  </defs>
+  <g
+     transform="translate(0 0) scale(1.0000000)"
+     id="g11">
+    <rect
+       x="0"
+       y="0"
+       width="300"
+       height="300"
+       rx="65"
+       fill="url(#forest)"
+       id="rect6" />
+    <g
+       transform="translate(9 52) scale(.90)"
+       id="g10">
+      <path
+         d="M292 38 102 543Q80 601 33 615Q14 621 6.5 625.5Q-1 630 -1 639Q-1 653 29 653Q43 653 84.5 650.0Q126 647 151 647Q174 647 210.0 649.5Q246 652 253 652Q283 652 283 638Q283 622 249 616Q228 612 221.0 596.0Q214 580 222 561L349 224Q353 213 354.5 211.0Q356 209 359 209Q359 209 360 209Q363 209 363.5 209.0Q364 209 366.0 212.5Q368 216 371 224L506 548Q526 597 472 613Q441 622 441 637Q441 651 471 651Q482 651 508.0 649.5Q534 648 555.0 648.0Q576 648 607.0 650.5Q638 653 649 653Q679 653 679 639Q679 630 671.5 625.5Q664 621 645 617Q577 602 548 531L400 176Q397 170 388.0 144.5Q379 119 369.0 94.5Q359 70 348.5 44.0Q338 18 329.0 1.5Q320 -15 316 -15Q313 -15 292 38Z"
+         fill="#F8F6EF"
+         transform="translate(12 199) scale(0.261 -0.261)"
+         id="path6" />
+      <path
+         d="M388 323Q383 321 387 314Q393 304 410.0 276.0Q427 248 434.0 237.0Q441 226 455.5 203.0Q470 180 480.5 166.5Q491 153 506.0 134.0Q521 115 536.5 98.0Q552 81 570 63Q593 41 610.5 35.5Q628 30 663 30Q690 30 690 16Q690 1 670.5 -8.0Q651 -17 634.0 -19.0Q617 -21 601 -21Q552 -21 498.5 -8.5Q445 4 425 33Q420 41 396.5 74.5Q373 108 362.5 124.0Q352 140 331.5 175.5Q311 211 291 250Q267 300 231 300Q219 300 219 282V112Q219 41 265 29Q278 26 283.5 22.0Q289 18 289 9Q289 -5 261 -5Q234 -5 210.5 -1.5Q187 2 171 2Q148 2 112.0 -1.5Q76 -5 51 -5Q23 -5 23 9Q23 18 28.5 22.0Q34 26 47 29Q74 36 85.5 52.0Q97 68 97 102V520Q97 566 88.5 588.5Q80 611 55 617Q31 623 31 640Q31 653 61 653Q90 653 114.5 652.5Q139 652 158 652Q174 652 208.0 654.5Q242 657 273 657Q386 657 453.5 615.0Q521 573 521 492Q521 375 388 323ZM384 476Q384 538 353.5 580.0Q323 622 268 622Q240 622 229.5 612.5Q219 603 219 582V364Q219 344 227.0 337.5Q235 331 255 331Q304 331 344.0 376.0Q384 421 384 476Z"
+         fill="#F8F6EF"
+         transform="translate(96 199) scale(0.261 -0.261)"
+         id="path7" />
+      <path
+         d="M118 193 C154 170 175 121 198 71 C213 40 228 26 241 18"
+         fill="none"
+         stroke="#064B3A"
+         stroke-width="17"
+         stroke-linecap="round"
+         id="path8" />
+      <path
+         d="M118 193 C154 170 175 121 198 71 C213 40 228 26 241 18"
+         fill="none"
+         stroke="#D8313D"
+         stroke-width="9"
+         stroke-linecap="round"
+         id="path9" />
+      <path
+         d="M232 29 L245 13"
+         fill="none"
+         stroke="#F8F6EF"
+         stroke-width="2.6"
+         stroke-linecap="round"
+         id="path10" />
+    </g>
+  </g>
+</svg>

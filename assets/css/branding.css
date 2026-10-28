@@ -1,0 +1,22 @@
+/* Supplied RED VR V2 artwork, unchanged. Brand-only sizing and theme selection. */
+.brand-logo{display:block;height:auto;max-width:100%;object-fit:contain;flex-shrink:0;}
+.brand-logo--dark,.brand-logo--compact{display:none;}
+:root[data-theme="dark"] .brand-logo--light{display:none;}
+:root[data-theme="dark"] .brand-logo--dark{display:block;}
+.guest-brand{min-height:44px;max-width:100%;flex-shrink:0;}
+.guest-brand>.brand-logo{width:202px;}
+.guest-brand:focus-visible{outline:3px solid var(--ink);outline-offset:5px;border-radius:4px;}
+.rail__brand>.brand-logo{width:196px;}
+.guest-brand--footer>.brand-logo{width:360px;}
+.site-foot__brand{display:none;}
+html[data-access="learner"] .site-foot__brand{display:block;width:176px;max-width:100%;margin:0 auto 12px;}
+:root .guest-brand--footer>.brand-logo--compact{display:none;}
+@media(max-width:480px){
+ .guest-header>.guest-brand>.brand-logo{width:152px;}
+ .guest-brand--footer>.brand-logo{width:240px;}
+ :root .guest-brand--footer>.brand-logo--tagline{display:none;}
+ .guest-brand--footer>.brand-logo--compact.brand-logo--light{display:block;}
+ :root[data-theme="dark"] .guest-brand--footer>.brand-logo--compact.brand-logo--light{display:none;}
+ :root[data-theme="dark"] .guest-brand--footer>.brand-logo--compact.brand-logo--dark{display:block;}
+}
+@media(max-width:350px){.guest-header>.guest-brand>.brand-logo{width:136px;}}

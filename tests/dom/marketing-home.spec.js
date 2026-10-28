@@ -8,7 +8,7 @@ async function open(browser,width){const c=await browser.newContext({viewport:{w
 for(const width of [390,1440])test('Arabic marketing, direct WhatsApp request, privacy and language switching at '+width,async({browser})=>{
  const {c,p}=await open(browser,width);const requests=[],errors=[];p.on('request',r=>requests.push(r.url()));p.on('pageerror',e=>errors.push(e.message));
  try{
-  await expect(p.locator('.guest-brand').first()).toContainText('VITA REALE');await expect(p.locator('.guest-price')).toContainText('9.99');await expect(p.locator('.guest-level')).toHaveCount(5);await expect(p.locator('#rail')).toBeHidden();
+  await expect(p.locator('.guest-brand').first()).toHaveAccessibleName('Vita Reale');await expect(p.locator('.guest-price')).toContainText('9.99');await expect(p.locator('.guest-level')).toHaveCount(5);await expect(p.locator('#rail')).toBeHidden();
   for(const img of await p.locator('.guest-page img').all())expect(await img.evaluate(i=>i.complete&&i.naturalWidth>0)).toBe(true);
   expect(requests.some(u=>u.includes('wa.me'))).toBe(false);
   for(const link of await p.locator('.guest-subscribe').all()){

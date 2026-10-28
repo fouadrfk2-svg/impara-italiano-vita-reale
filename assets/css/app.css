@@ -379,11 +379,6 @@ button{font:inherit;color:inherit;}
   font-family:var(--display);font-weight:600;font-size:1.34rem;
   margin:0 0 2px;display:flex;align-items:center;gap:9px;line-height:1.2;
 }
-/* The one brand flourish, and it appears exactly once: a thin tricolor
-   rule under the course name. It also retires the flag emoji that stood
-   before the title — the design system asks for no emoji in the interface,
-   and the span is aria-hidden, so nothing is lost to a screen reader. */
-.rail__flag{display:none;}
 .rail__tag{margin:0;font-size:.78rem;opacity:.96;font-weight:500;letter-spacing:.01em;}
 .rail__tag::after{
   content:"";display:block;width:56px;height:4px;margin-top:12px;

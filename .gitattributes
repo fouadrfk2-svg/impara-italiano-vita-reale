@@ -1,0 +1,3 @@
+# Preserve the supplied outlined RED VR SVG bytes across Windows/Linux checkouts.
+assets/branding/*.svg text eol=lf
+assets/icons/favicon.svg text eol=lf

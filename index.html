@@ -39,7 +39,7 @@
 <meta property="og:image" content="https://vita-reale-arabic-demo.vercel.app/assets/marketing/social.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Vita Reale — تعلّم الإيطالية لحياتك في إيطاليا، من A1 إلى C1">
+<meta property="og:image:alt" content="Vita Reale — الإيطالية للحياة اليومية · Italiano per la vita reale · A1–C1">
 <meta property="og:locale" content="ar_AR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Vita Reale — الإيطالية لحياتك في إيطاليا">
@@ -47,13 +47,15 @@
 <meta name="twitter:image" content="https://vita-reale-arabic-demo.vercel.app/assets/marketing/social.png">
 
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#007a5e">
-<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<meta name="theme-color" content="#064B3A">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png">
 <link rel="stylesheet" href="assets/css/app.css">
 <link rel="stylesheet" href="assets/css/rtl.css">
 <link rel="stylesheet" href="assets/css/account.css">
 <link rel="stylesheet" href="assets/css/guest.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇮🇹</text></svg>">
+<link rel="stylesheet" href="assets/css/branding.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="alternate icon" type="image/x-icon" href="assets/icons/favicon.ico">
 </head>
 <body>
 
@@ -69,7 +71,7 @@
   <nav class="rail" id="rail" data-i18n-label="app.mainNav" aria-label="Nawigacja główna">
     <div class="rail__head">
       <!-- Native hash link uses the same guarded router as learner navigation. -->
-      <a class="rail__brand" href="#/oggi" dir="ltr" data-i18n-label="app.brandHome" aria-label="Vita Reale — العودة إلى لوحة التعلّم"><span class="rail__flag" aria-hidden="true">🇮🇹</span>Vita Reale</a>
+      <a class="rail__brand" href="#/oggi" dir="ltr" data-i18n-label="app.brandHome" aria-label="Vita Reale — العودة إلى لوحة التعلّم"><img class="brand-logo" src="assets/branding/header_learning_dark.svg" width="1050" height="244" alt="" decoding="async"></a>
       <p class="rail__tag" data-i18n="app.tagline">Włoski po polsku · A1 → C2</p>
       <!-- filled by app.js from I18n.LANGS: a new language needs no change in the HTML -->
       <div class="rail__lang" id="langPicker" role="group"></div>
@@ -164,6 +166,7 @@
          not over #main, so it reaches outside the part the router
          rewrites. -->
     <footer class="site-foot">
+      <span class="site-foot__brand" role="img" aria-label="Vita Reale" dir="ltr"><img class="brand-logo brand-logo--light" src="assets/branding/header_public_light.svg" width="1050" height="244" alt="" decoding="async"><img class="brand-logo brand-logo--dark" src="assets/branding/header_learning_dark.svg" width="1050" height="244" alt="" decoding="async"></span>
       <p>© <a href="https://github.com/AndreaBonn" target="_blank" rel="noopener">Andrea Bonacci</a>
         · <a href="#/privacy" data-i18n="privacy.title">Prywatność</a></p>
     </footer>

@@ -20,7 +20,10 @@ async function issue(page){await page.locator('.js-issue').click();await expect(
 async function login(page,code){await ready(page);await page.locator('#pilot-code').fill(code);await page.locator('.js-login').click();await page.waitForFunction(()=>Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner');await page.evaluate(()=>App.go('account'));await expect(page.locator('.js-logout')).toBeVisible();}
 async function saved(page){await expect(page.locator('[data-account-status]')).toContainText('تم حفظ');await page.waitForFunction(()=>window.Account.snapshot().status==='saved'&&!window.Account.snapshot().active.pending);}
 async function lesson(page){
- await page.evaluate(()=>App.go('lezione',{id:'a1-u01-l1'}));await page.waitForFunction(()=>window.Core.registry.loaded.A1&&document.querySelector('.exq'));
+ // Direct test navigation must wait for the lazy level and its answer overlays, not the truthy 'loading' marker.
+ await page.evaluate(()=>new Promise(resolve=>Core.loadLevelData('A1',resolve)));
+ await page.waitForFunction(()=>Core.registry.loaded.A1===true);
+ await page.evaluate(()=>App.go('lezione',{id:'a1-u01-l1'}));await page.waitForFunction(()=>window.Core.registry.loaded.A1===true&&document.querySelector('.exq'));
  await page.evaluate(()=>{Core.state.settings.autoplay=false;Core.save();});
  for(let i=0;i<9;i++){
   await page.locator('.ex-chip[data-go="'+i+'"]').click();const current=page.locator('.exq:not([hidden])');

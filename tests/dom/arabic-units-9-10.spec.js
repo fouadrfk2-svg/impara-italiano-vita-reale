@@ -316,7 +316,8 @@ async function answer(page,type,value){
  else await current.locator('.js-in').fill(value);
  await current.locator('.js-check').click();
 }
-async function shot(page,info,name){const target=info.outputPath(name);await page.screenshot({path:target,fullPage:true});await info.attach(name,{path:target,contentType:'image/png'});}
+// Review captures are opt-in; automatic failure screenshots/traces remain enabled.
+async function shot(page,info,name){if(!process.env.ARABIC_REVIEW_SCREENSHOTS)return;const target=info.outputPath(name);await page.screenshot({path:target,fullPage:true});await info.attach(name,{path:target,contentType:'image/png'});}
 
 for(const width of [1440,390])test.describe('Arabic units nine and ten at '+width+'px',()=>{
  test.use({viewport:{width,height:920},locale:'ar-MA'});

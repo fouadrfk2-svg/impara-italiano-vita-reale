@@ -52,8 +52,7 @@ test("the resources the policy could have cut off still load", async ({ page }) 
   await page.goto("/index.html");
 
   /* Four things that would fall first under a policy that is too tight, each
-     under a different directive: the fonts (font-src), the favicon as a
-     data: URI (img-src), a style built in JS (style-src 'unsafe-inline'),
+     under a different directive: the fonts (font-src), the local SVG favicon (img-src), a style built in JS (style-src 'unsafe-inline'),
      the service worker (worker-src). We check them by their EFFECT, not by
      the declaration. */
   const stan = await page.evaluate(async () => {
@@ -71,7 +70,7 @@ test("the resources the policy could have cut off still load", async ({ page }) 
     return {
       kroje: [...new Set(wczytane)],
       stylZAtrybutu: szerokosc,
-      faviconData: !!(ikona && ikona.getAttribute("href").startsWith("data:")),
+      faviconLoaded: !!ikona && await new Promise(resolve => { const image = new Image(); image.onload = () => resolve(image.naturalWidth > 0); image.onerror = () => resolve(false); image.src = ikona.href; }),
       guskaZarejestrowana: !!navigator.serviceWorker.controller ||
         !!(await navigator.serviceWorker.getRegistration())
     };
@@ -79,7 +78,7 @@ test("the resources the policy could have cut off still load", async ({ page }) 
 
   expect(stan.kroje.length, "the fonts from assets/fonts did not load").toBeGreaterThan(0);
   expect(stan.stylZAtrybutu, "the style= attribute was blocked").toBe("42px");
-  expect(stan.faviconData, "favicon jako data: URI").toBe(true);
+  expect(stan.faviconLoaded, "local SVG favicon loads under the unchanged CSP").toBe(true);
   expect(stan.guskaZarejestrowana, "the service worker did not come up").toBe(true);
   expect(naruszenia, naruszenia.join("\n")).toEqual([]);
 });
