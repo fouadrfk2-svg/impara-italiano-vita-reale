@@ -81,102 +81,7 @@
   }
 
 
-  /* ---------------- The language of explanations ---------------- */
-
-  /**
-   * The switcher as a dropdown: the current language is visible (flag plus
-   * endonym), the rest wait in the list. With two languages buttons side by
-   * side would do; with five they would take up half the panel width.
-   *
-   * The pattern: a button with aria-haspopup="listbox" + a ul with
-   * role="listbox". The language name stays in its endonym, because the
-   * person looking for the list is the one who cannot read the current
-   * language.
-   */
-  function renderLangPicker() {
-    var box = document.getElementById("langPicker");
-    if (!box) return;
-    var cur = I18n.LANGS.filter(function (l) { return l.code === I18n.lang; })[0] || I18n.LANGS[0];
-
-    box.setAttribute("aria-label", I18n.t("lang.group"));
-    box.innerHTML =
-      '<button type="button" class="rail__lang-btn js-lang-toggle" id="langToggle"' +
-      ' aria-haspopup="listbox" aria-expanded="false" aria-controls="langList"' +
-      ' aria-label="' + Core.esc(I18n.t("lang.current", { name: cur.name })) + '"' +
-      ' title="' + Core.esc(cur.name) + '">' +
-      '<span class="rail__lang-flag" aria-hidden="true">' + cur.flag + "</span>" +
-      '<span class="rail__lang-name" aria-hidden="true">' + Core.esc(cur.name) + "</span>" +
-      '<span class="rail__lang-caret" aria-hidden="true">▾</span></button>' +
-      '<ul class="rail__lang-list" id="langList" role="listbox" hidden' +
-      ' aria-label="' + Core.esc(I18n.t("lang.group")) + '">' +
-      I18n.LANGS.map(function (l) {
-        return '<li role="option" tabindex="-1" data-lang="' + l.code + '"' +
-          ' aria-selected="' + (l.code === I18n.lang) + '" lang="' + l.code + '" dir="auto" class="rail__lang-opt">' +
-          '<span aria-hidden="true">' + l.flag + "</span><span>" + Core.esc(l.name) + "</span></li>";
-      }).join("") + "</ul>";
-
-    var toggle = box.querySelector(".js-lang-toggle");
-    var list = box.querySelector(".rail__lang-list");
-    var opts = [].slice.call(list.querySelectorAll("[data-lang]"));
-
-    function open() {
-      list.hidden = false;
-      toggle.setAttribute("aria-expanded", "true");
-      var sel = list.querySelector('[aria-selected="true"]') || opts[0];
-      if (sel) sel.focus();
-    }
-    function close(focusToggle) {
-      list.hidden = true;
-      toggle.setAttribute("aria-expanded", "false");
-      if (focusToggle) toggle.focus();
-    }
-    function move(from, step) {
-      var i = opts.indexOf(from) + step;
-      if (i < 0) i = opts.length - 1;
-      if (i >= opts.length) i = 0;
-      opts[i].focus();
-    }
-
-    toggle.addEventListener("click", function () {
-      if (list.hidden) open(); else close(false);
-    });
-    opts.forEach(function (o) {
-      o.addEventListener("click", function () { close(false); switchLang(o.getAttribute("data-lang")); });
-      o.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); close(false); switchLang(o.getAttribute("data-lang")); }
-        else if (e.key === "ArrowDown") { e.preventDefault(); move(o, 1); }
-        else if (e.key === "ArrowUp") { e.preventDefault(); move(o, -1); }
-        else if (e.key === "Escape") { e.preventDefault(); close(true); }
-      });
-    });
-  }
-
-  /**
-   * A click outside the list closes it. Registered once, not inside
-   * renderLangPicker(): that runs on every language change and would add a
-   * listener holding a reference to an element that is already gone.
-   */
-  document.addEventListener("click", function (e) {
-    var box = document.getElementById("langPicker");
-    if (!box || box.contains(e.target)) return;
-    var list = box.querySelector(".rail__lang-list");
-    var toggle = box.querySelector(".js-lang-toggle");
-    if (list && !list.hidden) {
-      list.hidden = true;
-      if (toggle) toggle.setAttribute("aria-expanded", "false");
-    }
-  });
-
-  /**
-   * Changing the language without a reload: we pull the missing overlays,
-   * apply them onto the same objects and redraw the current view.
-   */
-  function switchLang(lang) {
-    if (lang === Core.state.settings.lang) return;
-    App.applyLang(lang);
-  }
-  App.switchLang = switchLang;
-
+  /* Arabic is the only selectable language, so language-switcher code is absent. */
   /**
    * Applies the language and theme from the state onto the interface.
    * Separate from switchLang, because importing a file changes
@@ -185,11 +90,14 @@
    * the previous language despite a correctly loaded state.
    */
   App.applyLang = function (lang) {
-    if (!courseReady || !global.Account.snapshot().authenticated) { Core.state.settings.lang = lang; Core.save(); I18n.set(lang); applyTheme(Core.state.settings.theme || "light"); renderLangPicker(); Router.render(Router.current.route, Router.current.params); return; }
+    // Older backups may contain a language choice that is no longer supported.
+    // Keep their learning data and normalize only the interface preference.
+    lang = "ar";
+    Core.state.settings.lang = lang;
+    if (!courseReady || !global.Account.snapshot().authenticated) { Core.state.settings.lang = lang; Core.save(); I18n.set(lang); applyTheme(Core.state.settings.theme || "light"); Router.render(Router.current.route, Router.current.params); return; }
     Core.setLanguage(lang, function (missing) {
       I18n.set(lang);
       applyTheme(Core.state.settings.theme || "light");
-      renderLangPicker();
       App.refreshRail();
       Router.render(Router.current.route, Router.current.params);
       // a silent failure would leave part of the course in the previous language
@@ -199,13 +107,11 @@
 
   /* ---------------- Startup ---------------- */
   function boot() {
-    /* Arabic is the fresh-profile default. Store.load preserves saved language
-       choices, including the Polish-only v1 migration, regardless of locale. */
+    /* Arabic is the first-visit and returning-profile interface language. */
     Core.load();
     var lang = Core.state.settings.lang;
     I18n.set(lang);
     applyTheme(Core.state.settings.theme || "light");
-    renderLangPicker();
     App.refreshRail();
 
     document.querySelectorAll(".rail__item, .bottom-nav__item[data-route]").forEach(function (b) {

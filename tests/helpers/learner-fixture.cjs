@@ -73,7 +73,8 @@ async function lockOfflineAndReconnect(page,context,files){
  await base.expect(page.locator('.guest-page')).toBeVisible();await base.expect(page.locator('#rail')).toBeHidden();
  base.expect(await page.evaluate(()=>window.Core.registry.levels.length)).toBe(0);
  base.expect(await page.evaluate(async()=>{try{await fetch('/data/core/a1-01.js');return 'leaked';}catch{return 'offline';}})).toBe('offline');
- for(const lang of ['en','ar']){await page.locator('.js-guest-language').selectOption(lang);await base.expect(page.locator('html')).toHaveAttribute('dir',lang==='ar'?'rtl':'ltr');}
+ await base.expect(page.locator('.js-guest-language,#langToggle,#langList')).toHaveCount(0);
+ for(const requested of ['en','ar']){await page.evaluate(lang=>window.App.applyLang(lang),requested);await base.expect(page.locator('html')).toHaveAttribute('lang','ar');await base.expect(page.locator('html')).toHaveAttribute('dir','rtl');base.expect(await page.evaluate(()=>window.Core.state.settings.lang)).toBe('ar');}
  await context.setOffline(false);await page.evaluate(()=>window.Account.refresh());
  await page.waitForFunction(()=>document.documentElement.dataset.access==='learner');
  for(const file of files)base.expect(await page.evaluate(async f=>!!await window.caches.match('data/i18n/ar/'+f),file)).toBe(false);

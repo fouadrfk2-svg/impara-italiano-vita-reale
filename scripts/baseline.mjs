@@ -30,8 +30,8 @@ import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/* The languages the course speaks, in the order the document lists them. */
-const LANGS = ["pl", "en", "es", "fr", "de"];
+/* Arabic UI plus the internal English fallback. */
+const LANGS = ["ar", "en"];
 
 /* ---------------- The course data, in a sandbox ---------------- */
 
@@ -214,7 +214,7 @@ const rows = [
     `${biblioteka.length} / ${zdaniaBiblioteki} / ${slowaBiblioteki}`],
   ["Typy ćwiczeń obecnych w danych", String(Object.keys(types).length)],
   ["Nagrania", `${rec.files} plików mp3, ${mib(rec.bytes)} MiB bajtów; ${indexed} skrótów w indeksie`],
-  ["Klucze interfejsu na język", `${keys} × ${LANGS.length} języków`],
+  ["Klucze interfejsu (ar / en fallback)", `${keys} × ${LANGS.length}`],
   ["Kroje pisma", `${fonts.length} plików woff2 w assets/fonts/, ${Math.round(bytesOf("assets/fonts", fonts) / 1024)} KB`],
   ["Pliki silnika", `${eng.files} w assets/js/, ${eng.lines} linii`]
 ];

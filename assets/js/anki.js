@@ -142,7 +142,7 @@
    * Returns `{karty, blad, pominiete}`. It does not throw: the import is
    * the only place where the student supplies a file from outside, and
    * "something went wrong" is useless there. The error carries a string
-   * KEY, because the course speaks five languages.
+   * KEY, because Arabic is the learner interface language.
    */
   function fromTsv(tekst) {
     var s = String(tekst || "");

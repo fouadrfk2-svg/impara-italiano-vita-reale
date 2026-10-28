@@ -98,12 +98,12 @@ test("a card with no exercise disappears and the student is told", async ({ page
   expect(zostalo, "the card with no exercise was removed").toBe(0);
 });
 
-test("every string of the tab exists in five languages", async ({ page }) => {
+test("Arabic review strings exist", async ({ page }) => {
   await start(page);
 
   const brakujace = await page.evaluate(async () => {
     const braki = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.Core.state.errors["a1-u01-l2#deadbeefdeadbeef#0"] = {

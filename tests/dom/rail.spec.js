@@ -43,10 +43,13 @@ test("reading, writing and minimal pairs have their own menu entries", async ({ 
   await expect(page.locator('.rail__item[data-route="lettura"]')).toHaveAttribute("aria-current", "page");
 });
 
-test("the counters say what they count and lead to Progress", async ({ page }) => {
+test("the Arabic counters say what they count and lead to Progress", async ({ page }) => {
   await otworz(page, "en");
   const licznik = page.locator("#railStats");
-  await expect(licznik).toContainText(/in a row/);
+  await expect(page.locator("#langToggle,#langList,.js-guest-language")).toHaveCount(0);
+  await expect(licznik).toContainText("يوم متتالٍ");
+  await expect(licznik).toContainText("دروس");
+  await expect(licznik).toContainText("نقطة");
   await licznik.click();
   await expect(page).toHaveURL(/#\/progressi/);
 });
@@ -56,8 +59,14 @@ test("on a phone the open menu does not hide the course name under the button", 
   await otworz(page);
   await page.locator("#railToggle").click();
   await expect(page.locator("#rail")).toHaveClass(/is-open/);
-  /* The panel slides in: measuring mid-transition compares the button with a name still off screen. */
-  await page.waitForFunction(() => document.getElementById("rail").getBoundingClientRect().left >= 0);
+  /* Wait for the slide transition itself: in RTL the panel's left edge is
+     already positive while it is still moving in from the right. */
+  await page.waitForFunction(() => {
+    const rail = document.getElementById("rail");
+    if (!rail || !rail.classList.contains("is-open")) return false;
+    rail.getBoundingClientRect();
+    return rail.getAnimations().every(animation => animation.playState === "finished");
+  });
   const [przycisk, nazwa] = await Promise.all([
     page.locator("#railToggle").boundingBox(),
     page.locator(".rail__brand").boundingBox()

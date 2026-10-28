@@ -7,7 +7,7 @@
 
    Why at all: a student who confuses "del" with "dello" needs two hundred
    repetitions, not four. The course has four, because each has to be
-   written and translated into five languages. Here the content comes from
+   written in the learner interface language. Here the content comes from
    the lexicon and the rules, so it costs neither a string nor a recording.
 
    The exercises are WRITTEN ONLY. A generated sentence is not in the

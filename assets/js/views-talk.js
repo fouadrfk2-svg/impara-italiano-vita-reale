@@ -150,7 +150,7 @@
              copying: the student read a ready-made line and sent it back, so
              the scene tested eyesight rather than knowledge of the language.
              The translation of that line ALREADY EXISTS in the overlay
-             (`turns[].tr`, all five languages) and had so far been used only
+             (`turns[].tr`, Arabic learner-facing text) and had so far been used only
              in the bubble — not one string had to be added.
              The Italian model stays under "Show the answer", that is where
              the student reaches for it deliberately. */

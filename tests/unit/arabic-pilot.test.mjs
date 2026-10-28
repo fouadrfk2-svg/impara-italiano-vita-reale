@@ -20,13 +20,15 @@ function dictionaries() {
 const vars = text => [...String(text).matchAll(/\{(\w+)\}/g)].map(m => m[1]).sort();
 
 describe("Arabic interface pilot", () => {
-  test("Arabic is selectable and detected from regional browser preferences", () => {
+  test("Arabic is the sole interface choice and regional Arabic preferences resolve consistently", () => {
     const { I18n } = setup().sandbox;
-    assert.equal(I18n.LANGS.filter(l => l.code === "ar").length, 1);
+    assert.deepEqual(Array.from(I18n.LANGS, l => l.code), ["ar"]);
     assert.equal(I18n.LANGS.find(l => l.code === "ar").name, "العربية");
     assert.equal(I18n.pickLang(["ar-MA", "fr-FR"]), "ar");
+    assert.equal(I18n.pickLang(["fr-FR", "en-US"]), null);
     assert.equal(I18n.contentLanguage("ar"), "en");
-    for (const lang of ["pl", "en", "es", "fr", "de"]) assert.equal(I18n.contentLanguage(lang), lang);
+    assert.equal(I18n.contentLanguage("en"), "en");
+    for (const lang of ["pl", "es", "fr", "de"]) assert.equal(Object.keys(I18n.courseOverrides(lang)).length, 0);
   });
 
   test("all translated keys exist, preserve variables and include every Arabic plural category", () => {
@@ -53,13 +55,20 @@ describe("Arabic interface pilot", () => {
     const box = setup(), I = box.sandbox.I18n, { en, ar } = dictionaries();
     for (const key of Object.keys(en)) {
       for (const n of [0, 1, 2, 3, 11, 100]) {
-        I.set("en"); const expected = I.t(key, { n });
         I.set("ar"); const actual = I.t(key, { n });
         assert.equal(typeof actual, "string", key);
         assert.ok(actual.length, key);
-        if (!(key in ar)) assert.equal(actual, expected, key + " must fall back to English");
+        if (!(key in ar)) {
+          const fallback = en[key];
+          const form = typeof fallback === "object" ? fallback[new Intl.PluralRules("en-US").select(n)] : fallback;
+          assert.equal(actual, form.replace(/\{n\}/g, String(n)), key + " must fall back to English");
+        }
       }
     }
+    box.sandbox.LINGUAI.addUI("en", { internalOnly: "English fallback" });
+    I.set("en");
+    assert.equal(I.lang, "ar");
+    assert.equal(I.t("internalOnly"), "English fallback");
   });
 
   test("fallback plurals use English rules even for Arabic zero and dual", () => {
@@ -92,22 +101,23 @@ describe("Arabic interface pilot", () => {
     assert.deepEqual(R.i18nPaths("ar", ["writing.js"]), ["data/i18n/en/writing.js"]);
   });
 
-  test("Spanish to Arabic reapplies complete English content across all course families", () => {
+  test("Arabic overlays can be cleared back to English and reapplied without stale fields", () => {
     const box = setup(), ctx = box.sandbox;
     const core = readdirSync(join(ROOT, "data/core")).filter(f => f.endsWith(".js") && f !== "audio-index.js");
     // The runtime registers the index before lesson files and long readings.
     const order = ["curriculum-index.js", "readings.js", ...core.filter(f => !["curriculum-index.js", "readings.js"].includes(f)).sort()];
     for (const file of order) vm.runInContext(readFileSync(join(ROOT, "data/core", file), "utf8"), ctx);
-    for (const lang of ["en", "es"]) {
+    for (const lang of ["en", "ar"]) {
       for (const file of readdirSync(join(ROOT, "data/i18n", lang)).filter(f => f.endsWith(".js"))) {
         vm.runInContext(readFileSync(join(ROOT, "data/i18n", lang, file), "utf8"), ctx);
       }
     }
     const snapshot = () => JSON.stringify({ levels: ctx.Core.registry.levels, conversations: ctx.CONVERSATIONS, grammar: ctx.GRAMMAR_REF, phonetics: ctx.PHONETICS, readings: ctx.READINGS, writing: ctx.WRITING, interference: ctx.INTERFERENCE });
     ctx.LINGUAI.applyStrings("en"); const english = snapshot();
-    ctx.LINGUAI.applyStrings("es"); assert.notEqual(snapshot(), english);
-    ctx.LINGUAI.applyStrings("ar"); assert.equal(snapshot(), english);
-    ctx.LINGUAI.applyStrings("ar"); assert.equal(snapshot(), english, "idempotent fallback");
+    ctx.LINGUAI.applyStrings("ar"); const arabic = snapshot();
+    assert.notEqual(arabic, english, "translated Arabic entries differ from the English base");
+    ctx.LINGUAI.applyStrings("en"); assert.equal(snapshot(), english, "English fallback is restored exactly");
+    ctx.LINGUAI.applyStrings("ar"); assert.equal(snapshot(), arabic, "Arabic overlays reapply without stale fields");
   });
 
   test("language switches preserve lesson scores, SRS, drafts and all non-language settings", () => {
@@ -120,21 +130,21 @@ describe("Arabic interface pilot", () => {
     for (const lang of ["ar", "fr", "en", "ar"]) {
       C.setLanguage(lang, () => {}); box.settleScripts(); box.flush();
       assert.deepEqual(snapshot(), before);
-      assert.equal(box.stored().settings.lang, lang);
+      assert.equal(box.stored().settings.lang, "ar");
     }
     C.load(); assert.deepEqual(snapshot(), before);
     assert.equal(C.state.schema, 2);
   });
 
-  test("Arabic vocabulary cards use English glosses without losing existing Polish glosses", () => {
+  test("Arabic vocabulary cards use English fallback without deleting historical gloss data", () => {
     const box = setup(), C = box.Core;
-    C.state.settings.lang = "pl";
-    const key = C.addCard("ciao", "cześć", "lesson");
-    C.state.srs[key].tr.en = "hello";
     C.state.settings.lang = "ar";
-    assert.equal(C.cardTr(C.state.srs[key]), "hello");
-    C.addCard("grazie", "thank you", "lesson");
-    assert.equal(C.state.srs.grazie.tr.en, "thank you");
-    assert.equal(C.state.srs[key].tr.pl, "cześć");
+    const key = C.addCard("ciao", "مرحبا", "lesson");
+    C.state.srs[key].tr.en = "hello";
+    assert.equal(C.cardTr(C.state.srs[key]), "مرحبا");
+    C.state.srs.grazie = { it: "grazie", tr: { en: "thank you", pl: "legacy gloss" } };
+    assert.equal(C.cardTr(C.state.srs.grazie), "thank you");
+    assert.equal(C.state.srs[key].tr.ar, "مرحبا");
+    assert.equal(C.state.srs.grazie.tr.pl, "legacy gloss");
   });
 });

@@ -5,6 +5,8 @@ const vm = require("node:vm");
 const AXE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 let arabicUI;
 vm.runInNewContext(readFileSync(path.join(__dirname, "../../data/i18n/ui-ar.js"), "utf8"), { LINGUAI: { addUI(_l, data) { arabicUI = data; } } });
+function courseOverlay(lang){let entries;vm.runInNewContext(readFileSync(path.join(__dirname,"../../data/i18n",lang,"a1-01.js"),"utf8"),{LINGUAI:{addStrings:(_l,map)=>entries=JSON.parse(JSON.stringify(map))}});return entries;}
+const arabicCourse=courseOverlay("ar"),englishCourse=courseOverlay("en");
 const active = ".exq:not([hidden])";
 const lessons = [
   { id: "a1-u01-l2", title: "مذكّر أم مؤنّث؟", vocab: 14, gender: 3, forms: {libro:"il",casa:"la",stazione:"la",ristorante:"il",chiave:"la",giorno:"il"}, arabicOptions: 4,
@@ -16,12 +18,13 @@ async function ready(page) {
   await page.waitForFunction(() => window.Core && window.Core.registry.loaded.A1 === true && document.querySelector(".exq"));
   await page.evaluate(() => { window.Core.state.settings.autoplay = false; window.Core.save(); });
 }
-async function language(page, lang) {
-  if (await page.locator("#railToggle").isVisible() && !await page.locator("#rail").evaluate(el => el.classList.contains("is-open"))) await page.locator("#railToggle").click();
-  await page.locator("#langToggle").click();
-  await page.locator('#langList [data-lang="' + lang + '"]').click();
-  await expect(page.locator("#main")).toHaveAttribute("data-lesson-language", lang);
-  await expect(page.locator("html")).toHaveAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+async function language(page, requested) {
+  await expect(page.locator("#langToggle,#langList,.js-guest-language")).toHaveCount(0);
+  await page.evaluate(code=>new Promise(resolve=>window.Core.setLanguage(code,resolve)),requested);
+  await expect(page.locator("#main")).toHaveAttribute("data-lesson-language","ar");
+  await expect(page.locator("html")).toHaveAttribute("lang","ar");
+  await expect(page.locator("html")).toHaveAttribute("dir","rtl");
+  await expect.poll(()=>page.evaluate(()=>window.Core.state.settings.lang)).toBe("ar");
 }
 async function audit(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
@@ -65,7 +68,7 @@ for (const width of [1440,390]) for (const lesson of lessons) {
       await page.locator(".vocab-card [data-say]").first().click();await expectAudioResponse(await recording);
       await audit(page);await screenshot(page,info,lesson.id+"-"+width+".png");
       await language(page,"en");
-      const en=await page.evaluate(id=>JSON.stringify(window.Core.getLesson(id).lesson),lesson.id);expect(en).not.toBe(ar);
+      const arabicSource=arabicCourse["lesson:"+lesson.id],englishSource=englishCourse["lesson:"+lesson.id];expect(arabicSource,lesson.id).toBeDefined();expect(englishSource,lesson.id).toBeDefined();expect(arabicSource.title).not.toBe(englishSource.title);expect(arabicSource.exercises).not.toEqual(englishSource.exercises);const en=ar;
       for(const lang of ["ar","en","ar"]){await language(page,lang);expect(await page.evaluate(id=>JSON.stringify(window.Core.getLesson(id).lesson),lesson.id)).toBe(lang==="ar"?ar:en);expect(await page.locator(".exq .opts").evaluateAll(groups=>groups.map(group=>Array.from(group.querySelectorAll(".opt"),n=>n.getAttribute("data-orig"))))).toEqual(choiceOrder);await audit(page);}
       await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('C2',resolve)));
       const neighbor=await page.evaluate(()=>window.Core.getLesson("c2-u01-l1").lesson.title);

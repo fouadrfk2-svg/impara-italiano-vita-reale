@@ -16,8 +16,8 @@ function overlays(lang) {
 function setup() {
   const box = loadEngine({ files: [...CORE, "assets/js/i18n.js", "assets/js/i18n-merge.js"] });
   box.Core.load();
-  for (const file of ["data/core/curriculum-index.js", "data/core/a1-01.js", "data/core/a1-02.js", "data/core/a1-03.js", "data/i18n/en/curriculum-index.js", "data/i18n/en/a1-01.js", "data/i18n/es/a1-01.js", "data/i18n/ar/a1-01.js", "data/i18n/en/a1-02.js", "data/i18n/es/a1-02.js", "data/i18n/en/a1-03.js", "data/i18n/es/a1-03.js", "data/core/a2-01.js", "data/i18n/en/a2-01.js", "data/i18n/es/a2-01.js"]) vm.runInContext(readFileSync(join(ROOT, file), "utf8"), box.sandbox);
-  for(const file of ['data/core/c2-01.js',...['en','pl','es','fr','de'].map(lang=>'data/i18n/'+lang+'/c2-01.js'),'data/core/a2-02.js',...['en','pl','es','fr','de'].map(lang=>'data/i18n/'+lang+'/a2-02.js')])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;
+  for (const file of ["data/core/curriculum-index.js", "data/core/a1-01.js", "data/core/a1-02.js", "data/core/a1-03.js", "data/i18n/en/curriculum-index.js", "data/i18n/en/a1-01.js", "data/i18n/ar/a1-01.js", "data/i18n/en/a1-02.js", "data/i18n/en/a1-03.js", "data/core/a2-01.js", "data/i18n/en/a2-01.js", ]) vm.runInContext(readFileSync(join(ROOT, file), "utf8"), box.sandbox);
+  for(const file of ['data/core/c2-01.js',...['en'].map(lang=>'data/i18n/'+lang+'/c2-01.js'),'data/core/a2-02.js',...['en'].map(lang=>'data/i18n/'+lang+'/a2-02.js')])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;
 }
 function select(box, lang) { box.Core.state.settings.lang = lang; box.sandbox.LINGUAI.applyStrings(lang); box.sandbox.Registry.reindex(); }
 const arabic = (value, label) => assert.match(value, /[\u0600-\u06ff]/, label);
@@ -28,7 +28,7 @@ test("Arabic manifest and strict parity retain both complete noun and article le
   assert.deepEqual(Object.keys(ar).sort(), keys.slice().sort());
   for (const id of ids) assert.ok(keys.includes("lesson:" + id));
   const problems = [];
-  checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js"), "a2-02.js": overlayFile("ar", "a2-02.js"), "b1-01.js": overlayFile("ar", "b1-01.js"), "b2-01.js": overlayFile("ar", "b2-01.js"), "b2-02.js": overlayFile("ar", "b2-02.js"), "b2-03.js": overlayFile("ar", "b2-03.js"), "c1-01.js": overlayFile("ar", "c1-01.js"), "c1-02.js": overlayFile("ar", "c1-02.js"), "c1-03.js": overlayFile("ar", "c1-03.js") }, { ...overlays("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js"), ...overlayFile("pl", "a2-01.js"), ...overlayFile("pl", "a2-02.js"), ...overlayFile("pl", "b1-01.js"), ...overlayFile("pl", "b2-01.js"), ...overlayFile("pl", "b2-02.js"), ...overlayFile("pl", "b2-03.js"), ...overlayFile("pl", "c1-01.js"), ...overlayFile("pl", "c1-02.js"), ...overlayFile("pl", "c1-03.js") }, problems);
+  checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js"), "a2-02.js": overlayFile("ar", "a2-02.js"), "b1-01.js": overlayFile("ar", "b1-01.js"), "b2-01.js": overlayFile("ar", "b2-01.js"), "b2-02.js": overlayFile("ar", "b2-02.js"), "b2-03.js": overlayFile("ar", "b2-03.js"), "c1-01.js": overlayFile("ar", "c1-01.js"), "c1-02.js": overlayFile("ar", "c1-02.js"), "c1-03.js": overlayFile("ar", "c1-03.js") }, { ...overlays("en"), ...overlayFile("en", "a1-02.js"), ...overlayFile("en", "a1-03.js"), ...overlayFile("en", "a2-01.js"), ...overlayFile("en", "a2-02.js"), ...overlayFile("en", "b1-01.js"), ...overlayFile("en", "b2-01.js"), ...overlayFile("en", "b2-02.js"), ...overlayFile("en", "b2-03.js"), ...overlayFile("en", "c1-01.js"), ...overlayFile("en", "c1-02.js"), ...overlayFile("en", "c1-03.js") }, problems);
   assert.deepEqual(problems, []);
   for (const id of ids) assert.deepEqual(Object.keys(ar["lesson:" + id]).sort(), Object.keys(en["lesson:" + id]).sort());
 });
@@ -137,13 +137,13 @@ test("a malformed new Arabic lesson falls back independently without disabling t
   for (const id of ids) {
     const box = setup(), ar = overlays("ar"), en = overlays("en");
     delete ar["lesson:" + id].grammar;
-    box.sandbox.LINGUAI.addStrings("ar", ar); select(box, "es"); select(box, "ar");
+    box.sandbox.LINGUAI.addStrings("ar", ar); select(box, "ar"); select(box, "ar");
     assert.equal(box.sandbox.LINGUAI.lessonLanguage("ar", id), "en");
     assert.equal(box.Core.getLesson(id).lesson.title, en["lesson:" + id].title);
     const other = ids.find(x => x !== id);
     assert.equal(box.sandbox.LINGUAI.lessonLanguage("ar", other), "ar");
     const problems = [];
-    checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js"), "a2-02.js": overlayFile("ar", "a2-02.js"), "b1-01.js": overlayFile("ar", "b1-01.js"), "b2-01.js": overlayFile("ar", "b2-01.js"), "b2-02.js": overlayFile("ar", "b2-02.js"), "b2-03.js": overlayFile("ar", "b2-03.js"), "c1-01.js": overlayFile("ar", "c1-01.js"), "c1-02.js": overlayFile("ar", "c1-02.js"), "c1-03.js": overlayFile("ar", "c1-03.js") }, { ...overlays("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js"), ...overlayFile("pl", "a2-01.js"), ...overlayFile("pl", "a2-02.js"), ...overlayFile("pl", "b1-01.js"), ...overlayFile("pl", "b2-01.js"), ...overlayFile("pl", "b2-02.js"), ...overlayFile("pl", "b2-03.js"), ...overlayFile("pl", "c1-01.js"), ...overlayFile("pl", "c1-02.js"), ...overlayFile("pl", "c1-03.js") }, problems);
+    checkPartialCourse(plain(box.sandbox.I18n.courseOverrides("ar")), { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js"), "a2-02.js": overlayFile("ar", "a2-02.js"), "b1-01.js": overlayFile("ar", "b1-01.js"), "b2-01.js": overlayFile("ar", "b2-01.js"), "b2-02.js": overlayFile("ar", "b2-02.js"), "b2-03.js": overlayFile("ar", "b2-03.js"), "c1-01.js": overlayFile("ar", "c1-01.js"), "c1-02.js": overlayFile("ar", "c1-02.js"), "c1-03.js": overlayFile("ar", "c1-03.js") }, { ...overlays("en"), ...overlayFile("en", "a1-02.js"), ...overlayFile("en", "a1-03.js"), ...overlayFile("en", "a2-01.js"), ...overlayFile("en", "a2-02.js"), ...overlayFile("en", "b1-01.js"), ...overlayFile("en", "b2-01.js"), ...overlayFile("en", "b2-02.js"), ...overlayFile("en", "b2-03.js"), ...overlayFile("en", "c1-01.js"), ...overlayFile("en", "c1-02.js"), ...overlayFile("en", "c1-03.js") }, problems);
     assert.ok(problems.some(p => p.includes(id + ".grammar")));
   }
 });

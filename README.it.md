@@ -1,4 +1,4 @@
-[English](./README.md) | **Italiano** | [Polski](./README.pl.md)
+[English](./README.md) | **Italiano**
 
 # Impara l'Italiano
 
@@ -10,9 +10,9 @@ Un corso di italiano statico, dall'A1 al C2, che gira tutto nel browser: niente 
 ![Node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![Dipendenze runtime](https://img.shields.io/badge/dipendenze%20runtime-0-lightgrey)
 
-150 lezioni, 1514 esercizi e 3494 frasi italiane registrate, spiegate nella lingua di chi studia. Si apre `index.html` e il corso parte.
+150 lezioni, 1514 esercizi e 3494 frasi italiane registrate. L’interfaccia pubblica e le spiegazioni per chi studia sono in arabo; l’inglese resta come fallback interno per i contenuti didattici non ancora tradotti e per le stringhe mancanti. Si apre `index.html` e il corso parte.
 
-Il programma di grammatica sale livello per livello dall'A1 al C2. Le spiegazioni esistono in cinque lingue (polacco, inglese, spagnolo, francese, tedesco) e si cambiano quando si vuole, senza perdere i progressi. Tutto quello che lo studente fa resta nel suo browser. Dal dispositivo possono uscire due cose, e nessuna delle due parte finché non è lui ad accenderla: la registrazione della voce mandata al riconoscimento vocale, e una risposta che il corso ha già rifiutato, mandata a un modello linguistico che lo studente paga con la propria chiave.
+Il programma di grammatica sale livello per livello dall’A1 al C2. L’arabo è l’unica lingua selezionabile nell’interfaccia. L’inglese resta un fallback interno per i contenuti non ancora tradotti; le vecchie preferenze salvate vengono normalizzate all’arabo senza modificare i progressi. Tutto quello che lo studente fa resta nel suo browser. Dal dispositivo possono uscire due cose, e nessuna delle due parte finché non è lui ad accenderla: la registrazione della voce mandata al riconoscimento vocale, e una risposta che il corso ha già rifiutato, mandata a un modello linguistico che lo studente paga con la propria chiave.
 
 **Online:** [andreabonn.github.io/impara-italiano](https://andreabonn.github.io/impara-italiano/)
 
@@ -46,7 +46,7 @@ Il programma di grammatica sale livello per livello dall'A1 al C2. Le spiegazion
 | Voci della grammatica di riferimento | 42 |
 | Letture / prove di scrittura / serie di coppie minime | 12 / 6 / 5 |
 | Frasi registrate | 3494 mp3, 45 MB |
-| Lingue di spiegazione | 5, con 740 stringhe di interfaccia ciascuna |
+| Lingua pubblica dell’interfaccia | Arabo; fallback interno in inglese |
 | File del motore | 63 file, 11 881 righe |
 
 Questi numeri si rigenerano con `node scripts/validate.mjs`.
@@ -112,7 +112,8 @@ assets/
   js/                   63 moduli del motore, un oggetto globale per file
 data/
   core/                 strato neutro: struttura, italiano, chiavi di risposta
-  i18n/<lang>/          spiegazioni nella lingua dello studente (pl, en, es, fr, de)
+  i18n/ar/               spiegazioni rivolte allo studente in arabo
+  i18n/en/               fallback interno per i contenuti non tradotti
   audio-index.js        hash ordinati di tutte le frasi che hanno una registrazione
 audio/<xx>/<hash>.mp3   registrazioni, generate
 scripts/                validazione, parità, copertura, mutazioni e strumenti di build
@@ -177,8 +178,8 @@ Tutti i controlli qui sotto girano a ogni `push` e a ogni `pull_request`, dal pi
 | Comando | Cosa verifica |
 |---|---|
 | `npm run lint` | correttezza, non stile. ESLint flat config, quattro blocchi per quattro nature di file |
-| `node scripts/validate.mjs [lingua]` | id duplicati, completezza degli esercizi, lacune contro le risposte, parole della lingua dello studente finite nello strato neutro |
-| `node scripts/parity.mjs` | che ogni strato di lingua abbia la stessa forma di quello polacco |
+| `node scripts/validate.mjs [ar|en]` | valida lo strato arabo o il fallback inglese rispetto ai dati italiani neutrali |
+| `node scripts/parity.mjs` | forma e completezza dello strato arabo rispetto al fallback inglese |
 | `node scripts/check_precache.mjs` | che il service worker metta in cache tutto ciò che `index.html` carica |
 | `node scripts/check_swversion.mjs [--napraw]` | che una versione nuova abbia un'impronta con cui annunciarsi |
 | `npm test` | 944 asserzioni in 40 file, logica del motore dentro `node:vm` |
@@ -210,7 +211,7 @@ LINGUAI.addUnits("A1", [{
 }]);
 ```
 
-In `data/i18n/<lang>/` va solo ciò che lo studente legge nella sua lingua, nello stesso ordine:
+In `data/i18n/ar/` vanno i contenuti in arabo; `data/i18n/en/` contiene il fallback interno, nello stesso ordine:
 
 ```js
 LINGUAI.addStrings("pl", {
@@ -219,7 +220,7 @@ LINGUAI.addStrings("pl", {
 });
 ```
 
-Gli array si uniscono **per indice**, quindi devono avere lo stesso numero di elementi da entrambe le parti. Una nota contrastiva («nella tua lingua funziona diversamente») si scrive da capo per ogni lingua invece di tradurla: quello che è una trappola per un polacco spesso a un americano non dice niente.
+Gli array si uniscono **per indice**, quindi devono avere lo stesso numero di elementi da entrambe le parti. Una nota contrastiva («nella tua lingua funziona diversamente») si scrive per la lingua pertinente a chi studia, senza riutilizzare confronti linguistici non pertinenti.
 
 Poi si lanciano i controlli:
 

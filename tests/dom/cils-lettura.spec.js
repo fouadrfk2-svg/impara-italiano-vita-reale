@@ -32,7 +32,7 @@ async function przygotuj(page, opcje) {
     const state = raw ? JSON.parse(raw) : { schema: 2, settings: {} };
     state.settings = state.settings || {};
     state.settings.llmConsent = true;
-    state.settings.lang = "pl";
+    state.settings.lang = "ar";
     window.localStorage.setItem("linguai.italiano.v2", JSON.stringify(state));
 
     const czekaj = new Promise((r) => { window.__llmGotowy = r; });

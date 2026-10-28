@@ -58,8 +58,12 @@ function run(path) {
   }
 }
 
-/* The language of explanations to check:  node scripts/validate.mjs [pl|en] */
-const LANG = process.argv[2] || "pl";
+/* Validate the Arabic learner layer (default) or its English base: [ar|en]. */
+const LANG = process.argv[2] || "ar";
+if (!new Set(["ar", "en"]).has(LANG)) {
+  console.error("Usage: node scripts/validate.mjs [ar|en]");
+  process.exit(2);
+}
 
 run("assets/js/i18n.js");
 run("assets/js/i18n-merge.js");
@@ -67,11 +71,10 @@ const dataFiles = readdirSync(join(ROOT, "data", "core"))
   .filter(f => /^[abc]\d-\d+\.js$/.test(f))
   .sort();
 const ALL = ["curriculum-index.js", ...dataFiles, "conversations.js", "grammar-reference.js", "phonetics.js", "readings.js", "writing.js"];
-/* Loaded but NOT overlaid: the free-conversation scenes have no student-language
+/* Loaded but NOT overlaid: the free-conversation scenes have no learner-language
    layer at all. Their titles live in the interface dictionaries, because every
    other field is Italian spoken by the partner. They are read here for one
-   reason — the scan below, which is what keeps a Polish word out of a file
-   that is supposed to be Italian. */
+   reason — the scan below keeps non-Italian learner prose out of the core. */
 run(join("data", "core", "chat-scenarios.js"));
 ALL.forEach(f => run(join("data", "core", f)));
 /* The library, one file per level. Enumerated from the directory: a text

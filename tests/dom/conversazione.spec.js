@@ -225,7 +225,8 @@ test.describe("conversations", () => {
     await czekajNaTure(page);
     /* An Italian sentence in the hint turned the conversation into copying. */
     const podp = await page.locator(".voice-pl").first().innerText();
-    expect(podp).toContain("Jasne, proszę!");
+    expect(podp).toContain("بالتأكيد، تفضّل!");
+    expect(podp).toMatch(/[\u0600-\u06ff]/);
     expect(podp).not.toContain("Certo, prego");
 
     await page.click(".js-skip");

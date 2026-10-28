@@ -13,7 +13,10 @@ function setup(ar = true) {
   box.Core.load();
   function load(file) { vm.runInContext(readFileSync(join(ROOT, file), "utf8"), box.sandbox); }
   for (const file of ["curriculum-index.js", "a1-01.js", "a1-02.js", "a1-03.js", "a2-01.js", "a2-02.js", "b1-01.js", "b2-01.js", "b2-02.js", "b2-03.js", "c2-01.js", "c2-02.js"]) load("data/core/" + file);
-  for (const lang of ["en", "es"]) for (const file of ["curriculum-index.js", "a1-01.js", "a1-02.js", "a1-03.js", "a2-01.js", "a2-02.js", "b1-01.js", "b2-01.js", "b2-02.js", "b2-03.js", "c2-01.js", "c2-02.js"]) load("data/i18n/" + lang + "/" + file);
+  const translatedFiles = ["curriculum-index.js", "a1-01.js", "a1-02.js", "a1-03.js", "a2-01.js", "a2-02.js", "b1-01.js", "b2-01.js", "b2-02.js", "b2-03.js"];
+  for (const file of translatedFiles) load("data/i18n/en/" + file);
+  for (const file of translatedFiles) if (ar || file !== "a1-01.js") load("data/i18n/ar/" + file);
+  for (const file of ["c2-01.js", "c2-02.js"]) load("data/i18n/en/" + file);
   if (ar) load("data/i18n/ar/a1-01.js");
   box.sandbox.LINGUAI.applyStrings("en"); box.sandbox.Registry.reindex();
   return box;
@@ -33,7 +36,7 @@ test("every declared Arabic entry is complete and the original three lessons rem
   const manifest = plain(box.sandbox.I18n.courseOverrides("ar"));
   assert.deepEqual(Object.keys(ar).sort(), manifest["a1-01.js"].slice().sort());
   for (const original of [key, "lesson:a1-u01-l2", "lesson:a1-u01-l3"]) assert.ok(manifest["a1-01.js"].includes(original));
-  checkPartialCourse(manifest, { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js"), "a2-02.js": overlayFile("ar", "a2-02.js"), "b1-01.js": overlayFile("ar", "b1-01.js"), "b2-01.js": overlayFile("ar", "b2-01.js"), "b2-02.js": overlayFile("ar", "b2-02.js"), "b2-03.js": overlayFile("ar", "b2-03.js"), "c1-01.js": overlayFile("ar", "c1-01.js"), "c1-02.js": overlayFile("ar", "c1-02.js"), "c1-03.js": overlayFile("ar", "c1-03.js") }, { ...overlay("pl"), ...overlayFile("pl", "a1-02.js"), ...overlayFile("pl", "a1-03.js"), ...overlayFile("pl", "a2-01.js"), ...overlayFile("pl", "a2-02.js"), ...overlayFile("pl", "b1-01.js"), ...overlayFile("pl", "b2-01.js"), ...overlayFile("pl", "b2-02.js"), ...overlayFile("pl", "b2-03.js"), ...overlayFile("pl", "c1-01.js"), ...overlayFile("pl", "c1-02.js"), ...overlayFile("pl", "c1-03.js") }, problems);
+  checkPartialCourse(manifest, { "a1-01.js": ar, "a1-02.js": overlayFile("ar", "a1-02.js"), "a1-03.js": overlayFile("ar", "a1-03.js"), "a2-01.js": overlayFile("ar", "a2-01.js"), "a2-02.js": overlayFile("ar", "a2-02.js"), "b1-01.js": overlayFile("ar", "b1-01.js"), "b2-01.js": overlayFile("ar", "b2-01.js"), "b2-02.js": overlayFile("ar", "b2-02.js"), "b2-03.js": overlayFile("ar", "b2-03.js"), "c1-01.js": overlayFile("ar", "c1-01.js"), "c1-02.js": overlayFile("ar", "c1-02.js"), "c1-03.js": overlayFile("ar", "c1-03.js") }, { ...overlay("en"), ...overlayFile("en", "a1-02.js"), ...overlayFile("en", "a1-03.js"), ...overlayFile("en", "a2-01.js"), ...overlayFile("en", "a2-02.js"), ...overlayFile("en", "b1-01.js"), ...overlayFile("en", "b2-01.js"), ...overlayFile("en", "b2-02.js"), ...overlayFile("en", "b2-03.js"), ...overlayFile("en", "c1-01.js"), ...overlayFile("en", "c1-02.js"), ...overlayFile("en", "c1-03.js") }, problems);
   assert.deepEqual(problems, []);
 });
 
@@ -60,7 +63,6 @@ test("English to Arabic to English to Arabic is exact and other lessons always f
   const english = lesson();
   const others = () => plain(box.Core.registry.byCode.C2.units[0]);
   const fallback = others();
-  select(box, "es"); assert.notEqual(lesson().title, english.title);
   select(box, "ar"); const arabic = lesson();
   assert.deepEqual(others(), fallback); assert.equal(L.lessonLanguage("ar", id), "ar");
   assert.equal(L.lessonLanguage("ar", "c2-u01-l1"), "en");
@@ -80,10 +82,10 @@ test("English to Arabic to English to Arabic is exact and other lessons always f
   sameNeutral(neutral, lesson());
 });
 
-test("missing, malformed or undeclared Arabic patches cannot leave stale Spanish content", () => {
+test("missing, malformed or undeclared Arabic patches safely fall back to English", () => {
   const box = setup(false), L = box.sandbox.LINGUAI;
   const english = plain(box.Core.getLesson(id).lesson);
-  select(box, "es"); select(box, "ar");
+  select(box, "ar");
   assert.deepEqual(plain(box.Core.getLesson(id).lesson), english);
   L.addStrings("ar", { [key]: { title: "ناقص" }, "lesson:c2-u01-l1": overlay("ar")[key] });
   select(box, "ar");
@@ -97,7 +99,7 @@ test("a complete-looking Arabic patch with a malformed nested array, type or emp
     const box = setup(false), L = box.sandbox.LINGUAI;
     const english = plain(box.Core.getLesson(id).lesson);
     const patch = overlay("ar"); damage(patch[key]); L.addStrings("ar", patch);
-    select(box, "es"); select(box, "ar");
+    select(box, "ar");
     assert.equal(L.lessonLanguage("ar", id), "en");
     assert.deepEqual(plain(box.Core.getLesson(id).lesson), english);
   }
@@ -111,7 +113,7 @@ test("missing Arabic script remains retryable; untranslated files never request 
 });
 
 test("partial parity rejects missing files, unknown or undeclared lessons, missing keys and short arrays", () => {
-  const manifest = { "a1-01.js": [key] }, reference = overlay("pl"), own = { [key]: overlay("ar")[key] };
+  const manifest = { "a1-01.js": [key] }, reference = overlay("en"), own = { [key]: overlay("ar")[key] };
   const invalid = [ {}, { "wrong.js": own }, { "a1-01.js": {} },
     { "a1-01.js": { ...own, "lesson:c2-u01-l1": own[key] } } ];
   for (const field of ["title", "grammar", "theory"]) { const copy = plain(own); delete copy[key][field]; invalid.push({ "a1-01.js": copy }); }

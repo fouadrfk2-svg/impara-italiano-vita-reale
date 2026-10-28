@@ -68,13 +68,11 @@
 <div class="shell">
 
   <!-- ══════════ RAIL ══════════ -->
-  <nav class="rail" id="rail" data-i18n-label="app.mainNav" aria-label="Nawigacja główna">
+  <nav class="rail" id="rail" data-i18n-label="app.mainNav" aria-label="التنقّل الرئيسي">
     <div class="rail__head">
       <!-- Native hash link uses the same guarded router as learner navigation. -->
       <a class="rail__brand" href="#/oggi" dir="ltr" data-i18n-label="app.brandHome" aria-label="Vita Reale — العودة إلى لوحة التعلّم"><img class="brand-logo" src="assets/branding/header_learning_dark.svg" width="1050" height="244" alt="" decoding="async"></a>
-      <p class="rail__tag" data-i18n="app.tagline">Włoski po polsku · A1 → C2</p>
-      <!-- filled by app.js from I18n.LANGS: a new language needs no change in the HTML -->
-      <div class="rail__lang" id="langPicker" role="group"></div>
+      <p class="rail__tag" data-i18n="app.tagline">الإيطالية لحياتك في إيطاليا · A1 → C2</p>
       <button class="rail__search" id="railSearch" data-i18n-label="search.open" aria-label="Szukaj w kursie">
         <span aria-hidden="true">🔍</span><span data-i18n="search.open">Szukaj w kursie</span>
       </button>
@@ -283,14 +281,8 @@
 <script type="application/json" data-course-src="assets/js/keys.js"></script>
 
 <!-- ══════════ DATA ══════════ -->
-<!-- the interface dictionaries: every language at once, because switching has to be
-     instant. These are interface strings only, not the course: these files weigh as
-     much as one lesson. -->
-<script src="data/i18n/ui-pl.js"></script>
+<!-- Arabic interface and internal English fallback for incomplete strings. -->
 <script src="data/i18n/ui-en.js"></script>
-<script src="data/i18n/ui-es.js"></script>
-<script src="data/i18n/ui-fr.js"></script>
-<script src="data/i18n/ui-de.js"></script>
 <script src="data/i18n/ui-ar.js"></script>
 <!-- the language-neutral layer: structure, Italian, answer keys -->
 <script type="application/json" data-course-src="data/core/curriculum-index.js"></script>

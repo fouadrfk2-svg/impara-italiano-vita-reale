@@ -12,7 +12,7 @@ for(const width of [320,390,1440])for(const theme of ['light','dark'])test('RED 
  expect((await request.get('/data/core/a1-01.js')).status()).toBe(401);expect((await request.get('/audio/12/12f482a3fb75c0e6.mp3')).status()).toBe(401);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);expect(await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>v.id))).toEqual([]);
  if(process.env.BRAND_KIT_DIR){await page.screenshot({path:path.join(process.env.BRAND_KIT_DIR,'home-'+width+'-'+theme+'.png')});await foot.scrollIntoViewIfNeeded();await page.screenshot({path:path.join(process.env.BRAND_KIT_DIR,'footer-'+width+'-'+theme+'.png')});}
- await foot.click();await expect(page).toHaveURL(/#\/home$/);await page.locator('.js-guest-language').selectOption('en');await expect(page.locator('html')).toHaveAttribute('dir','ltr');await expect(head).toHaveAccessibleName('Vita Reale');await page.locator('.js-guest-language').selectOption('ar');await expect(page.locator('html')).toHaveAttribute('dir','rtl');
+ await foot.click();await expect(page).toHaveURL(/#\/home$/);await expect(page.locator('.js-guest-language')).toHaveCount(0);await expect(page.locator('html')).toHaveAttribute('lang','ar');await expect(page.locator('html')).toHaveAttribute('dir','rtl');
  expect(errors).toEqual([]);
 });
 

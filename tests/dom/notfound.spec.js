@@ -22,8 +22,8 @@ const { test, expect } = require("../helpers/learner-fixture.cjs");
 /** The prefix the site is published at, as it appears inside 404.html. */
 const PREFIKS = new URL(require("../../package.json").homepage).pathname;
 
-/** The five languages of explanation, in the order of I18n.LANGS. */
-const JEZYKI = ["ar", "pl", "en", "es", "fr", "de"];
+/** The single selectable explanation language. */
+const JEZYKI = ["ar"];
 
 /**
  * Serves the page the way Pages does: everything under the publication
@@ -48,6 +48,8 @@ test("the page draws, styled, and reports nothing broken", async ({ page }) => {
   await page.goto("/404.html");
 
   await expect(page.locator("h1")).toBeVisible();
+  await expect(page.locator('.lost__langs > li[lang="ar"]')).toHaveCount(1);
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
   /* The stylesheet arrived: the display family only exists in app.css, which
      the page reaches through the absolute prefix. A wrong path leaves the
@@ -59,12 +61,12 @@ test("the page draws, styled, and reports nothing broken", async ({ page }) => {
   expect(bledy, `błędy na stronie 404: ${bledy.join(" | ")}`).toEqual([]);
 });
 
-test("the sentence stands in all five languages of explanation", async ({ page }) => {
+test("the sentence stands in Arabic", async ({ page }) => {
   await bezPrefiksu(page);
   await page.goto("/404.html");
 
   for (const kod of JEZYKI) {
-    const wiersz = page.locator(`[lang="${kod}"]`);
+    const wiersz = page.locator(`.lost__langs > li[lang="${kod}"]`);
     await expect(wiersz, `brak wiersza w języku ${kod}`).toHaveCount(1);
     await expect(wiersz).not.toBeEmpty();
   }

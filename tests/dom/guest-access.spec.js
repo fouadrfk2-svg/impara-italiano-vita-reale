@@ -18,15 +18,14 @@ async function code(){const admin=helper.client(db);expect((await admin.request(
 async function signIn(page,value){await page.evaluate(()=>App.go('account'));await page.locator('#pilot-code').fill(value);await page.locator('.js-login').click();await page.waitForFunction(()=>Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner');}
 async function audit(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);expect(await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})))).toEqual([]);}
 for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
- test('fresh guest, stored progress, direct routes, language switching and no pre-auth content requests',async({browser})=>{
+ test('fresh guest, stored progress, direct routes, Arabic-only locale normalization and no pre-auth content requests',async({browser})=>{
   const c=await context(browser,width),p=await c.newPage(),requests=[],errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(new URL(r.url()).pathname));
   try{
    await c.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,settings:{lang:'ar'},lessons:{'a1-u01-l1':{done:true,total:9,score:9,best:1}},writing:{private:{text:'SYNTHETIC_PRIVATE_DRAFT'}}})));
    await guest(p);await expect(p.locator('#rail')).toBeHidden();await expect(p.locator('.bottom-nav')).toBeHidden();await expect(p.locator('#main')).not.toContainText('SYNTHETIC_PRIVATE_DRAFT');await audit(p);
    await p.evaluate(()=>App.go('privacy'));await expect(p.locator('#main h1')).toContainText('حسابك وخصوصيتك');await p.evaluate(()=>App.go('home'));
    for(const route of ['percorso','lezione?id=a1-u01-l1','ripasso','conversazione?id=bar-mattina','progressi','letture','scrittura','guida','unknown']){await p.evaluate(r=>{location.hash='#/'+r;},route);await expect(p.locator('.guest-page')).toBeVisible();await expect(p.locator('#rail')).toBeHidden();await expect(p.locator('.exq')).toHaveCount(0);}
-   await p.locator('.js-guest-language').selectOption('en');await expect(p.locator('#guest-title')).toContainText('Learn with confidence');expect(await p.locator('html').getAttribute('dir')).toBe('ltr');await audit(p);
-   await p.locator('.js-guest-language').selectOption('ar');expect(await p.locator('html').getAttribute('dir')).toBe('rtl');await expect(p.locator('#guest-title')).toContainText('تعلّم');
+   await expect(p.locator('.js-guest-language,#langToggle,#langList')).toHaveCount(0);await p.evaluate(()=>App.applyLang('en'));await expect(p.locator('html')).toHaveAttribute('lang','ar');await expect(p.locator('html')).toHaveAttribute('dir','rtl');await expect(p.locator('#guest-title')).toContainText('تعلّم');await audit(p);
    expect(requests.filter(s=>/^\/(data\/(?!i18n\/ui-)|audio\/)/.test(s))).toEqual([]);expect(errors).toEqual([]);expect(await p.evaluate(()=>Core.state.lessons['a1-u01-l1'].done)).toBe(true);
   }finally{await c.close();}
  });

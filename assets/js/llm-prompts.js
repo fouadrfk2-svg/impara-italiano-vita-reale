@@ -26,13 +26,11 @@
 (function (global) {
   "use strict";
 
-  /* The language of the explanations, by the code the course already keeps
-     in settings.lang. The model is told which one to write in; nothing
-     checks that it obeyed, and nothing needs to — an unreadable comment
+  /* The language of learner feedback. Arabic is the only public interface;
+     unknown or retired stored values resolve safely to Arabic. Nothing
+     checks that the model obeyed, and nothing needs to — an unreadable comment
      costs a sentence, while a wrong verdict costs the lesson. */
-  var LANGS = {
-    pl: "Polish", en: "English", es: "Spanish", fr: "French", de: "German"
-  };
+  var LANGS = { ar: "Modern Standard Arabic" };
 
   /* How much of a composition is sent. Long enough for the six tasks the
      course sets, short enough that a student who pastes a novel does not
@@ -69,7 +67,7 @@
     return obj && Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined;
   }
 
-  function jezyk(lang) { return own(LANGS, lang) || LANGS.en; }
+  function jezyk(lang) { return own(LANGS, lang) || LANGS.ar; }
 
   /* ---------------- The judge: one sentence, a closed answer ---------------- */
 

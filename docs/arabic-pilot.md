@@ -1,6 +1,6 @@
 # Arabic interface and complete original A1–C1
 
-Arabic (العربية) is available from the welcome screen and language selector.
+Arabic (العربية) is the only selectable public interface language. English remains an internal fallback for untranslated learning content and missing interface strings; old saved language preferences normalize to Arabic without changing learner progress.
 The partial Arabic course covers all forty lessons and ten assessments in
 units **a1-u01**, **a1-u02**, **a1-u03**, **a1-u04**, **a1-u05**, **a1-u06**, **a1-u07**, **a1-u08**, **a1-u09** and **a1-u10**, including their unit titles and descriptions.
 All eight A2 units include 32 existing lessons, eight assessments and exactly
@@ -33,7 +33,7 @@ unit, learner exercise, Italian example or topic is added.
 - Undeclared units and lessons cannot override the English baseline. Readings,
   references, conversations and other content families keep their baseline.
 - scripts/parity.mjs checks every declared file, key, type and indexed array
-  against Polish, then checks the effective course. Existing full-language
+  against English fallback, then checks the effective Arabic course. Existing full-language
   requirements remain intact; unit entries receive the same complete shape
   check as other entries, without a lesson-only theory requirement.
 - Unit tests 1, 3, 4 and 6 each have four article-choice nouns. All five
@@ -455,7 +455,7 @@ a saved attempt, so finish an answer before changing language.
 - npm test
 - npm run lint
 - npm run parity
-- node scripts/validate.mjs ar (also pl/en/es/fr/de)
+- node scripts/validate.mjs ar\n- node scripts/validate.mjs en\n- node scripts/parity.mjs
 - npm run check:precache and npm run check:swversion
 - npm run test:dom
 - npm run test:mutations and node scripts/coverage.mjs --min 99
@@ -550,7 +550,7 @@ Mixed reference tables exposed a pre-existing RTL cascade conflict: legacy `.it`
 ## Arabic supporting completion and first-visit default
 
 - Complete selective overlays: 23 A1–C1 short readings, five A1–C1 library texts, six writing tasks and five phonetics sets (39 entries). Original Italian passages, questions, answer keys, audio, order and earlier translations remain unchanged. C2 stays English.
-- Fresh profiles start in Arabic regardless of browser locale. Stored language choices remain authoritative; the Polish-only v1 migration is unchanged. English and all other language options remain available. Legacy Polish browser scenarios now declare a saved Polish preference explicitly; localization/welcome scenarios use empty storage.
+- Fresh profiles start in Arabic regardless of browser locale. Existing saved progress is preserved while unsupported legacy language preferences normalize to Arabic. English remains available only as internal educational-content and missing-string fallback; it is not a selectable interface language.
 - Pronunciation comparisons use Arabic articulatory explanations and only the existing Italian pairs. English example words are replaced by those existing Italian words without adding exercises or examples.
 - Contextual English gloss concerns: readings use *svolta* as a participle (carried out), not a turning point, and *nomina* as a verb (names), not an appointment. The library uses *sostenere* to support a claim, not to maintain an object. Arabic meanings follow the unchanged Italian context.
 - Inherited source limitations: generalisations about coffee habits, market etiquette, receipts/guarantees, housing/residency, immigration procedures, pharmacies and train-ticket rules are retained in Italian and are not verified current legal, medical or procedural guidance. The B1 library's categorical receipt/travel/rights claims need separate original-content review; this translation does not alter them or grading.

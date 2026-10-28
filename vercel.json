@@ -73,22 +73,6 @@
       "destination": "/api/content?path=data/i18n/en/:path*"
     },
     {
-      "source": "/data/i18n/pl/:path*",
-      "destination": "/api/content?path=data/i18n/pl/:path*"
-    },
-    {
-      "source": "/data/i18n/es/:path*",
-      "destination": "/api/content?path=data/i18n/es/:path*"
-    },
-    {
-      "source": "/data/i18n/fr/:path*",
-      "destination": "/api/content?path=data/i18n/fr/:path*"
-    },
-    {
-      "source": "/data/i18n/de/:path*",
-      "destination": "/api/content?path=data/i18n/de/:path*"
-    },
-    {
       "source": "/audio/:path*",
       "destination": "/api/content?path=audio/:path*"
     },

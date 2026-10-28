@@ -164,7 +164,7 @@ async function zProfilem(page, profil) {
     if (window.sessionStorage.getItem("__zapisano")) return;
     window.sessionStorage.setItem("__zapisano", "1");
     window.localStorage.setItem("linguai.italiano.v2",
-      JSON.stringify(Object.assign({ schema: 2, settings: { lang: "pl" } }, p)));
+      JSON.stringify(Object.assign({ schema: 2, settings: { lang: "ar" } }, p)));
   }, profil);
 }
 
@@ -194,7 +194,7 @@ test("ten new words today: nothing due means an honest empty screen, not more wo
   await zProfilem(page, { reviews });
   await page.goto("/index.html#/cinque");
   await page.waitForSelector(".view-head");
-  await expect(page.locator(".empty")).toContainText("Dziesięć nowych słów");
+  await expect(page.locator(".empty")).toContainText("تعلّمت كلماتك العشر الجديدة لليوم");
   await expect(page.locator(".js-start")).toHaveCount(0);
 });
 
@@ -266,7 +266,7 @@ test("while the first level loads the screen says so, not that every word is tak
   await page.route("**/data/core/a1-01.js", async r => { await wstrzymany; await r.continue(); });
   await page.goto("/index.html#/cinque", { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".view-head");
-  await expect(page.locator(".empty")).toContainText("Wczytuję");
+  await expect(page.locator(".empty")).toContainText("جارٍ تحميل كلمات الدورة");
 
   pusc();
   await page.waitForSelector(".js-start");

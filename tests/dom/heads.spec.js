@@ -13,9 +13,19 @@ async function oggi(page) {
   await page.waitForSelector(".view-head");
 }
 
+async function makeIntroOverflow(page) {
+  await page.locator(".view-head__intro").evaluate((element) => {
+    element.textContent = Array.from({ length: 8 }, () =>
+      "هذه مقدّمة توضّح ما ستتعلّمه في هذا القسم وكيفية تطبيقه في موقف يومي."
+    ).join(" ");
+    window.dispatchEvent(new Event("resize"));
+  });
+}
+
 test("on a phone the introduction folds to two lines and opens on request", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
   await oggi(page);
+  await makeIntroOverflow(page);
   const wstep = page.locator(".view-head__intro");
   const linia = await wstep.evaluate(e => parseFloat(getComputedStyle(e).lineHeight));
   const zwiniety = (await wstep.boundingBox()).height;
@@ -42,6 +52,7 @@ test("on a desktop the introduction is whole and there is nothing to open", asyn
 test("narrowing the window after the render brings the button", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await oggi(page);
+  await makeIntroOverflow(page);
   await expect(page.locator(".view-head__more")).toBeHidden();
   await page.setViewportSize({ width: 375, height: 800 });
   await expect(page.locator(".view-head__more")).toBeVisible();

@@ -99,11 +99,11 @@ test("no training task has a speaker button", async ({ page }) => {
   expect(bezDzwieku, "a generated sentence has no recording, so it has no button").toEqual([]);
 });
 
-test("the training strings exist in five languages", async ({ page }) => {
+test("Arabic training strings exist", async ({ page }) => {
   await hub(page);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("allenamento");

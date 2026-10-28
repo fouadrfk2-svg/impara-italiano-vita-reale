@@ -135,12 +135,12 @@ test("rail prowadzi do sesji dnia", async ({ page }) => {
   await expect(page.locator('.rail__item[data-route="oggi"]')).toHaveAttribute("aria-current", "page");
 });
 
-test("the daily session strings exist in five languages", async ({ page }) => {
+test("Arabic daily session strings exist", async ({ page }) => {
   await oggi(page);
   await zalegleBledy(page, 2);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("oggi");

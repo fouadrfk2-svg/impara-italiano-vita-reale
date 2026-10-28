@@ -93,6 +93,7 @@
   var I18N_DIR = "data/i18n/";
 
   function i18nPaths(lang, files) {
+    if (lang !== "ar" && lang !== "en") lang = "ar";
     var base = global.I18n && global.I18n.contentLanguage ? global.I18n.contentLanguage(lang) : lang;
     var overrides = global.I18n && global.I18n.overlayOverrides ? global.I18n.overlayOverrides(lang) : {};
     var paths = files.filter(function (f) { return !i18nLoaded[base + "/" + f]; })
@@ -163,6 +164,7 @@
    * must show that, not ignore it.
    */
   function setLanguage(lang, cb) {
+    lang = "ar";
     var files = EAGER_FILES.slice();
     registry.levels.forEach(function (lv) {
       if (registry.loaded[lv.code] === true) files = files.concat(lv.dataFiles || []);

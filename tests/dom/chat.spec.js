@@ -29,7 +29,7 @@ async function przygotuj(page, opcje) {
     const raw = window.localStorage.getItem("linguai.italiano.v2");
     const state = raw ? JSON.parse(raw) : { schema: 2, settings: {} };
     state.settings = state.settings || {};
-    state.settings.lang = "pl";
+    state.settings.lang = "ar";
     state.settings.llmConsent = true;
     state.settings.llmChatConsent = cfg.zgoda !== false;
     state.settings.autoplay = false;   /* no synthesis in a test */

@@ -74,7 +74,7 @@ test("every key finds its own exercise again", async ({ page }) => {
    objects (i18n.js merges by index, idempotently). If the signature read
    anything from the overlay, the whole notebook would be orphaned on a
    language change — and with no error in the console. */
-test("the keys survive a change of the explanation language", async ({ page }) => {
+test("exercise keys stay stable when a retired language is requested", async ({ page }) => {
   await wczytajWszystko(page);
 
   const przed = await page.evaluate(() => {
@@ -82,13 +82,16 @@ test("the keys survive a change of the explanation language", async ({ page }) =
     return { klucze: window.Errors.keysIn(l), pytanie: (l.exercises[0] || {}).q || "" };
   });
 
-  await page.evaluate(() => new Promise(r => window.Core.setLanguage("de", r)));
+  await page.evaluate(() => new Promise(r => window.Core.setLanguage("en", r)));
 
   const po = await page.evaluate(() => {
     const l = window.Core.getLesson("a1-u01-l1").lesson;
     return { klucze: window.Errors.keysIn(l), pytanie: (l.exercises[0] || {}).q || "" };
   });
 
-  expect(po.pytanie, "the overlay really changed").not.toBe(przed.pytanie);
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  expect(po.pytanie, "the Arabic prompt remains active").toBe(przed.pytanie);
+  expect(po.pytanie).toMatch(/[\u0600-\u06ff]/);
   expect(po.klucze, "a klucze nie").toEqual(przed.klucze);
 });

@@ -22,13 +22,13 @@ function bag(lang,file){let out;vm.runInNewContext(read('data/i18n/'+lang+'/'+fi
 const bags=lang=>Object.fromEntries(files.map(f=>[f,bag(lang,f)]));
 const entries=lang=>Object.assign({},...Object.values(bags(lang)));
 const ar=bag('ar','a2-02.js'),en=bag('en','a2-02.js');
-function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const f of ['data/core/curriculum-index.js',...[...files,'c2-01.js','c2-02.js'].map(f=>'data/core/'+f),...['en','pl','es','fr','de','ar'].flatMap(l=>(l==='ar'?files:[...files,'c2-01.js','c2-02.js']).map(f=>'data/i18n/'+l+'/'+f))])vm.runInContext(read(f),box.sandbox);return box;}
+function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const f of ['data/core/curriculum-index.js',...[...files,'c2-01.js','c2-02.js'].map(f=>'data/core/'+f),...['en','ar'].flatMap(l=>(l==='ar'?files:[...files,'c2-01.js','c2-02.js']).map(f=>'data/i18n/'+l+'/'+f))])vm.runInContext(read(f),box.sandbox);return box;}
 function language(box,lang){box.Core.state.settings.lang=lang;box.sandbox.I18n.set(lang);box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
 const italianColumns={'a2-u05-l1':[0],'a2-u05-l2':[1],'a2-u05-l3':[0,1,2],'a2-u05-l4':[1],'a2-u06-l1':[1],'a2-u06-l2':[1],'a2-u06-l3':[1],'a2-u06-l4':[1],'a2-u07-l1':[1,2],'a2-u07-l2':[1],'a2-u07-l3':[0,1],'a2-u07-l4':[0,1,2],'a2-u08-l1':[2],'a2-u08-l2':[0,1],'a2-u08-l3':[1,2]};
 const italianOptions={'a2-u05-l2':[0,5],'a2-u05-l4':[0],'a2-u06-l1':[1],'a2-u06-l2':[0],'a2-u06-l3':[0,6],'a2-u06-test':[4],'a2-u07-l1':[0,1],'a2-u07-l2':[0],'a2-u07-l4':[2],'a2-u07-test':[0,7],'a2-u08-l1':[3],'a2-u08-l2':[4],'a2-u08-l3':[0,1,6],'a2-u08-test':[4]};
 test('complete Arabic A2 contains exactly 32 original lessons, 8 assessments and 405 exercises',()=>{
  const b=setup(),m=plain(b.sandbox.I18n.courseOverrides('ar'));assert.equal(Object.values(m).flat().length,187);assert.equal(m['a2-01.js'].length,24);assert.deepEqual(m['a2-02.js'],Object.keys(ar));assert.equal(Object.keys(ar).length,24);
- const errors=[];checkPartialCourse(m,bags('ar'),entries('pl'),errors);assert.deepEqual(errors,[]);
+ const errors=[];checkPartialCourse(m,bags('ar'),entries('en'),errors);assert.deepEqual(errors,[]);
  language(b,'ar');const units=plain(b.Core.registry.byCode.A2.units);assert.equal(units.length,8);assert.equal(units.flatMap(u=>u.lessons).length,32);assert.equal(units.filter(u=>u.test).length,8);assert.equal(units.flatMap(u=>[...u.lessons,u.test]).reduce((n,l)=>n+l.exercises.length,0),405);
  assert.equal(plans.length,20);assert.equal(plans.filter(p=>p.id.endsWith('-test')).length,4);assert.equal(plans.reduce((n,p)=>n+p.answers.length,0),205);
  for(const u of units)for(const l of [...u.lessons,u.test])assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar',l.id),'ar');
@@ -80,13 +80,13 @@ test('Arabic adaptations clarify source ambiguities without changing grading',()
 test('all languages restore exact A1/A2 and C2 fallback while scores and glossary state survive',()=>{
  const b=setup(),C=b.Core;language(b,'en');plans.forEach(p=>C.recordLesson(p.id,p.answers.length,p.answers.length,80));C.addCard('il rubinetto','faucet','a2-u05-l4');language(b,'ar');C.addCard('il rubinetto','الصنبور','a2-u05-l4');
  const state=()=>{const s=plain(C.state);delete s.settings.lang;return s;},before=state(),snapshot=()=>plain([C.registry.byCode.A1.units,C.registry.byCode.A2.units]);
- for(const l of ['en','pl','es','fr','de']){language(b,l);const expected=snapshot();language(b,'ar');const arabic=snapshot();for(const next of [l,'ar',l,'ar']){language(b,next);assert.deepEqual(snapshot(),next==='ar'?arabic:expected);assert.deepEqual(state(),before);}}
+ for(const l of ['en']){language(b,l);const expected=snapshot();language(b,'ar');const arabic=snapshot();for(const next of [l,'ar',l,'ar']){language(b,next);assert.deepEqual(snapshot(),next==='ar'?arabic:expected);assert.deepEqual(state(),before);}}
  language(b,'en');const fallback=plain(C.registry.byCode.C2.units);language(b,'ar');assert.deepEqual(plain(C.registry.byCode.C2.units),fallback);for(const u of fallback)for(const l of [...u.lessons,u.test])assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar',l.id),'en');
  assert.equal(C.state.schema,2);assert.deepEqual(plain(C.state.srs[C.cardKey('il rubinetto')].tr),{en:'faucet',ar:'الصنبور'});
 });
 test('each final A2 lesson rejects incomplete translations atomically without stale text',()=>{
  for(const p of plans)for(const damage of [o=>{delete o.title;},o=>o.exercises.pop(),o=>{o.theory=[];}]){
-  const b=setup(),all=bags('ar');damage(all['a2-02.js']['lesson:'+p.id]);b.sandbox.LINGUAI.addStrings('ar',all['a2-02.js']);language(b,'es');language(b,'ar');assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar',p.id),'en');assert.equal(CURRENT(b,p.id).title,en['lesson:'+p.id].title);assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar','a2-u03-l1'),'ar');const errors=[];checkPartialCourse(b.sandbox.I18n.courseOverrides('ar'),all,entries('pl'),errors);assert(errors.some(e=>e.includes(p.id)));
+  const b=setup(),all=bags('ar');damage(all['a2-02.js']['lesson:'+p.id]);b.sandbox.LINGUAI.addStrings('ar',all['a2-02.js']);language(b,'en');language(b,'ar');assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar',p.id),'en');assert.equal(CURRENT(b,p.id).title,en['lesson:'+p.id].title);assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar','a2-u03-l1'),'ar');const errors=[];checkPartialCourse(b.sandbox.I18n.courseOverrides('ar'),all,entries('en'),errors);assert(errors.some(e=>e.includes(p.id)));
  }
 });
 function CURRENT(b,id){return b.Core.getLesson(id).lesson;}

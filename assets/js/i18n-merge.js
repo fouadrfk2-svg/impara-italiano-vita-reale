@@ -22,12 +22,14 @@
   "use strict";
 
   var LINGUAI = global.LINGUAI = global.LINGUAI || {};
+  var SUPPORTED = { ar: true, en: true };
 
   /* lang -> key ("lesson:a1-u01-l1") -> patch */
   var store = {};
 
   /** Registers the patches of one file. Called by data/i18n/<lang>/*.js */
   function addStrings(lang, map) {
+    if (!Object.prototype.hasOwnProperty.call(SUPPORTED, lang)) return;
     var bag = store[lang] || (store[lang] = {});
     Object.keys(map).forEach(function (k) { bag[k] = map[k]; });
   }

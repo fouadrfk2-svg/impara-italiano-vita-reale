@@ -174,11 +174,11 @@ test("the learning path leads to the test until a level is chosen", async ({ pag
   await expect(page).toHaveURL(/#\/piazzamento/);
 });
 
-test("the test strings exist in five languages", async ({ page }) => {
+test("Arabic test strings exist", async ({ page }) => {
   await wejscie(page);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("piazzamento");

@@ -1,26 +1,20 @@
 /* ============================================================
-   parity.mjs — does every language say the same as Polish?
+   parity.mjs — Arabic coverage against the English fallback and Italian core.
 
-   The overlays join the neutral layer BY INDEX, so a shorter array is not a
-   syntax error: it is a silent hole visible only in the browser, in one
-   lesson, in one exercise. This script compares the SHAPE (keys and array
-   lengths, not content) of every overlay with the Polish one and prints the
-   differences.
+   It verifies the shape of all Arabic declarations against the complete
+   English entry, checks the declared Arabic manifest, and rejects obsolete
+   locale directories so future runs do not regain multilingual overhead.
 
-   Polish is the reference, because it is complete and checked.
-
-   Usage:  node scripts/parity.mjs [language-code …]
-   With no arguments it checks every directory in data/i18n/.
-   It exits with code 1 on any difference — suitable for CI.
+   Usage: node scripts/parity.mjs [ar]
    ============================================================ */
-import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const I18N = join(ROOT, "data", "i18n");
-const REFERENCE = "pl";
+const REFERENCE = "en";
 /* How many differences to print. All of them are always counted; this is
    only a readability threshold for the list. PARITY_MAX=0 prints everything. */
 const MAX_SHOWN = process.env.PARITY_MAX === undefined
@@ -216,8 +210,17 @@ export function checkPartialCourse(manifest, byFile, reference, out, contentMani
 function main() {
 
 const wanted = process.argv.slice(2);
-const langs = (wanted.length ? wanted : readdirSync(I18N).filter(f => statSync(join(I18N, f)).isDirectory()))
-  .filter(l => l !== REFERENCE);
+const langs = wanted.length ? wanted : ["ar"];
+const unexpected = langs.filter(l => l !== "ar");
+if (unexpected.length) {
+  console.error("Usage: node scripts/parity.mjs [ar]");
+  process.exit(2);
+}
+
+const supportedDirs = new Set(["ar", "en"]);
+const obsoleteDirs = readdirSync(I18N, { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && !supportedDirs.has(entry.name))
+  .map(entry => entry.name);
 
 if (!existsSync(join(I18N, REFERENCE))) {
   console.error(`Brak katalogu odniesienia data/i18n/${REFERENCE}/`);
@@ -257,7 +260,8 @@ const refKeys = Object.keys(ref).sort();
 const refUI = loadUI(REFERENCE);
 const ENGINE = engineI18n();
 const LOCALES = ENGINE.LOCALE;
-let bad = 0;
+let bad = obsoleteDirs.length;
+obsoleteDirs.forEach(name => console.error(`Unsupported localization directory remains: ${name}`));
 
 for (const lang of langs) {
   const byFile = {};

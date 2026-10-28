@@ -531,7 +531,7 @@ function bag(lang,file){let result;vm.runInNewContext(readFileSync(join(ROOT,'da
 const bags=lang=>Object.fromEntries(files.map(file=>[file,bag(lang,file)]));
 const entries=lang=>Object.assign({},...Object.values(bags(lang)));
 const ar=entries('ar'),en=entries('en');
-function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js','c2-01.js','c2-02.js'].map(f=>'data/core/'+f),...['en','pl','es','fr','de','ar'].flatMap(lang=>['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js',...(lang==='ar'?[]:['c2-01.js','c2-02.js'])].map(f=>'data/i18n/'+lang+'/'+f))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
+function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js','c2-01.js','c2-02.js'].map(f=>'data/core/'+f),...['en','ar'].flatMap(lang=>['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js',...(lang==='ar'?[]:['c2-01.js','c2-02.js'])].map(f=>'data/i18n/'+lang+'/'+f))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
 function language(box,lang){box.Core.state.settings.lang=lang;box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
 
 test('all ten Arabic A1 units declare exactly 40 lessons, ten assessments and ten summaries',()=>{
@@ -541,7 +541,7 @@ test('all ten Arabic A1 units declare exactly 40 lessons, ten assessments and te
  assert.deepEqual(manifest['a1-01.js'].slice(12),keys(3));assert.deepEqual(manifest['a1-02.js'],[...keys(4),...keys(5),...keys(6),...keys(7)]);assert.deepEqual(manifest['a1-03.js'],[...keys(8),...keys(9),...keys(10)]);
  assert.equal(plans.length,10);assert.equal(plans.reduce((n,p)=>n+p.answers.length,0),104);
  for(const file of files)assert.deepEqual(Object.keys(bag('ar',file)),manifest[file]);
- const errors=[];checkPartialCourse(manifest,bags('ar'),entries('pl'),errors);assert.deepEqual(errors,[]);
+ const errors=[];checkPartialCourse(manifest,bags('ar'),entries('en'),errors);assert.deepEqual(errors,[]);
 });
 
 test('all 48 Arabic entries in Units 1–8 retain their reviewed content',()=>{
@@ -618,9 +618,9 @@ test('Arabic explains the auxiliary, gender, aspect and source concerns without 
 
 test('Arabic-English-Arabic and all five existing languages restore exact content and all target glossary meanings',()=>{
  const box=setup(),snapshot=()=>plain(box.Core.registry.byCode.A1.units);
- for(const lang of ['en','pl','es','fr','de']){language(box,lang);const before=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}}
+ for(const lang of ['en']){language(box,lang);const before=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}}
  language(box,'en');const fallback=plain(box.Core.registry.byCode.C2.units[0]);language(box,'ar');assert.deepEqual(plain(box.Core.registry.byCode.C2.units[0]),fallback);
- for(const lang of ['en','pl','es','fr','de']){
+ for(const lang of ['en']){
   language(box,'ar');assert.equal(box.Core.getLesson('a1-u10-l4').lesson.exercises[3].items[0].gloss,undefined);
   language(box,lang);const review=box.Core.getLesson('a1-u10-l4').lesson.exercises[3].items,exam=box.Core.getLesson('a1-u10-test').lesson.exercises[2].items;assert.equal(review.length,5);assert.equal(exam.length,4);for(const item of [...review,...exam])assert.ok(item.gloss==null||item.gloss==='','No invented or stale gloss after switching');
  }
@@ -628,10 +628,10 @@ test('Arabic-English-Arabic and all five existing languages restore exact conten
 
 test('each new lesson and assessment falls back atomically when damaged, preserving translated neighbors',()=>{
  for(const plan of plans)for(const damage of [p=>{delete p.title;},p=>p.exercises.pop(),p=>{p.theory=[];}]){
-  const box=setup(),all=bags('ar');const file='a1-03.js';damage(all[file]['lesson:'+plan.id]);box.sandbox.LINGUAI.addStrings('ar',all[file]);language(box,'es');language(box,'ar');
+  const box=setup(),all=bags('ar');const file='a1-03.js';damage(all[file]['lesson:'+plan.id]);box.sandbox.LINGUAI.addStrings('ar',all[file]);language(box,'en');language(box,'ar');
   assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',plan.id),'en');assert.equal(box.Core.getLesson(plan.id).lesson.title,en['lesson:'+plan.id].title);
   const other=plans.find(p=>p.id!==plan.id);assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',other.id),'ar');assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar','a1-u04-l1'),'ar');
-  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),all,entries('pl'),errors);assert.ok(errors.some(e=>e.includes(plan.id)));
+  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),all,entries('en'),errors);assert.ok(errors.some(e=>e.includes(plan.id)));
  }
 });
 
@@ -653,11 +653,11 @@ test('original empty article-exercise slots stay sparse without changing other-l
  const box=setup();language(box,'en');const before=plain(box.Core.registry.byCode.A1.units);
  let raw;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n/ar/a1-03.js'),'utf8'),{LINGUAI:{addStrings(_l,map){raw=map;}}});
  for(const [id,index,length]of [['a1-u10-l4',3,4],['a1-u10-test',2,3]]){const slots=raw['lesson:'+id].exercises[index].items;assert.equal(slots.length,length);assert.deepEqual(Object.keys(slots),[]);}
- for(const lang of ['ar','en','pl','ar','en'])language(box,lang);assert.deepEqual(plain(box.Core.registry.byCode.A1.units),before);
+ for(const lang of ['ar','en','ar','en'])language(box,lang);assert.deepEqual(plain(box.Core.registry.byCode.A1.units),before);
 });
 
 test('language switching preserves scores, progress, review schedules and language-specific glossary meanings',()=>{
  const box=setup(),C=box.Core;language(box,'en');plans.forEach(p=>C.recordLesson(p.id,p.answers.length,p.answers.length,80));C.addCard('la palestra','gym','a1-u09-l1');language(box,'ar');C.addCard('la palestra','النادي الرياضي','a1-u09-l1');
  const card=C.state.srs[C.cardKey('la palestra')];assert.equal(card.tr.en,'gym');assert.equal(card.tr.ar,'النادي الرياضي');
- const state=()=>{const s=plain(C.state);delete s.settings.lang;return s;},before=state();for(const lang of ['en','pl','es','fr','de','ar']){language(box,lang);assert.deepEqual(state(),before);}assert.equal(C.state.schema,2);
+ const state=()=>{const s=plain(C.state);delete s.settings.lang;return s;},before=state();for(const lang of ['en','ar']){language(box,lang);assert.deepEqual(state(),before);}assert.equal(C.state.schema,2);
 });

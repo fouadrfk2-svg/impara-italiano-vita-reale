@@ -4,6 +4,8 @@ const path = require("node:path");
 const vm = require("node:vm");
 let arabicUI;
 vm.runInNewContext(readFileSync(path.join(__dirname, "../../data/i18n/ui-ar.js"), "utf8"), { LINGUAI: { addUI(_lang, data) { arabicUI = data; } } });
+function courseOverlay(lang){let entries;vm.runInNewContext(readFileSync(path.join(__dirname,"../../data/i18n",lang,"a1-01.js"),"utf8"),{LINGUAI:{addStrings:(_l,map)=>entries=JSON.parse(JSON.stringify(map))}});return entries;}
+const arabicCourse=courseOverlay("ar"),englishCourse=courseOverlay("en");
 const AXE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const id = "a1-u01-l1";
 const active = ".exq:not([hidden])";
@@ -12,12 +14,13 @@ async function ready(page) {
   await page.waitForFunction(() => window.Core && window.Core.registry.loaded.A1 === true && document.querySelector(".exq"));
   await page.evaluate(() => { window.Core.state.settings.autoplay = false; window.Core.save(); });
 }
-async function language(page, code) {
-  if (await page.locator("#railToggle").isVisible() && !await page.locator("#rail").evaluate(el => el.classList.contains("is-open"))) await page.locator("#railToggle").click();
-  await page.locator("#langToggle").click();
-  await page.locator('#langList [data-lang="' + code + '"]').click();
-  await expect(page.locator("html")).toHaveAttribute("lang", code === "en" ? "en-US" : code);
-  await expect(page.locator("#main")).toHaveAttribute("data-lesson-language", code);
+async function language(page, requested) {
+  await expect(page.locator("#langToggle,#langList,.js-guest-language")).toHaveCount(0);
+  await page.evaluate(code=>new Promise(resolve=>window.Core.setLanguage(code,resolve)),requested);
+  await expect(page.locator("html")).toHaveAttribute("lang","ar");
+  await expect(page.locator("html")).toHaveAttribute("dir","rtl");
+  await expect(page.locator("#main")).toHaveAttribute("data-lesson-language","ar");
+  await expect.poll(()=>page.evaluate(()=>window.Core.state.settings.lang)).toBe("ar");
 }
 async function audit(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
@@ -63,13 +66,10 @@ for (const width of [1440, 390]) {
       await expect(audio).toHaveAttribute("data-say", "buongiorno");
       const response = page.waitForResponse(r => /\/audio\/.*\.mp3$/.test(r.url()));
       await audio.click(); await expectAudioResponse(await response);
-      await language(page, "en");
-      await expect(page.locator(".view-head > p")).toHaveText("Greetings and your first order");
-      await expect(page.locator(".vocab-card__pl").first()).toContainText("good morning");
-      const en = await snapshot(); expect(en).not.toBe(ar);
-      await language(page, "ar"); expect(await snapshot()).toBe(ar);
-      await language(page, "en"); expect(await snapshot()).toBe(en);
-      await language(page, "ar"); expect(await snapshot()).toBe(ar);
+      const arabicSource=arabicCourse["lesson:a1-u01-l1"],englishSource=englishCourse["lesson:a1-u01-l1"];
+      expect(arabicSource.title).not.toBe(englishSource.title);
+      expect(arabicSource.exercises).not.toEqual(englishSource.exercises);
+      for(const requested of ["en","ar","fr","ar"]){await language(page,requested);await expect(page.locator(".view-head > p")).toHaveText("التحية وطلبك الأول في المقهى");expect(await snapshot()).toBe(ar);}
       // The next lesson remains the exact complete English fallback.
       await page.evaluate(()=>new Promise(resolve=>window.Core.loadLevelData('C2',resolve)));
       const englishNeighbor = await page.evaluate(() => window.Core.getLesson("c2-u01-l1").lesson.title);
@@ -162,7 +162,8 @@ for (const width of [1440, 390]) {
       const progress = await page.evaluate(() => ({ lesson: window.Core.state.lessons["a1-u01-l1"], card: window.Core.state.srs.grazie }));
       expect(progress.lesson.best).toBe(1); expect(progress.lesson.done).toBe(true);
       expect(progress.card.tr.ar).toBe("شكرًا");
-      await language(page, "en"); expect(await page.evaluate(() => window.Core.cardTr(window.Core.state.srs.grazie))).toBe("thank you");
+      const englishGloss=englishCourse["lesson:a1-u01-l1"].vocab[6];expect(englishGloss).toBe("thank you");expect(progress.card.tr.ar).not.toBe(englishGloss);
+      await language(page, "en"); expect(await page.evaluate(() => window.Core.cardTr(window.Core.state.srs.grazie))).toBe("شكرًا");
       await language(page, "ar"); expect(await page.evaluate(() => window.Core.cardTr(window.Core.state.srs.grazie))).toBe("شكرًا");
       await page.waitForFunction(() => JSON.parse(localStorage.getItem("linguai.italiano.v2")).lessons["a1-u01-l1"].best === 1);
       await page.reload(); await ready(page);

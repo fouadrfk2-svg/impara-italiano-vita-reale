@@ -106,11 +106,11 @@ test("a mistake in discrimination reaches the mistake notebook", async ({ page }
   expect(po >= przed, "a wrong answer creates a card, a correct one does not").toBe(true);
 });
 
-test("the sound strings exist in five languages", async ({ page }) => {
+test("Arabic sound strings exist", async ({ page }) => {
   await suoni(page);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("suoni");

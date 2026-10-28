@@ -117,17 +117,17 @@ describe("the indexes", () => {
 describe("fetching a level's data", () => {
   test("the neutral layer goes before the text overlay", () => {
     const box = swiezy();
-    box.Core.state.settings.lang = "pl"; // Explicit Polish overlay scenario, independent of product default.
+    box.Core.state.settings.lang = "ar"; // Arabic overlay request; the public registry rejects other locale codes.
     R(box).registerLevel(poziom({ dataFiles: ["a1-01.js", "a1-02.js"] }));
     R(box).loadLevelData("A1", () => {});
     box.settleScripts();
     assert.deepEqual(box.scripts, [
       "data/core/a1-01.js", "data/core/a1-02.js",
-      "data/i18n/pl/a1-01.js", "data/i18n/pl/a1-02.js"
+      "data/i18n/ar/a1-01.js", "data/i18n/ar/a1-02.js"
     ]);
   });
 
-  test("the overlay comes in the student's language, not the default one", () => {
+  test("the registry normalizes unsupported saved codes to the Arabic overlay", () => {
     const box = swiezy();
     box.Core.state.settings.lang = "en";
     R(box).registerLevel(poziom());
@@ -189,7 +189,7 @@ describe("fetching a level's data", () => {
     R(box).registerLevel(poziom());
     let wynik = null;
     R(box).loadLevelData("A1", ok => { wynik = ok; });
-    box.settleScripts(["data/core/a1-01.js", "data/i18n/pl/a1-01.js"]);
+    box.settleScripts(["data/core/a1-01.js", "data/i18n/ar/a1-01.js"]);
 
     assert.equal(wynik, false);
     assert.equal(R(box).registry.loaded.A1, "error");
@@ -199,11 +199,11 @@ describe("fetching a level's data", () => {
 describe("the memory of loaded overlays", () => {
   test("a file loaded once is not fetched again for the same language", () => {
     const box = swiezy();
-    const sciezki = R(box).i18nPaths("pl", ["conversations.js"]);
-    assert.deepEqual(sciezki, ["data/i18n/pl/conversations.js"]);
+    const sciezki = R(box).i18nPaths("ar", ["conversations.js"]);
+    assert.deepEqual(sciezki, ["data/i18n/ar/conversations.js"]);
 
     R(box).markI18n(sciezki, []);
-    assert.deepEqual(R(box).i18nPaths("pl", ["conversations.js"]), [], "the second time there is nothing to take");
+    assert.deepEqual(R(box).i18nPaths("ar", ["conversations.js"]), [], "the second time there is nothing to take");
   });
 
   /* Two screens can ask for the same level at once: the startup load in
@@ -233,14 +233,20 @@ describe("the memory of loaded overlays", () => {
     let drugi = null;
     R(box).loadLevelData("A1", () => {});
     R(box).loadLevelData("A1", ok => { drugi = ok; });
-    box.settleScripts(["data/core/a1-01.js", "data/i18n/pl/a1-01.js"]);
+    box.settleScripts(["data/core/a1-01.js", "data/i18n/ar/a1-01.js"]);
     assert.equal(drugi, false);
   });
 
-  test("the same file in another language is a different file", () => {
+  test("English is the internal base and unsupported codes normalize to Arabic overlays", () => {
     const box = swiezy();
-    R(box).markI18n(R(box).i18nPaths("pl", ["conversations.js"]), []);
+    const paths = R(box).i18nPaths("fr", ["conversations.js"]);
+    assert.deepEqual(paths, ["data/i18n/ar/conversations.js"]);
     assert.deepEqual(R(box).i18nPaths("en", ["conversations.js"]), ["data/i18n/en/conversations.js"]);
+    R(box).markI18n(["data/i18n/en/conversations.js"], []);
+    assert.deepEqual(R(box).i18nPaths("en", ["conversations.js"]), []);
+    R(box).markI18n(paths, []);
+    assert.deepEqual(R(box).i18nPaths("en", ["conversations.js"]), []);
+    assert.deepEqual(R(box).i18nPaths("fr", ["conversations.js"]), []);
   });
 
   /* This is the whole reason markI18n exists: remembering a failed file would
@@ -248,41 +254,41 @@ describe("the memory of loaded overlays", () => {
      with no way to retry short of reloading the page. */
   test("a file that did NOT load has to be retried", () => {
     const box = swiezy();
-    const sciezki = R(box).i18nPaths("pl", ["conversations.js", "readings.js"]);
-    R(box).markI18n(sciezki, ["data/i18n/pl/readings.js"]);
-    assert.deepEqual(R(box).i18nPaths("pl", ["conversations.js", "readings.js"]),
-      ["data/i18n/pl/readings.js"], "only the failed one comes back");
+    const sciezki = R(box).i18nPaths("ar", ["conversations.js", "readings.js"]);
+    R(box).markI18n(sciezki, ["data/i18n/ar/readings.js"]);
+    assert.deepEqual(R(box).i18nPaths("ar", ["conversations.js", "readings.js"]),
+      ["data/i18n/ar/readings.js"], "only the failed one comes back");
   });
 
   test("a path outside the overlay directory does not pollute that memory", () => {
     const box = swiezy();
     R(box).markI18n(["data/core/a1-01.js"], []);
-    assert.deepEqual(R(box).i18nPaths("pl", ["a1-01.js"]), ["data/i18n/pl/a1-01.js"]);
+    assert.deepEqual(R(box).i18nPaths("ar", ["a1-01.js"]), ["data/i18n/ar/a1-01.js"]);
   });
 });
 
-describe("changing the explanation language", () => {
-  test("it saves the choice and fetches the overlays of the levels already loaded", () => {
+describe("normalizing the explanation language", () => {
+  test("unsupported language requests persist Arabic without refetching loaded overlays", () => {
     const box = swiezy();
     R(box).registerLevel(poziom());
     R(box).loadLevelData("A1", () => {});
     R(box).addUnits("A1", [jednostka("a1-u01")]);
     box.settleScripts();
-    const przed = box.scripts.length;
+    const before = box.scripts.length;
 
-    let brakujace = null;
-    R(box).setLanguage("en", failed => { brakujace = failed; });
+    let missing = null;
+    R(box).setLanguage("en", failed => { missing = failed; });
     box.settleScripts();
 
-    assert.equal(box.Core.state.settings.lang, "en");
+    assert.equal(box.Core.state.settings.lang, "ar");
     box.flush();
-    assert.equal(box.stored().settings.lang, "en", "the choice survives closing the tab");
-    assert.deepEqual(Array.from(brakujace), [], "nothing was lost on the way");
-    const nowe = box.scripts.slice(przed);
-    assert.ok(nowe.indexOf("data/i18n/en/a1-01.js") >= 0, "the level overlay");
-    assert.ok(nowe.indexOf("data/i18n/en/conversations.js") >= 0, "and the files loaded up front");
-    assert.equal(nowe.filter(p => p.indexOf("data/core/") === 0).length, 0,
-      "the neutral layer stays in memory, it is not loaded again");
+    assert.equal(box.stored().settings.lang, "ar", "the public locale survives closing the tab");
+    assert.deepEqual(Array.from(missing), [], "nothing was lost on the way");
+    const requested = box.scripts.slice(before);
+    assert.ok(requested.length > 0, "the Arabic supporting overlays are loaded on first language initialization");
+    assert.ok(requested.every(file => file.indexOf("data/i18n/ar/") === 0), "only Arabic overlays are requested");
+    assert.equal(requested.some(file => file.indexOf("data/core/") === 0 || file.indexOf("data/i18n/en/") === 0), false,
+      "neutral course data and internal fallback files are not reloaded");
   });
 
   test("a level the student never opened does not drag its overlay along", () => {
@@ -290,15 +296,15 @@ describe("changing the explanation language", () => {
     R(box).registerLevel(poziom());
     R(box).setLanguage("en", () => {});
     box.settleScripts();
-    assert.equal(box.scripts.indexOf("data/i18n/en/a1-01.js"), -1);
+    assert.equal(box.scripts.indexOf("data/i18n/ar/a1-01.js"), -1);
   });
 
   test("the files that failed come back to the caller, so it has something to show", () => {
     const box = swiezy();
     let brakujace = null;
-    R(box).setLanguage("de", failed => { brakujace = failed; });
-    box.settleScripts(["data/i18n/de/phonetics.js"]);
-    assert.deepEqual(Array.from(brakujace), ["data/i18n/de/phonetics.js"]);
+    R(box).setLanguage("ar", failed => { brakujace = failed; });
+    box.settleScripts(["data/i18n/ar/phonetics.js"]);
+    assert.deepEqual(Array.from(brakujace), ["data/i18n/ar/phonetics.js"]);
   });
 });
 
@@ -356,7 +362,7 @@ describe("finding the next lesson across levels", () => {
     ["a1-u01-l1", "a1-u01-test"].forEach(id => box.Core.recordLesson(id, 10, 10, 0));
     let wynik = "untouched";
     box.Core.findNextLesson(n => { wynik = n; });
-    box.settleScripts(["data/core/a2-01.js", "data/i18n/pl/a2-01.js"]);
+    box.settleScripts(["data/core/a2-01.js", "data/i18n/ar/a2-01.js"]);
     assert.equal(wynik, null);
   });
 });

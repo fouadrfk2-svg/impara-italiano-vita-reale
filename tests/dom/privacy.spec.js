@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-for(const lang of ['ar','en','pl','es','fr','de'])test('pilot data notice is accessible without learner access in '+lang,async({page})=>{
+for(const lang of ['ar'])test('pilot data notice is accessible without learner access in '+lang,async({page})=>{
  await page.goto('/index.html#/privacy');await page.waitForFunction(()=>window.Account&&Account.snapshot().checked);await page.evaluate(k=>App.applyLang(k),lang);
  await expect(page.locator('#main h1')).toContainText(lang==='ar'?'حسابك وخصوصيتك':'Your account and privacy');
  await expect(page.locator('#main')).toContainText(lang==='ar'?'على الخادم':'server account');await expect(page.locator('#rail')).toBeHidden();

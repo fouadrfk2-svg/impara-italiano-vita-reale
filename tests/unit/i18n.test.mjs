@@ -21,8 +21,8 @@ function swiezy() {
 
 function zNapisami(dict, lang) {
   const { I18n, LINGUAI } = swiezy();
-  LINGUAI.addUI(lang || "pl", dict);
-  if (lang) I18n.set(lang);
+  LINGUAI.addUI(lang || "ar", dict);
+  I18n.set("ar");
   return I18n;
 }
 
@@ -44,51 +44,52 @@ describe("napisy interfejsu", () => {
     assert.equal(I18n.t("x", { n: 1 }), "masz 1 i {czego}");
   });
 
-  test("Polish picks the form by category, not by n === 1", () => {
-    const I18n = zNapisami({ "d": { one: "{n} dzień", few: "{n} dni", many: "{n} dni", other: "{n} dnia" } });
-    assert.equal(I18n.t("d", { n: 1 }), "1 dzień");
-    assert.equal(I18n.t("d", { n: 3 }), "3 dni");
-    assert.equal(I18n.t("d", { n: 5 }), "5 dni");
+  test("Arabic selects all six CLDR plural categories", () => {
+    const I18n = zNapisami({ "d": { zero: "صفر {n}", one: "واحد {n}", two: "اثنان {n}", few: "قليل {n}", many: "كثير {n}", other: "آخر {n}" } });
+    assert.equal(I18n.t("d", { n: 0 }), "صفر 0");
+    assert.equal(I18n.t("d", { n: 1 }), "واحد 1");
+    assert.equal(I18n.t("d", { n: 2 }), "اثنان 2");
+    assert.equal(I18n.t("d", { n: 3 }), "قليل 3");
+    assert.equal(I18n.t("d", { n: 11 }), "كثير 11");
+    assert.equal(I18n.t("d", { n: 100 }), "آخر 100");
   });
 
-  test("angielski ma dwie kategorie i „1 lessons” tu nie wyjdzie", () => {
-    const I18n = zNapisami({ "l": { one: "{n} lesson", other: "{n} lessons" } }, "en");
+  test("missing interface plurals use English rules only as fallback", () => {
+    const { I18n, LINGUAI } = swiezy();
+    LINGUAI.addUI("en", { "l": { one: "{n} lesson", other: "{n} lessons" } });
+    I18n.set("ar");
     assert.equal(I18n.t("l", { n: 1 }), "1 lesson");
     assert.equal(I18n.t("l", { n: 2 }), "2 lessons");
   });
 
   test("a missing number counts as zero, not as a missing form", () => {
-    const I18n = zNapisami({ "l": { one: "{n} lekcja", few: "{n} lekcje", many: "{n} lekcji", other: "{n} lekcji" } });
-    assert.equal(I18n.t("l"), "{n} lekcji", "the category for zero; a variable with no value stays");
+    const I18n = zNapisami({ "l": { zero: "{n} دروس", one: "{n} درس", two: "{n} درسان", few: "{n} دروس", many: "{n} درسًا", other: "{n} درس" } });
+    assert.equal(I18n.t("l"), "{n} دروس", "zero selects the Arabic zero category and an absent variable stays visible");
   });
 
-  test("the locale follows the chosen language", () => {
+  test("the public interface stays Arabic even when asked for an internal fallback", () => {
     const I18n = zNapisami({ "a": "a" }, "en");
-    assert.equal(I18n.lang, "en");
-    assert.equal(I18n.locale(), "en-US", "English in this course is the American variety");
+    assert.equal(I18n.lang, "ar");
+    assert.equal(I18n.locale(), "ar");
   });
 
   test("a string missing in the current language falls back to English, not to the key", () => {
-    /* The course speaks five languages and an overlay is sometimes
-       incomplete: the student should see a sentence in English rather than
-       "set.errNoVersion" on the screen. */
+    /* English remains an internal fallback when Arabic has no matching key. */
     const { I18n, LINGUAI } = swiezy();
     LINGUAI.addUI("en", { "x": "Fallback text" });
-    LINGUAI.addUI("de", {});
-    I18n.set("de");
+    LINGUAI.addUI("ar", {});
+    I18n.set("ar");
 
     assert.equal(I18n.t("x"), "Fallback text");
     assert.ok(I18n.missing().indexOf("x") >= 0, "the gap is still visible on the list");
   });
 });
 
-/* The first visit used to be in Polish whatever the browser said: someone
-   with an English browser met a welcome screen they could not read. */
-describe("the language of a first visit", () => {
-  test("the first browser language the course has wins, region ignored", () => {
+describe("Arabic-only first visit", () => {
+  test("Arabic regional preferences resolve to Arabic; other locales are not selectable", () => {
     const { I18n } = swiezy();
-    assert.equal(I18n.pickLang(["fr-CA", "en-US"]), "fr");
-    assert.equal(I18n.pickLang(["it-IT", "de-AT", "en"]), "de");
+    assert.equal(I18n.pickLang(["ar-MA", "fr-FR"]), "ar");
+    assert.equal(I18n.pickLang(["it-IT", "de-AT", "en"]), null);
   });
 
   test("a browser with none of the course languages gives null, not a guess", () => {
@@ -102,7 +103,7 @@ describe("the language of a first visit", () => {
 describe("applying translations to a root", () => {
   /* A rerendered view needs both visible copy and input hints translated. */
   test("apply translates text and placeholder inside the supplied root", () => {
-    const I18n = zNapisami({ greeting: "Ciao", search: "Szukaj" });
+    const I18n = zNapisami({ greeting: "مرحبًا", search: "ابحث" });
     const text = {
       textContent: "Old text",
       getAttribute: name => name === "data-i18n" ? "greeting" : null
@@ -115,14 +116,14 @@ describe("applying translations to a root", () => {
     const elements = { "[data-i18n]": [text], "[data-i18n-placeholder]": [input] };
     const root = { querySelectorAll: selector => elements[selector] || [] };
     I18n.apply(root);
-    assert.equal(text.textContent, "Ciao");
-    assert.equal(attributes.placeholder, "Szukaj");
+    assert.equal(text.textContent, "مرحبًا");
+    assert.equal(attributes.placeholder, "ابحث");
   });
 
   /* An incomplete plural dictionary must still produce readable text. */
   test("a missing plural category uses the other form", () => {
-    const I18n = zNapisami({ days: { one: "{n} dzień", other: "{n} dni" } });
-    assert.equal(I18n.t("days", { n: 1 }), "1 dzień");
-    assert.equal(I18n.t("days", { n: 3 }), "3 dni");
+    const I18n = zNapisami({ days: { one: "{n} درس", other: "{n} دروس" } });
+    assert.equal(I18n.t("days", { n: 1 }), "1 درس");
+    assert.equal(I18n.t("days", { n: 3 }), "3 دروس");
   });
 });

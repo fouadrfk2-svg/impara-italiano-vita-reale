@@ -5,16 +5,16 @@ import {join} from 'node:path';
 import vm from 'node:vm';
 import {loadEngine,CORE,ROOT} from './_harness.mjs';
 import original from '../fixtures/arabic-ui-baseline.cjs';
-import corrections from '../fixtures/arabic-polish-corrections.cjs';
+import corrections from '../fixtures/arabic-ui-reviewed-corrections.cjs';
 
 function dictionary(lang){let bag;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n/ui-'+lang+'.js'),'utf8'),{LINGUAI:{addUI(code,map){assert.equal(code,lang);bag=JSON.parse(JSON.stringify(map));}}});return bag;}
 const en=dictionary('en'),ar=dictionary('ar'),categories=['zero','one','two','few','many','other'];
 const vars=s=>[...s.matchAll(/\{(\w+)\}/g)].map(m=>m[1]).sort();
 const tags=s=>s.match(/<\/?[a-z][^>]*>/gi)||[];
 const plain=v=>JSON.parse(JSON.stringify(v));
-function engine(){const b=loadEngine({files:[...CORE,'assets/js/i18n.js','assets/js/i18n-merge.js',...['en','ar','pl','es','fr','de'].map(l=>'data/i18n/ui-'+l+'.js')]});b.Core.load();return b;}
+function engine(){const b=loadEngine({files:[...CORE,'assets/js/i18n.js','assets/js/i18n-merge.js',...['en','ar'].map(l=>'data/i18n/ui-'+l+'.js')]});b.Core.load();return b;}
 
-test('Arabic UI has the original 962 keys plus the accessible brand label, with no missing, extra or duplicate declarations',()=>{
+test('Arabic UI covers all 963 English keys with no missing, extra or duplicate declarations',()=>{
  assert.equal(Object.keys(en).length,963);assert.equal(Object.keys(ar).length,963);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
  const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,963);assert.equal(new Set(declared).size,963);
 });
@@ -47,8 +47,8 @@ test('privacy translations retain the separate disclosures for voice, answers, c
  assert.match(ar['privacy.modello.p6'],/كل ما قلته/);assert.match(ar['privacy.modello.p6'],/عند كل جولة جديدة/);assert.match(ar['privacy.modello.p6'],/موافقة خاصة/);assert.match(ar['privacy.modello.p6'],/طلب مدفوع/);assert.match(ar['privacy.modello.p4'],/سحب إحداهما لا يسحب الأخرى/);
  assert.match(ar['core.saveBlocked'],/لم يعد تقدّمك يُحفظ/);assert.match(ar['core.storagePruned'],/حُذفت أقدم بطاقات المراجعة/);assert.match(ar['privacy.dispositivo.p3'],/لا يمكن التراجع عنه/);
 });
-test('complete Arabic UI preserves English/other-language restoration and learner state independently from content fallback',()=>{
+test('Arabic-only UI normalizes unsupported English requests and preserves learner state independently from content fallback',()=>{
  const b=engine(),I=b.sandbox.I18n;b.Core.recordLesson('a1-u01-l1',8,10,120);b.Core.addCard('ciao','مرحبًا','a1-u01-l1');const state=()=>{const s=plain(b.Core.state);delete s.settings.lang;return s;},saved=state();
- for(const lang of ['en','pl','es','fr','de']){const expected=dictionary(lang);I.set(lang);assert.equal(I.t('talk.send'),expected['talk.send']);I.set('ar');assert.equal(I.t('talk.send'),ar['talk.send']);assert.deepEqual(state(),saved);}
+ I.set('en');assert.equal(I.lang,'ar');assert.equal(I.t('talk.send'),ar['talk.send']);assert.deepEqual(state(),saved);
  assert.equal(I.contentLanguage('ar'),'en');assert.equal(Object.values(I.contentOverrides('ar')).flat().length,98);assert(!Object.values(I.contentOverrides('ar')).flat().includes('level:C2'));assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar','c2-u01-l1'),'en');assert.equal(b.Core.state.schema,2);
 });

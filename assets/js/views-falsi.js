@@ -49,7 +49,10 @@
       var v = lista[i];
       node.querySelector(".js-looks").textContent = v.looks;
       node.querySelector(".js-mean").textContent = v.mean;
-      node.querySelector(".js-why").textContent = v.why;
+      var why = node.querySelector(".js-why");
+      why.lang = "en";
+      why.dir = "ltr";
+      why.textContent = v.why;
     });
     Ex.wireSpeakers(el());
     el().querySelector(".js-quiz").addEventListener("click", function () {

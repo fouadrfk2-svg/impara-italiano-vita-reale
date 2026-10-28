@@ -35,7 +35,7 @@
   /** The data controller, as they answer. */
   var TYTULAR = "Andrea Bonacci";
 
-  /** The only address in the notice. One place, five languages. */
+  /** The only address in the notice. One place, in Arabic. */
   var KONTAKT = "andreabonacci95@protonmail.com";
 
   /* The day the text was last written, and the only date on the page. It is

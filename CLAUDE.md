@@ -1,6 +1,6 @@
 # CLAUDE.md — Impara l'Italiano
 
-Statyczna platforma do nauki włoskiego z wyjaśnieniami w języku ucznia. Bez backendu,
+Statyczna platforma do nauki włoskiego z publicznym interfejsem po arabsku i wewnętrznym fallbackiem angielskim. Bez backendu,
 bez build stepu, bez ani jednej zależności w czasie działania — kroje pisma też leżą
 w repozytorium (`assets/fonts/`), więc strona nie odpytuje żadnej cudzej domeny.
 

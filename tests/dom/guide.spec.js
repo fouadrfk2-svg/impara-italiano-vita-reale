@@ -86,11 +86,11 @@ test("the placement test can be started from the guide", async ({ page }) => {
   await expect(page).toHaveURL(/#\/piazzamento/);
 });
 
-test("the guide strings exist in five languages", async ({ page }) => {
+test("Arabic guide strings exist", async ({ page }) => {
   await przewodnik(page);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("guida");

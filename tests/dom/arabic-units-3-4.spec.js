@@ -276,7 +276,7 @@ const lessons=[
   }
 ];
 async function ready(page){await page.waitForFunction(()=>window.Core&&window.Core.registry.loaded.A1===true&&document.querySelector('.exq'));await page.evaluate(()=>{window.Core.state.settings.autoplay=false;window.Core.save();});}
-async function language(page,lang){if(await page.locator('#railToggle').isVisible()&&!await page.locator('#rail').evaluate(el=>el.classList.contains('is-open')))await page.locator('#railToggle').click();await page.locator('#langToggle').click();await page.locator('#langList [data-lang="'+lang+'"]').click();await expect(page.locator('html')).toHaveAttribute('dir',lang==='ar'?'rtl':'ltr');await expect(page.locator('#main')).toHaveAttribute('data-lesson-language',lang);}
+async function language(page,requested,contentLanguage){await expect(page.locator('#langToggle,#langList,.js-guest-language')).toHaveCount(0);await page.evaluate(code=>new Promise(resolve=>window.Core.setLanguage(code,resolve)),requested);await expect(page.locator('html')).toHaveAttribute('lang','ar');await expect(page.locator('html')).toHaveAttribute('dir','rtl');await expect.poll(()=>page.evaluate(()=>window.Core.state.settings.lang)).toBe('ar');if(contentLanguage)await expect(page.locator('#main')).toHaveAttribute('data-lesson-language',contentLanguage);}
 async function audit(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const violations=await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})));expect(violations).toEqual([]);}
 async function answer(page,type,value){
  const current=page.locator(active);
@@ -319,8 +319,8 @@ for(const width of [1440,390])test.describe('Arabic units three and four at '+wi
    for(const cell of cells){const ar=/[\u0600-\u06ff]/.test(cell.text);expect(cell.lang).toBe(ar?'ar':'it');expect(cell.dir).toBe(ar?'rtl':'ltr');}
    if(await page.locator('[data-say]').count()){const audio=page.waitForResponse(r=>/\/audio\/.*\.mp3$/.test(r.url()));await page.locator('[data-say]').first().click();await expectAudioResponse(await audio);}
    await shot(page,info,lesson.id+'-ar-'+width+'.png');
-   await language(page,'en');const english=await snapshot();expect(english).not.toBe(arabic);
-   for(const lang of ['ar','en','ar']){await language(page,lang);expect(await snapshot()).toBe(lang==='ar'?arabic:english);}
+   await language(page,'en');expect(await snapshot()).toBe(arabic);
+   for(const lang of ['ar','en','ar']){await language(page,lang);expect(await snapshot()).toBe(arabic);}
    expect(errors).toEqual([]);expect(failed).toEqual([]);
   });
   test(lesson.id+' wrong response, fresh retry, all exercises, completion and saved progress',async({page},info)=>{

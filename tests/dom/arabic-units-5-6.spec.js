@@ -3,6 +3,8 @@ const {readFileSync}=require('node:fs');
 const path=require('node:path'),vm=require('node:vm');
 const AXE=readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
 let arabicUI;vm.runInNewContext(readFileSync(path.join(__dirname,'../../data/i18n/ui-ar.js'),'utf8'),{LINGUAI:{addUI(_l,map){arabicUI=map;}}});
+function courseOverlay(lang){let entries;vm.runInNewContext(readFileSync(path.join(__dirname,'../../data/i18n',lang,'a1-02.js'),'utf8'),{LINGUAI:{addStrings:(_l,map)=>entries=JSON.parse(JSON.stringify(map))}});return entries;}
+const arabicCourse=courseOverlay('ar'),englishCourse=courseOverlay('en');
 const active='.exq:not([hidden])';
 // Independent reviewed answers: the driver never reads a grading key to answer.
 // Independent reviewed answers; no grading-key lookup is used to answer.
@@ -319,7 +321,7 @@ const lessons=[
   }
 ];
 async function ready(page){await page.waitForFunction(()=>window.Core&&window.Core.registry.loaded.A1===true&&document.querySelector('.exq'));await page.evaluate(()=>{window.Core.state.settings.autoplay=false;window.Core.save();});}
-async function language(page,lang){if(await page.locator('#railToggle').isVisible()&&!await page.locator('#rail').evaluate(el=>el.classList.contains('is-open')))await page.locator('#railToggle').click();await page.locator('#langToggle').click();await page.locator('#langList [data-lang="'+lang+'"]').click();await expect(page.locator('html')).toHaveAttribute('dir',lang==='ar'?'rtl':'ltr');await expect(page.locator('#main')).toHaveAttribute('data-lesson-language',lang);}
+async function language(page,requested){await expect(page.locator('#langToggle,#langList,.js-guest-language')).toHaveCount(0);await page.evaluate(code=>new Promise(resolve=>Core.setLanguage(code,resolve)),requested);await expect(page.locator('html')).toHaveAttribute('lang','ar');await expect(page.locator('html')).toHaveAttribute('dir','rtl');await expect.poll(()=>page.evaluate(()=>Core.state.settings.lang)).toBe('ar');await expect(page.locator('#main')).toHaveAttribute('data-lesson-language','ar');}
 async function audit(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const violations=await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})));expect(violations).toEqual([]);}
 async function answer(page,type,value){
  const current=page.locator(active);
@@ -364,8 +366,8 @@ for(const width of [1440,390])test.describe('Arabic units five and six at '+widt
    for(const cell of cells){const ar=/[\u0600-\u06ff]/.test(cell.text);expect(cell.lang).toBe(ar?'ar':'it');expect(cell.dir).toBe(ar?'rtl':'ltr');}
    if(await page.locator('[data-say]').count()){const audio=page.waitForResponse(r=>/\/audio\/.*\.mp3$/.test(r.url()));await page.locator('[data-say]').first().click();await expectAudioResponse(await audio);}
    await shot(page,info,lesson.id+'-ar-'+width+'.png');
-   await language(page,'en');const english=await snapshot();expect(english).not.toBe(arabic);
-   for(const lang of ['ar','en','ar']){await language(page,lang);expect(await snapshot()).toBe(lang==='ar'?arabic:english);}
+   const arabicSource=arabicCourse['lesson:'+lesson.id],englishSource=englishCourse['lesson:'+lesson.id];expect(arabicSource,lesson.id).toBeDefined();expect(englishSource,lesson.id).toBeDefined();expect(arabicSource.title).not.toBe(englishSource.title);expect(arabicSource.exercises).not.toEqual(englishSource.exercises);
+   for(const requested of ['en','ar','fr','ar']){await language(page,requested);expect(await snapshot()).toBe(arabic);}
    expect(errors).toEqual([]);expect(failed).toEqual([]);
   });
   test(lesson.id+' wrong response, fresh retry, all exercises, completion and saved progress',async({page},info)=>{

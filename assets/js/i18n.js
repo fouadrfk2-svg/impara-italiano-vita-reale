@@ -12,8 +12,8 @@
    separate dictionaries, two separate sets of keys — so all that is left
    here is the split nobody has to keep in their head.
 
-   The list of languages (LANGS) and the locale map (LOCALE) stay here,
-   because the interface switcher and scripts/parity.mjs read them.
+   Arabic is the only interface language. English remains an internal
+   fallback for incomplete educational entries and missing interface keys.
 
    No external dependencies. Classic script (works from file://).
    ============================================================ */
@@ -22,22 +22,14 @@
 
   var LINGUAI = global.LINGUAI = global.LINGUAI || {};
 
-  /* Language code -> BCP-47 locale. "en" means American English. */
-  var LOCALE = { pl: "pl-PL", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE", ar: "ar" };
+  /* Arabic is the interface locale; English is used only for fallback data. */
+  var LOCALE = { en: "en-US", ar: "ar" };
   var FALLBACK = "en";
 
   /**
-   * Languages of explanation. The name is always in the language it refers
-   * to (the endonym): the switcher has to be readable by someone who does
-   * not understand the current language. A new language = one entry here
-   * plus a data/i18n/<code>/ directory.
+   * The one public interface language and its explicitly translated content.
    */
   var LANGS = [
-    { code: "pl", flag: "🇵🇱", name: "Polski" },
-    { code: "en", flag: "🇺🇸", name: "English" },
-    { code: "es", flag: "🇪🇸", name: "Español" },
-    { code: "fr", flag: "🇫🇷", name: "Français" },
-    { code: "de", flag: "🇩🇪", name: "Deutsch" },
     // Partial course pilot: English baseline plus explicitly declared lessons.
     { code: "ar", flag: "🌐", name: "العربية", contentLanguage: "en", contentOverrides: {"conversations.js":["conv:bar-mattina","conv:presentarsi","conv:mercato","conv:ristorante","conv:treno","conv:medico","conv:affitto","conv:colloquio","conv:burocrazia","conv:dibattito","conv:ristorante-scelte","conv:treno-perso","conv:casa-visita","conv:medico-gola"],"curriculum-index.js":["level:A1","level:A2","level:B1","level:B2","level:C1"],"grammar-reference.js":["refsec:titles","ref:g-nome-genere","ref:g-nome-plurale","ref:g-articolo-det","ref:g-articolo-indet","ref:g-articolo-omissione","ref:g-agg-accordo","ref:g-agg-posizione","ref:g-agg-gradi","ref:g-possessivi","ref:g-pron-soggetto","ref:g-pron-diretti","ref:g-pron-indiretti","ref:g-pron-combinati","ref:g-ci-ne","ref:g-relativi","ref:g-si","ref:g-verbi-pronominali","ref:g-presente","ref:g-passato-prossimo","ref:g-imperfetto","ref:g-futuro","ref:g-trapassato","ref:g-passato-remoto","ref:g-condizionale","ref:g-congiuntivo-pres","ref:g-congiuntivo-imp","ref:g-periodo-ipotetico","ref:g-imperativo","ref:g-gerundio","ref:g-infinito","ref:g-passivo","ref:g-preposizioni","ref:g-prep-verbi","ref:g-avverbi","ref:g-connettivi","ref:g-frase","ref:g-discorso-indiretto","ref:g-registri","ref:g-fonologia"],"readings.js":["read:r-a1-mattina","read:r-a1-mercato","read:r-a2-treno","read:r-a2-casa","read:r-a2-medico","read:r-b1-affitto","read:r-b1-lavoro","read:r-b1-giornale","read:r-b2-lavoro-remoto","read:r-b2-cibo","read:r-c1-burocrazia","read:r-a2-scontrino","read:r-a2-piano-terra","read:r-a2-farmacia-turno","read:r-a2-ferie","read:r-b1-condominio","read:r-b1-codice-fiscale","read:r-b1-convalida","read:r-b1-caffe-sospeso","read:r-b2-case-un-euro","read:r-b2-dialetti","read:r-b2-tirocinio","read:r-c1-due-giugno"],"library-a1.js":["read:lib-a1-giornata"],"library-a2.js":["read:lib-a2-casa"],"library-b1.js":["read:lib-b1-permesso"],"library-b2.js":["read:lib-b2-dialetto"],"library-c1.js":["read:lib-c1-burocrazia"],"writing.js":["write:w-a2-giornata","write:w-a2-ieri","write:w-b1-email","write:w-b1-opinione","write:w-b2-argomentare","write:w-c1-riassunto"],"phonetics.js":["ph:ph-doppie","ph:ph-accento","ph:ph-e-aperta","ph:ph-gli","ph:ph-dolci-dure"]}, courseOverrides: {"a1-01.js":["lesson:a1-u01-l1","lesson:a1-u01-l2","lesson:a1-u01-l3","unit:a1-u01","lesson:a1-u01-l4","lesson:a1-u01-test","unit:a1-u02","lesson:a1-u02-l1","lesson:a1-u02-l2","lesson:a1-u02-l3","lesson:a1-u02-l4","lesson:a1-u02-test","unit:a1-u03","lesson:a1-u03-l1","lesson:a1-u03-l2","lesson:a1-u03-l3","lesson:a1-u03-l4","lesson:a1-u03-test"],"a1-02.js":["unit:a1-u04","lesson:a1-u04-l1","lesson:a1-u04-l2","lesson:a1-u04-l3","lesson:a1-u04-l4","lesson:a1-u04-test","unit:a1-u05","lesson:a1-u05-l1","lesson:a1-u05-l2","lesson:a1-u05-l3","lesson:a1-u05-l4","lesson:a1-u05-test","unit:a1-u06","lesson:a1-u06-l1","lesson:a1-u06-l2","lesson:a1-u06-l3","lesson:a1-u06-l4","lesson:a1-u06-test","unit:a1-u07","lesson:a1-u07-l1","lesson:a1-u07-l2","lesson:a1-u07-l3","lesson:a1-u07-l4","lesson:a1-u07-test"],"a1-03.js":["unit:a1-u08","lesson:a1-u08-l1","lesson:a1-u08-l2","lesson:a1-u08-l3","lesson:a1-u08-l4","lesson:a1-u08-test","unit:a1-u09","lesson:a1-u09-l1","lesson:a1-u09-l2","lesson:a1-u09-l3","lesson:a1-u09-l4","lesson:a1-u09-test","unit:a1-u10","lesson:a1-u10-l1","lesson:a1-u10-l2","lesson:a1-u10-l3","lesson:a1-u10-l4","lesson:a1-u10-test"],"a2-01.js":["unit:a2-u01","lesson:a2-u01-l1","lesson:a2-u01-l2","lesson:a2-u01-l3","lesson:a2-u01-l4","lesson:a2-u01-test","unit:a2-u02","lesson:a2-u02-l1","lesson:a2-u02-l2","lesson:a2-u02-l3","lesson:a2-u02-l4","lesson:a2-u02-test","unit:a2-u03","lesson:a2-u03-l1","lesson:a2-u03-l2","lesson:a2-u03-l3","lesson:a2-u03-l4","lesson:a2-u03-test","unit:a2-u04","lesson:a2-u04-l1","lesson:a2-u04-l2","lesson:a2-u04-l3","lesson:a2-u04-l4","lesson:a2-u04-test"],"a2-02.js":["unit:a2-u05","lesson:a2-u05-l1","lesson:a2-u05-l2","lesson:a2-u05-l3","lesson:a2-u05-l4","lesson:a2-u05-test","unit:a2-u06","lesson:a2-u06-l1","lesson:a2-u06-l2","lesson:a2-u06-l3","lesson:a2-u06-l4","lesson:a2-u06-test","unit:a2-u07","lesson:a2-u07-l1","lesson:a2-u07-l2","lesson:a2-u07-l3","lesson:a2-u07-l4","lesson:a2-u07-test","unit:a2-u08","lesson:a2-u08-l1","lesson:a2-u08-l2","lesson:a2-u08-l3","lesson:a2-u08-l4","lesson:a2-u08-test"],"b1-01.js":["unit:b1-u01","lesson:b1-u01-l1","lesson:b1-u01-l2","lesson:b1-u01-l3","lesson:b1-u01-l4","lesson:b1-u01-test","unit:b1-u02","lesson:b1-u02-l1","lesson:b1-u02-l2","lesson:b1-u02-l3","lesson:b1-u02-l4","lesson:b1-u02-test","unit:b1-u03","lesson:b1-u03-l1","lesson:b1-u03-l2","lesson:b1-u03-l3","lesson:b1-u03-l4","lesson:b1-u03-test","unit:b1-u04","lesson:b1-u04-l1","lesson:b1-u04-l2","lesson:b1-u04-l3","lesson:b1-u04-l4","lesson:b1-u04-test"],"b2-01.js":["unit:b2-u01","lesson:b2-u01-l1","lesson:b2-u01-l2","lesson:b2-u01-l3","lesson:b2-u01-test","unit:b2-u02","lesson:b2-u02-l1","lesson:b2-u02-l2","lesson:b2-u02-l3","lesson:b2-u02-test","unit:b2-u03","lesson:b2-u03-l1","lesson:b2-u03-l2","lesson:b2-u03-l3","lesson:b2-u03-test","unit:b2-u04","lesson:b2-u04-l1","lesson:b2-u04-l2","lesson:b2-u04-l3","lesson:b2-u04-test"],"b2-02.js":["unit:b2-u05","lesson:b2-u05-l1","lesson:b2-u05-l2","lesson:b2-u05-l3","lesson:b2-u05-test"],"b2-03.js":["unit:b2-u06","lesson:b2-u06-l1","lesson:b2-u06-l2","lesson:b2-u06-l3","lesson:b2-u06-test"],"c1-01.js":["unit:c1-u01","lesson:c1-u01-l1","lesson:c1-u01-l2","lesson:c1-u01-l3","lesson:c1-u01-test","unit:c1-u02","lesson:c1-u02-l1","lesson:c1-u02-l2","lesson:c1-u02-l3","lesson:c1-u02-test","unit:c1-u03","lesson:c1-u03-l1","lesson:c1-u03-l2","lesson:c1-u03-l3","lesson:c1-u03-test"],"c1-02.js":["unit:c1-u04","lesson:c1-u04-l1","lesson:c1-u04-l2","lesson:c1-u04-l3","lesson:c1-u04-test"],"c1-03.js":["unit:c1-u05","lesson:c1-u05-l1","lesson:c1-u05-l2","lesson:c1-u05-l3","lesson:c1-u05-test"]} }
   ];
@@ -48,18 +40,19 @@
 
   var ui = {};          // lang -> key -> string or plural forms
   var absent = {};      // keys that were missing — for I18n.missing()
-  var current = "pl";
+  var current = "ar";
 
   /** Registers an interface dictionary. Called by data/i18n/ui-<lang>.js */
   function addUI(lang, dict) {
+    if (lang !== "ar" && lang !== "en") return;
     var bag = ui[lang] || (ui[lang] = {});
     Object.keys(dict).forEach(function (k) { bag[k] = dict[k]; });
   }
 
   /**
    * Picks the number form by the rules of the language, not by "n === 1".
-   * Polish has four categories (1 dzień, 2 dni, 5 dni), English has two.
-   * Without this English would write "1 lessons" and Polish "1 dni".
+   * Arabic uses six CLDR plural categories; English fallback forms use the
+   * English locale so missing Arabic UI keys remain grammatically consistent.
    */
   function plural(forms, n, lang) {
     var cat = new Intl.PluralRules(LOCALE[lang] || lang).select(n || 0);
@@ -115,23 +108,23 @@
   }
 
   /** Changes the language of explanations: strings, the lang attribute, date formatting. */
-  function setLang(lang) {
-    current = lang;
-    document.documentElement.setAttribute("lang", LOCALE[lang] || lang);
-    document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+  function setLang() {
+    current = "ar";
+    document.documentElement.setAttribute("lang", LOCALE[current] || current);
+    document.documentElement.setAttribute("dir", current === "ar" ? "rtl" : "ltr");
     apply();
   }
 
   function locale() { return LOCALE[current] || current; }
 
   /** Pilot languages reuse a complete content overlay, never the previous selection. */
-  function contentLanguage(lang) {
-    var entry = LANGS.filter(function (l) { return l.code === lang; })[0];
-    return entry && entry.contentLanguage || lang;
+  function contentLanguage(_lang) {
+    return "en";
   }
 
   /** Explicit complete lesson overlays; all unlisted course content uses the base. */
   function courseOverrides(lang) {
+    if (lang !== "ar") return {};
     var entry = LANGS.filter(function (l) { return l.code === lang; })[0];
     return entry && entry.courseOverrides || {};
   }
@@ -139,6 +132,7 @@
   /** Supporting entries are opt-in, separately from the unchanged course manifest.
       Keep this empty until a complete existing entry has actually been translated. */
   function contentOverrides(lang) {
+    if (lang !== "ar") return {};
     var entry = LANGS.filter(function (l) { return l.code === lang; })[0];
     return entry && entry.contentOverrides || {};
   }
@@ -206,16 +200,14 @@
   }
 
   /**
-   * The course language for a browser's preference list (navigator.languages),
-   * by primary subtag: "fr-CA" -> "fr". Null when none of them is offered,
-   * so the caller keeps its own default instead of a guess.
+   * First visits always use Arabic. This compatibility helper recognizes
+   * Arabic browser preferences only; other locales do not become choices.
    */
   function pickLang(prefs) {
-    var codes = LANGS.map(function (l) { return l.code; });
     var list = prefs || [];
     for (var i = 0; i < list.length; i++) {
       var c = String(list[i] || "").toLowerCase().split("-")[0];
-      if (codes.indexOf(c) >= 0) return c;
+      if (c === "ar") return "ar";
     }
     return null;
   }

@@ -59,7 +59,7 @@ async function zgoda(page) {
     const state = raw ? JSON.parse(raw) : { schema: 2, settings: {} };
     state.settings = state.settings || {};
     state.settings.llmConsent = true;
-    state.settings.lang = "pl";
+    state.settings.lang = "ar";
     window.localStorage.setItem("linguai.italiano.v2", JSON.stringify(state));
   });
 }
@@ -360,7 +360,8 @@ test.describe("the model reading a composition", () => {
     await expect(page.locator(".js-opinion-box")).toBeVisible({ timeout: 15000 });
     /* The sentence matters: without it a student reads a model's guess as
        the course's verdict on their Italian. */
-    await expect(page.locator(".js-opinion-box")).toContainText("Nie wpływa");
+    await expect(page.locator(".js-opinion-box")).toContainText("هذا رأي النموذج");
+    await expect(page.locator(".js-opinion-box")).toContainText("لا يغيّر تقدّمك");
   });
 
   test("asking twice is not offered: the button goes and does not come back", async ({ page }) => {

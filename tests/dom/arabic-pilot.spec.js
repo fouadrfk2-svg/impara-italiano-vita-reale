@@ -10,11 +10,10 @@ async function ready(page) {
   await page.evaluate(() => { window.Core.state.settings.autoplay = false; window.Core.save(); });
 }
 async function language(page, code) {
-  if (await page.locator("#railToggle").isVisible() && !await page.locator("#rail").evaluate(el => el.classList.contains("is-open"))) await page.locator("#railToggle").click();
-  await page.locator("#langToggle").click();
-  await page.locator('#langList [data-lang="' + code + '"]').click();
-  await page.waitForFunction(l => window.I18n.lang === l, code);
-  await expect(page.locator("html")).toHaveAttribute("dir", code === "ar" ? "rtl" : "ltr");
+  await page.evaluate(code => new Promise(resolve => window.Core.setLanguage(code, resolve)), code);
+  await page.waitForFunction(() => window.I18n.lang === "ar" && window.Core.state.settings.lang === "ar");
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 }
 async function overflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
@@ -36,13 +35,13 @@ for (const width of [1440, 390]) {
     test.use({ viewport: { width, height: 920 }, locale: "ar-MA" });
     test.beforeEach(async ({ page }) => { await page.addInitScript(AXE); });
 
-    test("authenticated onboarding has Arabic navigation, usable selector and RTL without overflow", async ({ page }, testInfo) => {
+    test("onboarding has Arabic navigation, no language selector and RTL without overflow", async ({ page }, testInfo) => {
       const errors = []; page.on("pageerror", e => errors.push(e.message));
       const failed = []; page.on("response", r => { if (r.status() >= 400) failed.push(r.url()); });
       await page.goto("/index.html#/benvenuto"); await ready(page);
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-      await expect(page.locator('.welcome-lang [data-lang="ar"]')).toHaveText("العربية");
+      await expect(page.locator(".welcome-lang, #langToggle, #langList")).toHaveCount(0);
       await expect(page.locator(".js-zero")).toHaveText("لنبدأ ←");
       await overflow(page); await a11y(page);
       await shot(page, testInfo, "welcome-" + width + ".png");
@@ -53,12 +52,11 @@ for (const width of [1440, 390]) {
           return Math.abs(rail.x + rail.width - width);
         }).toBeLessThan(0.5); // Wait for the actual drawer transition, not a sleep.
         await expect(page.locator('#rail [data-route="percorso"]')).toContainText("مسار التعلّم");
-        await page.locator("#langToggle").click();
-        await page.locator('#langList [data-lang="ar"]').focus();
-        await page.keyboard.press("ArrowUp");
-        await expect(page.locator('#langList [data-lang="de"]')).toBeFocused();
-        await page.keyboard.press("Escape");
+        await expect(page.locator("#rail [data-lang], #railToggle + #langToggle")).toHaveCount(0);
+        await expect(page.locator("#railToggle")).toHaveAttribute("aria-expanded", "true");
+        await page.locator("#railToggle").click();
         await expect(page.locator("#railToggle")).toHaveAttribute("aria-expanded", "false");
+        await expect(page.locator("#rail")).not.toHaveClass(/is-open/);
       }
       await page.locator(".js-look").click();
       await expect(page.locator(".unit").first()).toBeVisible();
@@ -83,7 +81,7 @@ for (const width of [1440, 390]) {
         const l = window.Core.getLesson("a1-u01-l1").lesson;
         return { title: l.titleIt, italian: l.dialogue.lines.map(x => x.it), exercises: l.exercises.map(({t,a,it,verb,tense,persons,tokens}) => ({t,a,it,verb,tense,persons,tokens})), gloss: l.vocab[0].tr };
       });
-      expect(before.gloss).not.toBe(english.gloss);
+      expect(english.gloss).toBe(before.gloss);
       expect(before.gloss).toMatch(/[\u0600-\u06ff]/);
       expect({ ...before, gloss: null }).toEqual({ ...english, gloss: null });
       await language(page, "ar");
@@ -115,7 +113,7 @@ for (const width of [1440, 390]) {
         window.Core.addCard("ciao", "hello", "a1-u01-l1");
         const s = JSON.parse(JSON.stringify(window.Core.state)); delete s.settings.lang; return s;
       });
-      for (const lang of ["pl", "es", "ar", "fr", "de", "en", "ar"]) {
+      for (const lang of ["en", "ar", "en", "ar"]) {
         await language(page, lang);
         const state = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.Core.state)); delete s.settings.lang; return s; });
         expect(state).toEqual(before);
@@ -129,17 +127,14 @@ for (const width of [1440, 390]) {
       await overflow(page);
     });
 
-    test("Spanish to Arabic lazy-loaded advanced content uses English without missing files", async ({ page }) => {
+    test("untranslated C2 uses English fallback without requesting retired locale files", async ({ page }) => {
       const failed = []; page.on("response", r => { if (r.status() >= 400) failed.push(r.url()); });
       await page.goto("/index.html#/percorso"); await ready(page);
-      await language(page, "es");
       await page.evaluate(() => new Promise(resolve => window.Core.loadLevelData("C2", resolve)));
-      const spanish = await page.evaluate(() => window.Core.registry.byCode.C2.units[0].lessons[0].title);
-      await language(page, "ar");
       const arabic = await page.evaluate(() => window.Core.registry.byCode.C2.units[0].lessons[0].title);
-      await language(page, "en");
-      expect(arabic).toBe(await page.evaluate(() => window.Core.registry.byCode.C2.units[0].lessons[0].title));
-      expect(arabic).not.toBe(spanish);
+      expect(await page.evaluate(() => window.LINGUAI.lessonLanguage("ar", "c2-u01-l1"))).toBe("en");
+      expect(arabic).toBeTruthy();
+      expect(failed.some(url => /data\/i18n\/(pl|es|fr|de)\//.test(url))).toBe(false);
       expect(failed).toEqual([]);
     });
 

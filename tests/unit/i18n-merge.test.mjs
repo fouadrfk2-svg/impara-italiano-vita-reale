@@ -37,6 +37,8 @@ const I18N = ["assets/js/i18n.js", "assets/js/i18n-merge.js"];
 function swiezy() {
   const box = loadEngine({ files: [...CORE, ...I18N] });
   box.Core.load();
+  // Synthetic merge tests isolate mechanics from public locale routing.
+  box.sandbox.I18n.contentLanguage = function(lang){ return lang; };
   return {
     box: box,
     I18n: box.sandbox.I18n,
@@ -67,23 +69,23 @@ function lekcjaNeutralna() {
 }
 
 /** The overlay: nothing but what the student reads in their own language. */
-function nakladkaPl() {
+function nakladkaAr() {
   return {
     "lesson:a1-u01-l1": {
-      title: "Kawa",
-      theme: "W barze",
-      objectives: ["zamówić kawę"],
-      theory: ["Włosi piją caffè na stojąco."],
-      culture: { title: "Bar", text: "Bar to nie pub." },
-      grammar: { title: "Czas teraźniejszy", note: "Trzy koniugacje.", table: { head: ["osoba"], rows: [["io"]] },
-        examples: [{ tr: "Biorę kawę." }, { tr: "Piję herbatę." }] },
-      vocab: ["kawa", "herbata"],
-      dialogue: ["Kawa?", "Tak, dziękuję."],
+      title: "قهوة",
+      theme: "في المقهى",
+      objectives: ["طلب قهوة"],
+      theory: ["يشرب الإيطاليون القهوة واقفين."],
+      culture: { title: "مقهى", text: "المقهى الإيطالي ليس حانة." },
+      grammar: { title: "المضارع", note: "ثلاث مجموعات تصريف.", table: { head: ["الشخص"], rows: [["io"]] },
+        examples: [{ tr: "أطلب قهوة." }, { tr: "أشرب الشاي." }] },
+      vocab: ["قهوة", "شاي"],
+      dialogue: ["قهوة؟", "نعم، شكرًا."],
       exercises: [
-        { q: "Co zamawiasz?", why: "Bo tak", opts: ["herbatę", "kawę"] },
-        { pairs: ["kawa", "herbata"] },
-        { items: ["kawa"] },
-        { lines: [{ tr: "Przywitaj się", answerTr: "Cześć" }] }
+        { q: "ماذا تطلب؟", why: "لأن هذا هو المطلوب", opts: ["الشاي", "القهوة"] },
+        { pairs: ["قهوة", "شاي"] },
+        { items: ["قهوة"] },
+        { lines: [{ tr: "ألقِ التحية", answerTr: "مرحبًا" }] }
       ]
     }
   };
@@ -93,23 +95,23 @@ function przygotuj() {
   const box = swiezy();
   const L = lekcjaNeutralna();
   box.Registry.registerLevel({ code: "A1", dataFiles: [], units: [{ id: "a1-u01", lessons: [L] }] });
-  box.LINGUAI.addStrings("pl", nakladkaPl());
+  box.LINGUAI.addStrings("ar", nakladkaAr());
   return Object.assign(box, { L });
 }
 
 describe("merging an overlay with the neutral layer", () => {
   test("the student's texts land in place", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
-    assert.equal(L.title, "Kawa");
-    assert.equal(L.theme, "W barze");
-    assert.deepEqual(Array.from(L.objectives), ["zamówić kawę"]);
-    assert.equal(L.culture.title, "Bar");
+    LINGUAI.applyStrings("ar");
+    assert.equal(L.title, "قهوة");
+    assert.equal(L.theme, "في المقهى");
+    assert.deepEqual(Array.from(L.objectives), ["طلب قهوة"]);
+    assert.equal(L.culture.title, "مقهى");
   });
 
   test("the neutral fields stay untouched", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
     assert.equal(L.titleIt, "Il caffè", "the Italian title is the lesson's identity");
     assert.equal(L.vocab[0].it, "caffè");
     assert.equal(L.dialogue.lines[0].it, "Un caffè?");
@@ -120,37 +122,37 @@ describe("merging an overlay with the neutral layer", () => {
 
   test("arrays join by index, every entry with its own", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
-    assert.equal(L.vocab[0].tr, "kawa");
-    assert.equal(L.vocab[1].tr, "herbata");
-    assert.equal(L.dialogue.lines[1].tr, "Tak, dziękuję.");
-    assert.equal(L.grammar.examples[1].tr, "Piję herbatę.");
+    LINGUAI.applyStrings("ar");
+    assert.equal(L.vocab[0].tr, "قهوة");
+    assert.equal(L.vocab[1].tr, "شاي");
+    assert.equal(L.dialogue.lines[1].tr, "نعم، شكرًا.");
+    assert.equal(L.grammar.examples[1].tr, "أشرب الشاي.");
   });
 
   test("exercises get their fields, each type in its own way", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
-    assert.deepEqual(Array.from(L.exercises[0].opts), ["herbatę", "kawę"]);
-    assert.equal(L.exercises[1].pairs[1].tr, "herbata");
-    assert.equal(L.exercises[2].items[0].gloss, "kawa");
-    assert.equal(L.exercises[3].lines[0].tr, "Przywitaj się");
-    assert.equal(L.exercises[3].lines[0].answerTr, "Cześć");
+    LINGUAI.applyStrings("ar");
+    assert.deepEqual(Array.from(L.exercises[0].opts), ["الشاي", "القهوة"]);
+    assert.equal(L.exercises[1].pairs[1].tr, "شاي");
+    assert.equal(L.exercises[2].items[0].gloss, "قهوة");
+    assert.equal(L.exercises[3].lines[0].tr, "ألقِ التحية");
+    assert.equal(L.exercises[3].lines[0].answerTr, "مرحبًا");
   });
 
   test("the whole grammar table comes from the overlay, cells included", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
-    assert.equal(L.grammar.title, "Czas teraźniejszy");
-    assert.deepEqual(Array.from(L.grammar.table.head), ["osoba"]);
+    LINGUAI.applyStrings("ar");
+    assert.equal(L.grammar.title, "المضارع");
+    assert.deepEqual(Array.from(L.grammar.table.head), ["الشخص"]);
   });
 
   test("a unit gets its title separately from the lessons", () => {
     const { LINGUAI, Registry } = swiezy();
     const u = { id: "a1-u01", titleIt: "Al bar", lessons: [] };
     Registry.registerLevel({ code: "A1", dataFiles: [], units: [u] });
-    LINGUAI.addStrings("pl", { "unit:a1-u01": { title: "W barze", grammarNote: "Czas teraźniejszy." } });
-    LINGUAI.applyStrings("pl");
-    assert.equal(u.title, "W barze");
+    LINGUAI.addStrings("ar", { "unit:a1-u01": { title: "في المقهى", grammarNote: "Czas teraźniejszy." } });
+    LINGUAI.applyStrings("ar");
+    assert.equal(u.title, "في المقهى");
     assert.equal(u.grammarNote, "Czas teraźniejszy.");
     assert.equal(u.titleIt, "Al bar");
   });
@@ -159,10 +161,10 @@ describe("merging an overlay with the neutral layer", () => {
     const { LINGUAI, Registry } = swiezy();
     const lv = { code: "A1", dataFiles: [], units: [] };
     Registry.registerLevel(lv);
-    LINGUAI.addStrings("pl", { "level:A1": { name: "Początkujący", desc: "Pierwsze kroki." } });
-    LINGUAI.applyStrings("pl");
-    assert.equal(lv.name, "Początkujący");
-    assert.equal(lv.desc, "Pierwsze kroki.");
+    LINGUAI.addStrings("ar", { "level:A1": { name: "مبتدئ", desc: "الخطوات الأولى." } });
+    LINGUAI.applyStrings("ar");
+    assert.equal(lv.name, "مبتدئ");
+    assert.equal(lv.desc, "الخطوات الأولى.");
     assert.equal(lv.code, "A1", "the level code is an identifier, not copy");
   });
 });
@@ -170,29 +172,29 @@ describe("merging an overlay with the neutral layer", () => {
 describe("the robustness of the merge", () => {
   test("applying the same language twice breaks nothing", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
     const poPierwszym = L.title;
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
     assert.equal(L.title, poPierwszym);
-    assert.equal(L.vocab[0].tr, "kawa", "not appended twice");
+    assert.equal(L.vocab[0].tr, "قهوة", "not appended twice");
     assert.equal(L.vocab[0].it, "caffè");
   });
 
   test("a second language overwrites the texts on the same objects", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
     LINGUAI.addStrings("en", { "lesson:a1-u01-l1": { title: "Coffee", vocab: ["coffee", "tea"] } });
     LINGUAI.applyStrings("en");
 
     assert.equal(L.title, "Coffee", "with no page reload");
     assert.equal(L.vocab[0].tr, "coffee");
     assert.equal(L.titleIt, "Il caffè", "the Italian is still the same");
-    assert.equal(L.theme, "W barze", "a field absent from the new overlay stays from the previous one");
+    assert.equal(L.theme, "في المقهى", "a field absent from the new overlay stays from the previous one");
   });
 
   test("no overlay for a language leaves the lesson as it was", () => {
     const { LINGUAI, L } = przygotuj();
-    LINGUAI.applyStrings("de");
+    LINGUAI.applyStrings("en");
     assert.equal(L.title, undefined, "nothing was added");
     assert.equal(L.titleIt, "Il caffè", "and nothing was lost");
   });
@@ -201,9 +203,9 @@ describe("the robustness of the merge", () => {
     const { LINGUAI, Registry } = swiezy();
     const L = lekcjaNeutralna();
     Registry.registerLevel({ code: "A1", dataFiles: [], units: [{ id: "u", lessons: [L] }] });
-    LINGUAI.addStrings("pl", { "lesson:a1-u01-l1": { vocab: ["kawa"] } });
-    LINGUAI.applyStrings("pl");
-    assert.equal(L.vocab[0].tr, "kawa");
+    LINGUAI.addStrings("ar", { "lesson:a1-u01-l1": { vocab: ["قهوة"] } });
+    LINGUAI.applyStrings("ar");
+    assert.equal(L.vocab[0].tr, "قهوة");
     assert.equal(L.vocab[1].tr, undefined, "the second entry stays without a gloss rather than taking somebody else's");
     assert.equal(L.vocab[1].it, "tè", "and does not lose its Italian");
   });
@@ -212,17 +214,17 @@ describe("the robustness of the merge", () => {
     const { LINGUAI, Registry } = swiezy();
     const test1 = Object.assign(lekcjaNeutralna(), { id: "a1-u01-test" });
     Registry.registerLevel({ code: "A1", dataFiles: [], units: [{ id: "u", lessons: [], test: test1 }] });
-    LINGUAI.addStrings("pl", { "lesson:a1-u01-test": { title: "Sprawdzian" } });
-    LINGUAI.applyStrings("pl");
-    assert.equal(test1.title, "Sprawdzian");
+    LINGUAI.addStrings("ar", { "lesson:a1-u01-test": { title: "اختبار" } });
+    LINGUAI.applyStrings("ar");
+    assert.equal(test1.title, "اختبار");
   });
 
   test("hasStrings says whether a language came in at all", () => {
     const { LINGUAI } = swiezy();
-    assert.equal(LINGUAI.hasStrings("pl"), false, "before the files are loaded there is nothing");
-    LINGUAI.addStrings("pl", { "lesson:x": { title: "x" } });
-    assert.equal(LINGUAI.hasStrings("pl"), true);
-    assert.equal(LINGUAI.hasStrings("de"), false);
+    assert.equal(LINGUAI.hasStrings("ar"), false, "before the files are loaded there is nothing");
+    LINGUAI.addStrings("ar", { "lesson:x": { title: "x" } });
+    assert.equal(LINGUAI.hasStrings("ar"), true);
+    assert.equal(LINGUAI.hasStrings("en"), false);
   });
 });
 
@@ -250,37 +252,37 @@ describe("conversations", () => {
 
   test("the lines and the prompts come from the overlay", () => {
     const { LINGUAI, c } = zRozmowa();
-    LINGUAI.addStrings("pl", { "conv:c1": {
-      title: "W barze", setting: "Poranek.", closing: "Dobra robota.",
+    LINGUAI.addStrings("ar", { "conv:c1": {
+      title: "في المقهى", setting: "صباحًا.", closing: "أحسنت.",
       turns: [{ tr: "Co pan zamawia?" }, { task: "Zamów kawę" }, { tr: "Już podaję." }]
     } });
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
 
-    assert.equal(c.title, "W barze");
-    assert.equal(c.setting, "Poranek.");
+    assert.equal(c.title, "في المقهى");
+    assert.equal(c.setting, "صباحًا.");
     assert.equal(c.turns[0].tr, "Co pan zamawia?");
     assert.equal(c.turns[1].task, "Zamów kawę");
   });
 
   test("every branch of a fork has a translation of its own", () => {
     const { LINGUAI, c } = zRozmowa();
-    LINGUAI.addStrings("pl", { "conv:c1": {
-      turns: [{}, { opts: [{ tr: "Tylko kawa" }, { tr: "Kawa i deser" }] }, {}]
+    LINGUAI.addStrings("ar", { "conv:c1": {
+      turns: [{}, { opts: [{ tr: "قهوة فقط" }, { tr: "قهوة وحلوى" }] }, {}]
     } });
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
 
-    assert.equal(c.turns[1].opts[0].tr, "Tylko kawa");
-    assert.equal(c.turns[1].opts[1].tr, "Kawa i deser");
+    assert.equal(c.turns[1].opts[0].tr, "قهوة فقط");
+    assert.equal(c.turns[1].opts[1].tr, "قهوة وحلوى");
   });
 
   test("the direction of a fork and the answer key stay neutral", () => {
     /* Were `go` or `accept` to enter the overlay, changing the explanation
        language could rearrange the flow of the dialogue. */
     const { LINGUAI, c } = zRozmowa();
-    LINGUAI.addStrings("pl", { "conv:c1": {
-      turns: [{}, { opts: [{ tr: "Tylko kawa", go: "gdzieindziej", accept: ["cokolwiek"] }] }, {}]
+    LINGUAI.addStrings("ar", { "conv:c1": {
+      turns: [{}, { opts: [{ tr: "قهوة فقط", go: "gdzieindziej", accept: ["cokolwiek"] }] }, {}]
     } });
-    LINGUAI.applyStrings("pl");
+    LINGUAI.applyStrings("ar");
 
     assert.equal(c.turns[1].opts[0].go, "fine", "the jump target does not come from the overlay");
     assert.deepEqual(Array.from(c.turns[1].opts[0].accept), ["solo un caffè"]);
@@ -292,14 +294,14 @@ describe("a grammar reference entry", () => {
     const s = swiezy();
     const sekcja = { title: "", items: [{ id: "g-presente" }, { id: "g-passato" }] };
     s.box.sandbox.GRAMMAR_REF = [sekcja];
-    s.LINGUAI.addStrings("pl", {
-      "refsec:titles": ["Czasownik"],
-      "ref:g-presente": { title: "Czas teraźniejszy", sub: "presente", body: ["Trzy koniugacje."] }
+    s.LINGUAI.addStrings("ar", {
+      "refsec:titles": ["الفعل"],
+      "ref:g-presente": { title: "المضارع", sub: "presente", body: ["ثلاث مجموعات تصريف."] }
     });
-    s.LINGUAI.applyStrings("pl");
+    s.LINGUAI.applyStrings("ar");
 
-    assert.equal(sekcja.title, "Czasownik");
-    assert.equal(sekcja.items[0].title, "Czas teraźniejszy");
+    assert.equal(sekcja.title, "الفعل");
+    assert.equal(sekcja.items[0].title, "المضارع");
     assert.equal(sekcja.items[1].title, undefined, "an entry with no overlay stays untitled rather than taking somebody else's title");
     assert.equal(sekcja.items[0].id, "g-presente", "the id is a key, not copy");
   });
@@ -310,15 +312,15 @@ describe("minimal pairs, readings, writing", () => {
     const s = swiezy();
     const zbior = { id: "ph1", pairs: [{ a: "nonno", b: "nono" }] };
     s.box.sandbox.PHONETICS = [zbior];
-    s.LINGUAI.addStrings("pl", { "ph:ph1": {
-      title: "Podwojone spółgłoski", note: "Długość zmienia znaczenie.",
-      contrast: "Polski nie ma długich spółgłosek.",
-      pairs: [{ glossA: "dziadek", glossB: "dziewiąty" }]
+    s.LINGUAI.addStrings("ar", { "ph:ph1": {
+      title: "الحروف الساكنة المضعّفة", note: "قد يغيّر طول الصوت معنى الكلمة.",
+      contrast: "لا يميز العربية طول الصامت بالطريقة نفسها.",
+      pairs: [{ glossA: "جدّ", glossB: "التاسع" }]
     } });
-    s.LINGUAI.applyStrings("pl");
+    s.LINGUAI.applyStrings("ar");
 
-    assert.equal(zbior.contrast, "Polski nie ma długich spółgłosek.");
-    assert.equal(zbior.pairs[0].glossA, "dziadek");
+    assert.equal(zbior.contrast, "لا يميز العربية طول الصامت بالطريقة نفسها.");
+    assert.equal(zbior.pairs[0].glossA, "جدّ");
     assert.equal(zbior.pairs[0].a, "nonno", "the Italian words of the pair stay neutral: they have recordings");
   });
 
@@ -326,30 +328,30 @@ describe("minimal pairs, readings, writing", () => {
     const s = swiezy();
     const r = { id: "r1", titleIt: "Il mercato", sentences: ["Vado al mercato."] };
     s.box.sandbox.READINGS = [r];
-    s.LINGUAI.addStrings("pl", { "read:r1": {
-      title: "Targ", gloss: { mercato: "targ" }, lex: { vado: "idę" }
+    s.LINGUAI.addStrings("ar", { "read:r1": {
+      title: "السوق", gloss: { mercato: "السوق" }, lex: { vado: "أذهب" }
     } });
-    s.LINGUAI.applyStrings("pl");
+    s.LINGUAI.applyStrings("ar");
 
-    assert.equal(r.title, "Targ");
-    assert.equal(r.gloss.mercato, "targ");
-    assert.equal(r.lex.vado, "idę");
+    assert.equal(r.title, "السوق");
+    assert.equal(r.gloss.mercato, "السوق");
+    assert.equal(r.lex.vado, "أذهب");
     assert.deepEqual(Array.from(r.sentences), ["Vado al mercato."]);
   });
 
   test("a writing task: the prompt from the overlay, the accepted Italian forms from the data", () => {
     const s = swiezy();
-    const w = { id: "w1", titleIt: "Una cartolina", items: [{ a: ["sono a"] }, { a: ["ti abbraccio"] }] };
+    const w = { id: "w1", titleIt: "بطاقة بريدية", items: [{ a: ["sono a"] }, { a: ["ti abbraccio"] }] };
     s.box.sandbox.WRITING = [w];
-    s.LINGUAI.addStrings("pl", { "write:w1": {
-      title: "Pocztówka", brief: "Napisz do znajomego.", checklist: ["gdzie jesteś"],
-      items: [{ q: "Powiedz, gdzie jesteś" }, { q: "Pożegnaj się" }]
+    s.LINGUAI.addStrings("ar", { "write:w1": {
+      title: "بطاقة بريدية", brief: "اكتب إلى صديق.", checklist: ["أين أنت"],
+      items: [{ q: "قل أين أنت" }, { q: "ودّع" }]
     } });
-    s.LINGUAI.applyStrings("pl");
+    s.LINGUAI.applyStrings("ar");
 
-    assert.equal(w.title, "Pocztówka");
-    assert.equal(w.items[0].q, "Powiedz, gdzie jesteś");
-    assert.equal(w.items[1].q, "Pożegnaj się");
+    assert.equal(w.title, "بطاقة بريدية");
+    assert.equal(w.items[0].q, "قل أين أنت");
+    assert.equal(w.items[1].q, "ودّع");
     assert.deepEqual(Array.from(w.items[0].a), ["sono a"], "the accepted Italian version is not copy to be translated");
   });
 });
@@ -361,15 +363,15 @@ describe("false friends", () => {
     const s = swiezy();
     const v = { id: "targa", it: "la targa" };
     s.box.sandbox.INTERFERENCE = [v];
-    s.LINGUAI.addStrings("pl", { "int:targa": { looks: "targ", mean: "tablica rejestracyjna", why: "fałszywy przyjaciel" } });
-    s.LINGUAI.addStrings("es", { "int:inne": { looks: "x", mean: "y", why: "z" } });
+    s.LINGUAI.addStrings("ar", { "int:targa": { looks: "السوق", mean: "لوحة تسجيل", why: "كلمة خادعة" } });
+    s.LINGUAI.addStrings("en", { "int:inne": { looks: "x", mean: "y", why: "z" } });
 
-    s.LINGUAI.applyStrings("pl");
-    assert.equal(v.mean, "tablica rejestracyjna");
+    s.LINGUAI.applyStrings("ar");
+    assert.equal(v.mean, "لوحة تسجيل");
 
-    s.LINGUAI.applyStrings("es");
-    assert.equal(v.looks, "", "in Spanish this trap does not exist");
-    assert.equal(v.mean, "", "the Polish explanation would stay on screen were it not for the clearing");
+    s.LINGUAI.applyStrings("en");
+    assert.equal(v.looks, "", "in the English fallback this entry has no corresponding explanation");
+    assert.equal(v.mean, "", "the Arabic explanation would stay on screen were it not for the clearing");
     assert.equal(v.why, "");
     assert.equal(v.it, "la targa", "the Italian entry stays: it is the headword");
   });

@@ -1,4 +1,4 @@
-**English** | [Italiano](./README.it.md) | [Polski](./README.pl.md)
+**English** | [Italiano](./README.it.md)
 
 # Impara l'Italiano
 
@@ -10,9 +10,9 @@ A static Italian course, A1 to C2, that runs entirely in the browser: no account
 ![Node](https://img.shields.io/badge/node-%3E%3D24-339933)
 ![Runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-lightgrey)
 
-150 lessons, 1514 exercises and 3494 recorded Italian sentences, explained in the learner's own language. Open `index.html` and the course runs.
+150 lessons, 1514 exercises and 3494 recorded Italian sentences. The public interface and learner explanations are Arabic, with English retained internally for untranslated educational content and missing strings. Open `index.html` and the course runs.
 
-The grammar syllabus goes level by level from A1 to C2. Explanations exist in five languages (Polish, English, Spanish, French, German) and the learner picks one at any time, without losing progress. Everything the learner does stays in their browser. Two things can leave the device, and both are off until the learner turns them on: a voice recording sent for speech recognition, and an answer the course has already rejected, sent to a language model the learner pays for with their own key.
+The grammar syllabus goes level by level from A1 to C2. Arabic is the only selectable interface language. English is an internal fallback for course content that has not yet been translated; legacy saved language preferences are normalized to Arabic without changing learning progress. Everything the learner does stays in their browser. Two things can leave the device, and both are off until the learner turns them on: a voice recording sent for speech recognition, and an answer the course has already rejected, sent to a language model the learner pays for with their own key.
 
 **Live:** [andreabonn.github.io/impara-italiano](https://andreabonn.github.io/impara-italiano/)
 
@@ -46,7 +46,7 @@ The grammar syllabus goes level by level from A1 to C2. Explanations exist in fi
 | Grammar reference entries | 42 |
 | Reading texts / writing tasks / minimal-pair sets | 12 / 6 / 5 |
 | Recorded sentences | 3494 mp3, 45 MB |
-| Explanation languages | 5, 740 interface strings each |
+| Public interface language | Arabic; English internal fallback |
 | Engine files | 63 files, 11 881 lines |
 
 Regenerate these numbers with `node scripts/validate.mjs`.
@@ -78,7 +78,7 @@ Two rules explain most of the layout. Course data is separate from the engine, a
 flowchart TD
   html["index.html<br/>script order = dependency order"]
   core["data/core/<br/>structure, Italian, answer keys"]
-  i18n["data/i18n/&lt;lang&gt;/<br/>explanations, 5 languages"]
+  i18n["data/i18n/ar/<br/>Arabic overlays; data/i18n/en/ internal fallback"]
   merge["i18n-merge.js<br/>merges by array index"]
   engine["assets/js/<br/>63 modules, one global each"]
   store["localStorage<br/>linguai.italiano.v2"]
@@ -95,7 +95,7 @@ flowchart TD
   sw --> audio
 ```
 
-An Italian sentence exists in exactly one place, in `data/core/`. Recording file names are hashes of that sentence, so they cannot drift between languages, and adding a sixth explanation language generates no new audio at all.
+An Italian sentence exists in exactly one place, in `data/core/`. Recording file names are hashes of that sentence, so they cannot drift between languages, and Arabic overlays do not duplicate or alter Italian audio.
 
 The engine keeps pure functions apart from anything that touches the browser. The pure half is checked by `node:test` for almost nothing; the other half needs Playwright. That boundary decides whether a module gets split. File length does not: `store.js` and `verbs-data.js` stay whole because breaking them up would separate things that have to agree with each other.
 
@@ -112,7 +112,8 @@ assets/
   js/                   63 engine modules, one global object per file
 data/
   core/                 language-neutral layer: structure, Italian, answer keys
-  i18n/<lang>/          explanations in the learner's language (pl, en, es, fr, de)
+  i18n/ar/               Arabic learner-facing explanations
+  i18n/en/               internal fallback for untranslated content
   audio-index.js        sorted hashes of every sentence that has a recording
 audio/<xx>/<hash>.mp3   recorded narration, generated
 scripts/                validation, parity, coverage, mutation and build tooling
@@ -177,8 +178,8 @@ Every gate below runs on `push` and on `pull_request`, cheapest first, so a data
 | Command | Checks |
 |---|---|
 | `npm run lint` | correctness, not style. ESLint flat config, four blocks for four kinds of file |
-| `node scripts/validate.mjs [lang]` | duplicate ids, exercise completeness, gaps against answers, language leaks into the neutral layer |
-| `node scripts/parity.mjs` | that every language overlay has the same shape as Polish |
+| `node scripts/validate.mjs [ar|en]` | validate Arabic or the English fallback against neutral Italian data |
+| `node scripts/parity.mjs` | Arabic overlay shape and completeness against the English fallback |
 | `node scripts/check_precache.mjs` | that the service worker caches everything `index.html` loads |
 | `node scripts/check_swversion.mjs [--napraw]` | that a new release has a fingerprint to announce itself with |
 | `npm test` | 944 assertions, 40 files, engine logic in `node:vm` |
@@ -210,7 +211,7 @@ LINGUAI.addUnits("A1", [{
 }]);
 ```
 
-In `data/i18n/<lang>/` goes only what the learner reads in their own language, in the same order:
+In `data/i18n/ar/` goes Arabic learner-facing content; `data/i18n/en/` supplies internal fallback, in the same order:
 
 ```js
 LINGUAI.addStrings("pl", {
@@ -219,7 +220,7 @@ LINGUAI.addStrings("pl", {
 });
 ```
 
-Arrays merge **by index**, so both sides must hold the same number of elements. A contrastive note ("in your language this works differently") is written from scratch for each language rather than translated: what traps a Polish speaker is often irrelevant to an American one.
+Arrays merge **by index**, so both sides must hold the same number of elements. A contrastive note ("in your language this works differently") is written for the relevant learner language rather than copied from a different language comparison.
 
 Then run the gates:
 
@@ -285,7 +286,7 @@ Releases announce themselves rather than taking over. A new service worker waits
 
 ## User manual
 
-The manual for learners is in `docs/`, in both languages:
+The learner manual is available in Arabic and English under `docs/`.
 
 - [User manual (English)](./docs/USER-MANUAL.md)
 - [Manuale utente (italiano)](./docs/MANUALE-UTENTE.md)

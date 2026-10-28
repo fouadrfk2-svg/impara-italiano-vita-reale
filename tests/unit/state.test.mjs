@@ -152,10 +152,10 @@ describe("the v1 -> v2 migration", () => {
     assert.equal(box.Core.state.srs.stare.lapses, 2);
   });
 
-  test("v1 existed in Polish only, so the explanation language goes back to pl", () => {
+  test("v1 legacy preference is normalized to Arabic without dropping the migrated deck", () => {
     const box = loadEngine({ seed: { [KEY_V1]: JSON.stringify({ schema: 1, srs: {}, settings: { lang: "de" } }) } });
     box.Core.load();
-    assert.equal(box.Core.state.settings.lang, "pl");
+    assert.equal(box.Core.state.settings.lang, "ar");
   });
 });
 
@@ -278,13 +278,13 @@ describe("full storage: what gives way", () => {
   test("the sweep touches neither the settings nor the streak", () => {
     const box = zapchany(4000);
     box.Core.state.streak = { count: 12, lastDay: "2026-09-09", best: 12 };
-    box.Core.state.settings.lang = "de";
+    box.Core.state.settings.lang = "ar";
     box.Core.save();
     box.flush();
 
     const zapis = box.stored(KEY);
     assert.equal(zapis.streak.count, 12);
-    assert.equal(zapis.settings.lang, "de");
+    assert.equal(zapis.settings.lang, "ar");
   });
 });
 
@@ -377,7 +377,7 @@ describe("importState / exportState", () => {
 });
 
 describe("reset", () => {
-  test("it clears the progress and leaves the settings", () => {
+  test("it clears progress, preserves other settings and keeps Arabic as the interface language", () => {
     const box = loadEngine();
     box.Core.load();
     box.Core.state.settings.lang = "de";
@@ -385,8 +385,27 @@ describe("reset", () => {
     box.Core.recordLesson("a1-u01-l1", 10, 10, 20);
     box.Core.resetState();
     pusty(box.Core.state.lessons, "the lesson progress is cleared");
-    assert.equal(box.Core.state.settings.lang, "de", "the explanation language survives the clearing");
+    assert.equal(box.Core.state.settings.lang, "ar", "the retired language preference is normalized");
     assert.equal(box.Core.state.settings.theme, "dark");
+  });
+});
+
+describe("retired language preferences", () => {
+  test("an existing profile is normalized without changing progress, drafts or saved glosses", () => {
+    const profile = {
+      settings: { lang: "fr", theme: "dark" },
+      lessons: { "a1-u01-l1": { score: 8, total: 10, done: true, ts: 123 } },
+      writing: { "w-a2-giornata": { text: "Buongiorno, mi chiamo Lina." } },
+      srs: { caffe: { it: "caffè", tr: { pl: "legacy gloss" }, due: 456 } }
+    };
+    const box = loadEngine({ seed: { [KEY]: saved(profile) } });
+    box.Core.load();
+    assert.equal(box.Core.state.settings.lang, "ar");
+    assert.deepEqual(JSON.parse(JSON.stringify(box.Core.state.lessons["a1-u01-l1"])), profile.lessons["a1-u01-l1"]);
+    assert.deepEqual(JSON.parse(JSON.stringify(box.Core.state.writing)), profile.writing);
+    assert.deepEqual(JSON.parse(JSON.stringify(box.Core.state.srs.caffe.tr)), { pl: "legacy gloss" });
+    box.flush();
+    assert.equal(box.stored(KEY).settings.lang, "ar");
   });
 });
 
@@ -909,15 +928,15 @@ describe("addCard: reserved keys do not touch the prototype", () => {
   });
 
   test("an accepted card survives save and load with its translation", () => {
-    const box = loadEngine({ seed: { [KEY]: saved({ settings: { lang: "pl" } }) } });
+    const box = loadEngine({ seed: { [KEY]: saved({ settings: { lang: "ar" } }) } });
     box.Core.load();
-    assert.equal(box.Core.addCard("caffè", "coffee", "import"), "caffe");
+    assert.equal(box.Core.addCard("caffè", "قهوة", "import"), "caffe");
     box.Core.save();
     box.flush();
     assert.deepEqual(Object.keys(box.stored(KEY).srs), ["caffe"]);
     const reloaded = loadEngine({ storage: box.storage });
     reloaded.Core.load();
     assert.deepEqual(Object.keys(reloaded.Core.state.srs), ["caffe"]);
-    assert.equal(reloaded.Core.state.srs.caffe.tr.pl, "coffee");
+    assert.equal(reloaded.Core.state.srs.caffe.tr.ar, "قهوة");
   });
 });

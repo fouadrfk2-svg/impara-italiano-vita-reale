@@ -73,7 +73,7 @@ test("the questions are in Italian and appear on demand", async ({ page }) => {
 
   /* The questions sit in the neutral layer, so they do not change with the language. */
   const przed = await page.locator("#quizBox .exq__prompt").first().innerText();
-  await page.evaluate(() => new Promise(r => window.Core.setLanguage("de", r)));
+  await page.evaluate(() => new Promise(r => window.Core.setLanguage("ar", r)));
   await page.locator(".js-mode[data-mode='listen']").click();
   await page.locator(".js-quiz").click();
   const po = await page.locator("#quizBox .exq__prompt").first().innerText();
@@ -106,11 +106,11 @@ test("switching modes stays in the address", async ({ page }) => {
   await expect(page.locator('.js-mode[data-mode="dictation"]')).toHaveAttribute("aria-current", "true");
 });
 
-test("the reading strings exist in five languages", async ({ page }) => {
+test("Arabic reading strings exist", async ({ page }) => {
   await lista(page);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("lettura");

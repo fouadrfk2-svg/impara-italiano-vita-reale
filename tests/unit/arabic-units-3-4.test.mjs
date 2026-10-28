@@ -625,7 +625,7 @@ function bag(lang,file){let result;vm.runInNewContext(readFileSync(join(ROOT,'da
 const bags=lang=>Object.fromEntries(files.map(file=>[file,bag(lang,file)]));
 const entries=lang=>Object.assign({},...Object.values(bags(lang)));
 const ar=entries('ar'),en=entries('en');
-function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js','c2-01.js','c2-02.js'].map(f=>'data/core/'+f),...['en','pl','es','fr','de','ar'].flatMap(lang=>['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js',...(lang==='ar'?[]:['c2-01.js','c2-02.js'])].map(f=>'data/i18n/'+lang+'/'+f))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
+function setup(){const box=loadEngine({files:[...CORE,...VERBS,'assets/js/i18n.js','assets/js/i18n-merge.js','data/i18n/ui-en.js','data/i18n/ui-ar.js']});box.Core.load();for(const file of ['data/core/curriculum-index.js',...['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js','c2-01.js','c2-02.js'].map(f=>'data/core/'+f),...['en','ar'].flatMap(lang=>['a1-01.js','a1-02.js','a1-03.js','a2-01.js','a2-02.js','b1-01.js','b2-01.js','b2-02.js','b2-03.js',...(lang==='ar'?[]:['c2-01.js','c2-02.js'])].map(f=>'data/i18n/'+lang+'/'+f))])vm.runInContext(readFileSync(join(ROOT,file),'utf8'),box.sandbox);return box;}
 function language(box,lang){box.Core.state.settings.lang=lang;box.sandbox.LINGUAI.applyStrings(lang);box.sandbox.Registry.reindex();}
 test('the first four Arabic units remain complete in the expanded manifest',()=>{
  const box=setup(),manifest=plain(box.sandbox.I18n.courseOverrides('ar'));
@@ -633,7 +633,7 @@ test('the first four Arabic units remain complete in the expanded manifest',()=>
  assert.deepEqual(manifest['a1-01.js'].slice(12),keys('a1-u03'));assert.deepEqual(manifest['a1-02.js'].slice(0,6),keys('a1-u04'));
  assert.equal(Object.values(manifest).flat().length,187);assert.equal(plans.length,10);assert.equal(plans.reduce((sum,p)=>sum+p.answers.length,0),100);
  for(const file of files)assert.deepEqual(Object.keys(bag('ar',file)),manifest[file]);
- const errors=[];checkPartialCourse(manifest,bags('ar'),entries('pl'),errors);assert.deepEqual(errors,[]);
+ const errors=[];checkPartialCourse(manifest,bags('ar'),entries('en'),errors);assert.deepEqual(errors,[]);
 });
 test('all twelve previously translated entries remain byte-equivalent after parsing',()=>{
  const previous=Object.fromEntries(Object.entries(bag('ar','a1-01.js')).slice(0,12));
@@ -690,19 +690,20 @@ test('Arabic comparisons, precise prompts and translations correct source ambigu
  assert.match(ar['lesson:a1-u04-l3'].exercises[2].q,/0–9/);
  assert.match(ar['lesson:a1-u03-l3'].theory[1].p,/في العربية/);
 });
-test('Arabic-English-Arabic and every existing language restore exact complete content, including unit summaries and blank glosses',()=>{
+test('Arabic-English-Arabic restores exact course content, including unit summaries and reviewed glosses',()=>{
  const box=setup(),snapshot=()=>plain(box.Core.registry.byCode.A1.units);
- for(const lang of ['en','pl','es','fr','de']){language(box,lang);const before=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}}
+ for(const lang of ['en']){language(box,lang);const before=snapshot();language(box,'ar');const arabic=snapshot();for(const next of [lang,'ar',lang,'ar']){language(box,next);assert.deepEqual(snapshot(),next==='ar'?arabic:before);}}
  language(box,'en');const fallback=plain(box.Core.registry.byCode.C2.units[0]);language(box,'ar');assert.deepEqual(plain(box.Core.registry.byCode.C2.units[0]),fallback);
- for(const unit of ['a1-u03','a1-u04'])for(const lang of ['pl','en','es','fr','de'])assert.deepEqual(entries(lang)['lesson:'+unit+'-test'].exercises[unit==='a1-u03'?6:2].items,['','','','']);
+ assert.deepEqual(entries('ar')['lesson:a1-u03-test'].exercises[6].items,['ماء','لحم','خبز','تفاح']);
+ assert.deepEqual(entries('ar')['lesson:a1-u04-test'].exercises[2].items,['حقيبة ظهر','أحذية','معطف','أحذية طويلة']);
 });
 test('all ten new lessons and assessments fall back atomically when malformed without disabling their translated neighbors',()=>{
  for(const plan of plans)for(const damage of [p=>{delete p.title;},p=>p.exercises.pop(),p=>{p.theory=[];}]){
   const box=setup(),file=plan.id.startsWith('a1-u03')?'a1-01.js':'a1-02.js',all=bags('ar');damage(all[file]['lesson:'+plan.id]);
-  box.sandbox.LINGUAI.addStrings('ar',all[file]);language(box,'es');language(box,'ar');
+  box.sandbox.LINGUAI.addStrings('ar',all[file]);language(box,'en');language(box,'ar');
   assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',plan.id),'en');assert.equal(box.Core.getLesson(plan.id).lesson.title,en['lesson:'+plan.id].title);
   const other=plans.find(p=>p.id!==plan.id);assert.equal(box.sandbox.LINGUAI.lessonLanguage('ar',other.id),'ar');
-  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),all,entries('pl'),errors);assert.ok(errors.some(e=>e.includes(plan.id)));
+  const errors=[];checkPartialCourse(box.sandbox.I18n.courseOverrides('ar'),all,entries('en'),errors);assert.ok(errors.some(e=>e.includes(plan.id)));
  }
 });
 test('unit titles and grammar notes fall back together; undeclared content cannot override English',()=>{
@@ -721,7 +722,7 @@ test('language switching preserves all learner progress and review schedules and
  const box=setup(),C=box.Core;language(box,'en');plans.forEach(p=>C.recordLesson(p.id,10,10,80));C.addCard('la gonna','skirt','a1-u04-l1');
  language(box,'ar');C.addCard('la gonna','تنّورة','a1-u04-l1');const card=C.state.srs[C.cardKey('la gonna')];assert.equal(card.tr.en,'skirt');assert.equal(card.tr.ar,'تنّورة');
  const state=()=>{const s=plain(C.state);delete s.settings.lang;return s;},before=state();
- for(const lang of ['en','pl','es','fr','de','ar']){language(box,lang);assert.deepEqual(state(),before);}assert.equal(C.state.schema,2);
+ for(const lang of ['en','ar']){language(box,lang);assert.deepEqual(state(),before);}assert.equal(C.state.schema,2);
 });
 
 test('Italian endings and subject pronouns inside Arabic answer labels have balanced LTR isolation',()=>{

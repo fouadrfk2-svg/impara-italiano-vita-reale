@@ -95,7 +95,7 @@
       xp: 0,
       minutes: 0,
       settings: {
-        lang: "ar",         // first-visit language; saved choices and v1 migration keep their own language
+        lang: "ar",         // Arabic is the only selectable interface language
         theme: "light",
         voiceSource: "natural", // "natural" = Edge TTS recordings, "system" = Web Speech API
         rate: 1,
@@ -184,13 +184,18 @@
         var parsed = JSON.parse(raw);
         if (!parsed || typeof parsed.schema !== "number") return;
         if (parsed.schema > SCHEMA) return;
-        if (parsed.schema === SCHEMA) { state = merge(defaultState(), parsed); return; }
+        if (parsed.schema === SCHEMA) {
+          state = merge(defaultState(), parsed);
+          if (state.settings.lang !== "ar") { state.settings.lang = "ar"; save(); }
+          return;
+        }
 
         var podniesiony = migrateUp(parsed);
         /* A step may not exist: then the number does not move and the save
            stays untouched on disk instead of entering in an inconsistent shape. */
         if (podniesiony.schema !== SCHEMA) return;
         state = podniesiony;
+        if (state.settings.lang !== "ar") state.settings.lang = "ar";
         save();
         return;
       }
@@ -200,10 +205,8 @@
   }
 
   /**
-   * v1 -> v2. In v1 a card was keyed by the Italian TOGETHER WITH the Polish
-   * translation, so changing the language of explanations would orphan the
-   * whole deck. In v2 the key is the Italian alone and the translations sit
-   * in a `tr` sub-object, one per language.
+   * v1 -> v2. In v1 a card was keyed by Italian together with its legacy
+   * gloss; v2 keys cards by Italian alone and keeps glosses in `tr`.
    *
    * Lesson progress, streak, XP and statistics come across unchanged: lesson
    * ids are language-neutral, so learning does not start from zero.
@@ -211,7 +214,7 @@
   function migrateV1(old) {
     var next = merge(defaultState(), old);
     next.schema = SCHEMA;
-    next.settings.lang = "pl";        // v1 existed in Polish only
+    next.settings.lang = "ar";
     next.srs = {};
 
     Object.keys(old.srs || {}).forEach(function (oldKey) {
@@ -448,10 +451,8 @@
   /**
    * An import error carries a string KEY, not ready-made text.
    *
-   * The reason: this message is read by a student trying to restore a
-   * backup, and the course speaks five languages. A sentence written here
-   * in Polish would reach a Spaniard in Polish too — exactly at the moment
-   * they most need to understand what went wrong.
+   * The reason: import failures use translatable keys so the Arabic
+   * interface can explain the problem consistently.
    */
   function importError(key, vars) {
     var e = new Error(key);
@@ -486,16 +487,16 @@
     var parsed = JSON.parse(json);
     validateImport(parsed);
     state = merge(defaultState(), migrateUp(parsed));
+    state.settings.lang = "ar";
     save();
   }
 
   function resetState() {
-    // Settings stay: the message promises to erase progress, cards and statistics,
-    // not the language of explanations. Without this, a student who chose en/es/fr/de
-    // gets a Polish interface after clearing, that is a language they may not know.
+    // Other settings stay, while the retired interface preference is normalized.
     var keep = state.settings;
     state = defaultState();
     state.settings = keep;
+    state.settings.lang = "ar";
     save();
   }
 

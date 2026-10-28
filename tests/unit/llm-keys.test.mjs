@@ -144,9 +144,9 @@ describe("the keys must not leave in the backup", () => {
     K.set("openai", KEY);
     b.Core.resetState();
     assert.equal(K.get("openai"), "", "a working credential survived «erase everything»");
-    /* And the reset still does what it always did: settings survive, so a
-       student who chose German does not get a Polish interface back. */
-    assert.equal(b.Core.state.settings.lang, "pl");
+    /* Settings survive reset, but removed locale preferences normalize to
+       Arabic rather than restoring an unavailable interface. */
+    assert.equal(b.Core.state.settings.lang, "ar");
   });
 });
 

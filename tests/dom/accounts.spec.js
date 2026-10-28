@@ -109,7 +109,7 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
   try{
    await adminLogin(admin);const code=await issue(admin);await login(a,code);await saved(a);
    await a.evaluate(async()=>{Core.state.settings.lang='en';Core.state.settings.sttConsent=true;Core.state.settings.llmConsent=true;Core.save();await new Promise(resolve=>Core.setLanguage('en',resolve));I18n.set('en');App.go('account');});
-   await a.reload();await expect(a.locator('.js-logout')).toBeVisible();await expect(a.locator('html')).toHaveAttribute('lang','en-US');expect(await a.evaluate(()=>Core.state.settings.sttConsent)).toBe(true);
+   await a.reload();await expect(a.locator('.js-logout')).toBeVisible();await expect(a.locator('html')).toHaveAttribute('lang','ar');await expect(a.locator('html')).toHaveAttribute('dir','rtl');expect(await a.evaluate(()=>Core.state.settings.lang)).toBe('ar');expect(await a.evaluate(()=>Core.state.settings.sttConsent)).toBe(true);
    await login(b,code);await expect(b.locator('html')).toHaveAttribute('dir','rtl');expect(await b.evaluate(()=>Core.state.settings.sttConsent)).toBe(false);expect(await b.evaluate(()=>Core.state.settings.llmConsent)).not.toBe(true);
    await a.evaluate(async()=>{Core.state.settings.lang='ar';Core.save();await new Promise(resolve=>Core.setLanguage('ar',resolve));I18n.set('ar');App.go('account');});await expect(a.locator('html')).toHaveAttribute('dir','rtl');await audit(a);
    expect(await a.evaluate(()=>document.querySelector('#main form'))).toBe(null);

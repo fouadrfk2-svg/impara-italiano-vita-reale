@@ -55,6 +55,8 @@ const PREFIKS = new URL(homepage).pathname;
 /* ---------------- The references in the page ---------------- */
 
 const html = readFileSync(join(ROOT, STRONA), "utf8").replace(/<!--[\s\S]*?-->/g, "");
+const languageRows = Array.from(html.matchAll(/<li[^>]*\blang="([^"]+)"/gi), match => match[1]);
+if (JSON.stringify(languageRows) !== JSON.stringify(["ar"])) problemy.push(STRONA + ": expected only Arabic not-found text; found " + languageRows.join(", "));
 
 /** Everything a browser will go and fetch, or follow when clicked. */
 const odnosniki = [];

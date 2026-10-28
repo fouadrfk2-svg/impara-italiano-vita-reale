@@ -170,36 +170,17 @@ for (const theme of ["light", "dark"]) {
    says nothing about the other one.
    ============================================================ */
 for (const theme of ["light", "dark"]) {
-  test(`the language name: contrast in both states, ${theme} theme`, async ({ page }) => {
+  test(`Arabic-only navigation: picker is absent and nav text contrast passes in ${theme} theme`, async ({ page }) => {
     await page.addInitScript(MIERNIK);
     await page.goto("/index.html");
-    await page.waitForSelector("#langToggle .rail__lang-name");
+    await page.waitForSelector('#rail [data-route="oggi"] [data-i18n="nav.today"]');
+    await expect(page.locator("#langToggle,#langList,.js-guest-language,.welcome-lang")).toHaveCount(0);
     await page.evaluate(t => document.documentElement.setAttribute("data-theme", t), theme);
     await page.waitForTimeout(600); /* the palette transition */
 
-    /* The panel is a gradient: the text is measured against EVERY one of its
-       stops, because the lightest end decides, not the one that happened to
-       fall under the button. The stops are read from the palette, not copied
-       out. */
-    const fermaty = await page.evaluate(() => {
-      const bi = getComputedStyle(document.getElementById("rail")).backgroundImage;
-      return bi.match(/oklch\([^)]*\)|rgba?\([^)]*\)/g) || [];
-    });
-    expect(fermaty.length, "gradient panelu nie ma czytelnych fermat").toBeGreaterThan(1);
-
-    for (const f of fermaty) {
-      const m = await page.evaluate(([s, t]) => window.__kontrast(s, t), [".rail__lang-name", f]);
-      expect(m, "the language name on the button does not exist").not.toBeNull();
-      expect(m.tekst, `closed on ${f}: ${m.tekst.toFixed(2)}:1, threshold ${TEKST}`)
-        .toBeGreaterThanOrEqual(TEKST);
-    }
-
-    await page.click("#langToggle");
-    await page.waitForSelector("#langList:not([hidden])");
-    await page.mouse.move(0, 0); /* klik zostawia kursor na przycisku */
-    await page.waitForTimeout(300);
-    const otwarty = await page.evaluate(() => window.__kontrast(".rail__lang-name"));
-    expect(otwarty.tekst, `open: ${otwarty.tekst.toFixed(2)}:1, threshold ${TEKST}`)
+    const navText = await page.evaluate(() => window.__kontrast('#rail [data-route="oggi"] [data-i18n="nav.today"]'));
+    expect(navText, "Arabic learner navigation label must be present").not.toBeNull();
+    expect(navText.tekst, `nav text: ${navText.tekst.toFixed(2)}:1, threshold ${TEKST}`)
       .toBeGreaterThanOrEqual(TEKST);
   });
 }

@@ -113,21 +113,12 @@ test("from scratch lands on the first lesson of the course, not on the list", as
   await expect(page.locator("#main h1")).toBeVisible();
 });
 
-test("the welcome strings exist in five languages", async ({ page }) => {
+test("the welcome renders Arabic UI strings without a language selector", async ({ page }) => {
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  const braki = await page.evaluate(async () => {
-    const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
-      await new Promise(r => window.Core.setLanguage(lang, r));
-      window.I18n.set(lang);
-      window.App.go("benvenuto");
-      const puste = window.I18n.missing().filter(k => /^welcome\./.test(k));
-      if (puste.length) out[lang] = puste;
-    }
-    return out;
-  });
-  expect(braki, JSON.stringify(braki)).toEqual({});
+  await expect(page.locator(".js-zero")).toHaveText("لنبدأ ←");
+  await expect(page.locator(".welcome-lang, #langToggle, #langList")).toHaveCount(0);
+  expect(await page.evaluate(() => window.I18n.LANGS.map(l => l.code))).toEqual(["ar"]);
 });
 
 test.describe("a first visit from a French browser", () => {
@@ -142,33 +133,19 @@ test.describe("a first visit from a French browser", () => {
   });
 });
 
-test("a saved choice of language beats the browser", async ({ page }) => {
+test("a retired saved language is normalized to Arabic without losing the profile", async ({ page }) => {
   await zProfilem(page, { schema: 2, settings: { lang: "de" }, stats: { lessonsDone: 0, correct: 0, wrong: 0, days: {} } });
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  expect(await page.evaluate(() => window.I18n.lang)).toBe("de");
-});
-
-/* On a phone the language switch is behind the menu: whoever lands in the
-   wrong language must be able to change it where they are. */
-test("the welcome offers every language of explanation", async ({ page }) => {
-  await page.goto("/index.html#/benvenuto");
-  await gotowe(page);
-  const wybor = page.locator(".welcome-lang [data-lang]");
-  const ile = await page.evaluate(() => window.I18n.LANGS.length);
-  await expect(wybor).toHaveCount(ile);
-  await wybor.filter({ hasText: "Español" }).click();
-  await expect.poll(() => page.evaluate(() => window.I18n.lang)).toBe("es");
-  await expect(page.locator(".js-zero")).toBeVisible();
-  await expect(page.locator('.welcome-lang [data-lang="es"]')).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(() => window.I18n.lang)).toBe("ar");
+  expect(await page.evaluate(() => window.Core.state.settings.lang)).toBe("ar");
 });
 
 test.describe("a profile saved before the current format", () => {
   test.use({ locale: "fr-FR" });
 
-  /* A v1 save is migrated on load; it is not a first visit, so the browser's
-     language must not replace the one the profile was studied in. */
-  test("keeps its language instead of taking the browser's", async ({ page }) => {
+  /* A legacy language preference migrates to Arabic without changing work. */
+  test("normalizes its retired language to Arabic while retaining the profile", async ({ page }) => {
     await page.addInitScript(() => {
       if (sessionStorage.getItem("seeded")) return;
       localStorage.setItem("linguai.italiano.pl.v1", JSON.stringify({ lessons: {}, srs: {}, stats: { lessonsDone: 0, correct: 0, wrong: 0, days: {} }, settings: {} }));
@@ -176,6 +153,7 @@ test.describe("a profile saved before the current format", () => {
     });
     await page.goto("/index.html#/benvenuto");
     await gotowe(page);
-    expect(await page.evaluate(() => window.I18n.lang)).toBe("pl");
+    expect(await page.evaluate(() => window.I18n.lang)).toBe("ar");
+    expect(await page.evaluate(() => window.Core.state.settings.lang)).toBe("ar");
   });
 });

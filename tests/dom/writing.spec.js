@@ -2,6 +2,18 @@
    Writing: what the course measures, what it does not, and what it will not do.
    ============================================================ */
 const { test, expect } = require("../helpers/learner-fixture.cjs");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+function uiMessages(lang) {
+  let messages;
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../../data/i18n/ui-" + lang + ".js"), "utf8"), {
+    LINGUAI: { addUI: (_language, values) => { messages = JSON.parse(JSON.stringify(values)); } }
+  });
+  return messages;
+}
+const arabicMessages = uiMessages("ar");
+const englishMessages = uiMessages("en");
 
 async function lista(page) {
   await page.goto("/index.html#/scrittura");
@@ -123,11 +135,11 @@ test("the translation runs on ordinary exercises and counts the result", async (
   await expect(page.locator("#writeSum .summary")).toBeVisible();
 });
 
-test("the brief and the checklist exist in five languages", async ({ page }) => {
+test("Arabic briefs and checklists exist", async ({ page }) => {
   await lista(page);
   const braki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "es", "fr", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("scrittura");
@@ -151,10 +163,10 @@ test("errore di import dice il motivo, nella lingua giusta", async ({ page }) =>
 
   const wyniki = await page.evaluate(async () => {
     const out = {};
-    for (const lang of ["pl", "en", "de"]) {
+    for (const lang of ["ar"]) {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
-      const komunikaty = [];
+      const komunikaty = [], klucze = [];
       for (const plik of [
         JSON.stringify([1, 2, 3]),
         JSON.stringify({ xp: 1 }),
@@ -162,25 +174,32 @@ test("errore di import dice il motivo, nella lingua giusta", async ({ page }) =>
         JSON.stringify({ schema: 2, lessons: "ciao" })
       ]) {
         try { window.Core.importState(plik); komunikaty.push("BRAK BLEDU"); }
-        catch (e) { komunikaty.push(e.key ? window.I18n.t(e.key, e.vars) : "BEZ KLUCZA"); }
+        catch (e) { klucze.push(e.key || null); komunikaty.push(e.key ? window.I18n.t(e.key, e.vars) : "BEZ KLUCZA"); }
       }
-      out[lang] = komunikaty;
+      out[lang] = { keys: klucze, messages: komunikaty };
     }
     return out;
   });
 
-  for (const lang of ["pl", "en", "de"]) {
-    expect(wyniki[lang].length).toBe(4);
-    for (const m of wyniki[lang]) {
+  for (const lang of ["ar"]) {
+    expect(wyniki[lang].messages.length).toBe(4);
+    for (const m of wyniki[lang].messages) {
       expect(m).not.toBe("BRAK BLEDU");
       expect(m).not.toBe("BEZ KLUCZA");
       expect(m, "the message must not be the key alone").not.toMatch(/^set\./);
       expect(m.length).toBeGreaterThan(15);
     }
     /* Four different causes, four different messages. */
-    expect(new Set(wyniki[lang]).size).toBeGreaterThanOrEqual(3);
+    expect(new Set(wyniki[lang].messages).size).toBeGreaterThanOrEqual(3);
   }
-  /* And really different across languages: they do not stay in Polish. */
-  expect(wyniki.pl[0]).not.toBe(wyniki.en[0]);
-  expect(wyniki.de[0]).not.toBe(wyniki.en[0]);
+  expect(wyniki.ar.keys).toEqual(["set.errNotSave", "set.errNoVersion", "set.errFromFuture", "set.errBadField"]);
+  expect(wyniki.ar.messages).toHaveLength(4);
+  for (let i = 0; i < wyniki.ar.keys.length; i++) {
+    const key = wyniki.ar.keys[i];
+    const arabic = arabicMessages[key].replace("{field}", "lessons");
+    const english = englishMessages[key].replace("{field}", "lessons");
+    expect(wyniki.ar.messages[i]).toBe(arabic);
+    expect(wyniki.ar.messages[i]).not.toBe(english);
+    expect(wyniki.ar.messages[i]).toMatch(/[\u0600-\u06ff]/);
+  }
 });
