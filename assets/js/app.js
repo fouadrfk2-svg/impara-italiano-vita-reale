@@ -214,9 +214,21 @@
     if (!courseReady) {
       if (!courseLoading) courseLoading = (async function () {
         var scripts = document.querySelectorAll("script[data-course-src]");
-        for (var i = 0; i < scripts.length; i++) {
+        // Fetch a few public UI modules at once while preserving strict
+        // execution order: Guest.loadScript sets async=false BEFORE append.
+        // Never preload private lesson/audio bytes here; those are requested
+        // separately by the authenticated registry with a fresh session.
+        for (var i = 0; i < scripts.length; i += 6) {
           if (!global.Account.snapshot().authenticated) throw Error("Session unavailable");
-          await global.Guest.loadScript(scripts[i].getAttribute("data-course-src"));
+          var batch = [];
+          for (var j = i; j < Math.min(i + 6, scripts.length); j++) {
+            if (!global.Account.snapshot().authenticated) throw Error("Session unavailable");
+            batch.push(global.Guest.loadScript(scripts[j].getAttribute("data-course-src")));
+          }
+          // Do not abandon pending scripts on a rejected promise. Finish the
+          // batch, then fail closed instead of overlapping a retry.
+          var results = await Promise.allSettled(batch);
+          if (results.some(function (r) { return r.status === "rejected"; })) throw Error("Content unavailable");
         }
         var prepared = await prepareCourseLanguage();
         Object.keys(global.Views).forEach(function (name) {
