@@ -18,7 +18,7 @@ function request(admin){
 }
 function response(){return {headers:{},setHeader(k,v){this.headers[k]=v;},end(body){this.body=body;}};}
 test('learner logout clears both learner and email sign-in cookies, without wiping course progress',async()=>{
- const calls=[],handler=createHandler('auth/logout',{run:async(action,payload)=>{calls.push(action);return {ok:true};}});
+ const calls=[],handler=createHandler('auth/logout',{run:async(action)=>{calls.push(action);return {ok:true};}});
  const res=response();await handler(request(false),res);
  assert.equal(res.statusCode,200);
  assert.deepEqual(calls,['logout']);
