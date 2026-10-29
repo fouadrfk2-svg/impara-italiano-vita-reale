@@ -37,7 +37,14 @@ function stripeClient(config){return new Stripe(config.key);}
 async function sendVerificationEmail(email,code,config,fetchFn=fetch){const nl=String.fromCharCode(10);const response=await fetchFn('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+config.emailKey,'Content-Type':'application/json'},body:JSON.stringify({from:config.emailFrom,to:[email],subject:'رمز التحقق من Vita Reale',text:'رمز التحقق: '+code+nl+nl+'تنتهي صلاحيته خلال 10 دقائق. إذا لم تطلبه، يمكنك تجاهل هذه الرسالة.'}),signal:AbortSignal.timeout(8000)});if(!response.ok)throw new Error('email_delivery_failed');}
 function createHandlers(deps={}){
  const env=deps.env||process.env,db=deps.db||{billingRequest,accountRequest},fetchFn=deps.fetch||fetch,random=deps.randomInt||randomInt,stripeFactory=deps.stripeFactory||stripeClient,config=()=>envConfig(env);
- async function run(req,res,fn){headers(res);try{return await fn(req,res);}catch(error){const status=error instanceof HttpError?error.status:error instanceof SyntaxError?400:error?.code==='42501'?401:error?.code==='40001'?409:503;if(status===401&&res.setHeader)res.setHeader('Set-Cookie',BILLING_COOKIE+'=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');return reply(res,status,{error:status===429?'rate_limited':status===409?'conflict':status===401?'authentication_required':status===503?'unavailable':'invalid_request'});}}
+ async function run(req,res,fn){headers(res);try{return await fn(req,res);}catch(error){const status=error instanceof HttpError?error.status:error instanceof SyntaxError?400:error?.code==='42501'?401:error?.code==='40001'?409:503;if(status===401&&res.setHeader)res.setHeader('Set-Cookie',BILLING_COOKIE+'=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');const result={error:status===429?'rate_limited':status===409?'conflict':status===401?'authentication_required':status===503?'unavailable':'invalid_request'};
+  if(env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID==='prj_6iDrQCYqlDY9Hx0buZEMirMoJJYF'&&env.VERCEL_GIT_COMMIT_REF==='codex/stripe-subscriptions'&&req.url?.split('?')[0]==='/api/billing/checkout'){
+    const type=String(error?.type||'');
+    const code=String(error?.code||'');
+    result.diagnostic=['StripeInvalidRequestError','StripeAuthenticationError','StripePermissionError','StripeAPIError','StripeRateLimitError','StripeConnectionError'].includes(type)?type:'non_stripe_error';
+    if(/^[a-z_]{3,60}$/.test(code))result.diagnosticCode=code;
+  }
+  return reply(res,status,result);}}
  function ready(){const c=config();if(!c.ready)throw new HttpError(503);secret();return c;}
  function stripeReady(){const c=config();if(!c.stripeReady)throw new HttpError(503);secret();return c;}
  const publicConfig=async(req,res)=>run(req,res,async()=>{if(req.method!=='GET'){res.setHeader('Allow','GET');return reply(res,405,{error:'method_not_allowed'});}const c=config();return reply(res,200,{enabled:c.ready,amountCents:999,currency:'eur',interval:'month',intervalCount:1});});
