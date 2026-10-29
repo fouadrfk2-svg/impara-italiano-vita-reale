@@ -11,6 +11,9 @@ const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const TARGETS=['preview','production'];
 function ensure(condition){if(!condition)throw Error('Operator verification failed');}
 function unpack(value){return value?.result??value;}
+function deploymentErrorCategory(stderr,exitCode){const s=String(stderr||'').toLowerCase();if(/invalid token|unauthorized|not authenticated|authentication required/.test(s))return'vercel_authentication_failed';if(/scope.*not found|team.*not found|project.*not found|project does not exist/.test(s))return'vercel_target_not_found';if(/build failed|deployment failed|error during build/.test(s))return'vercel_build_failed';if(/network|timeout|timed out|econnreset|enotfound/.test(s))return'vercel_network_failed';return exitCode===0?'deployment_result_unrecognized':'vercel_cli_failed';}
+export function safeDeploymentStderr(stderr,exitCode){const category=deploymentErrorCategory(stderr,exitCode);const messages={vercel_authentication_failed:'Vercel CLI authentication was rejected.',vercel_target_not_found:'The requested Vercel team or project was not found.',vercel_build_failed:'Vercel reported a deployment build failure.',vercel_network_failed:'The Vercel CLI reported a network failure.',deployment_result_unrecognized:'The Vercel CLI did not return a recognizable deployment URL.',vercel_cli_failed:'The Vercel CLI returned an error; raw stderr was suppressed.'};return{category,sanitizedStderr:category==='deployment_result_unrecognized'&&!String(stderr||'').trim()?'':messages[category]};}
+export function parseVercelDeploymentUrl(output){const text=String(output||''),labeled=text.match(/\bProduction(?:\s+deployment)?:\s*(https:\/\/[a-z0-9-]+\.vercel\.app\b)/i);if(labeled)return labeled[1];const urls=[...new Set(text.match(/https:\/\/[a-z0-9-]+\.vercel\.app\b/gi)||[])];return urls.length===1?urls[0]:null;}
 function envMetadata(e){return {id:e.id,key:e.key,type:e.type,target:[...(e.target||[])].sort(),gitBranch:e.gitBranch??null,customEnvironmentIds:e.customEnvironmentIds||[],updatedAt:e.updatedAt};}
 function databaseEnv(data){const envs=unpack(data).envs;ensure(Array.isArray(envs));const matches=envs.filter(e=>e.key==='DATABASE_URL');ensure(matches.length===1);const entry=envMetadata(matches[0]);ensure(JSON.stringify(entry.target)===JSON.stringify(TARGETS)&&!entry.gitBranch&&entry.customEnvironmentIds.length===0&&['sensitive','secret'].includes(entry.type));return {entry,others:envs.filter(e=>e.key!=='DATABASE_URL').map(envMetadata).sort((a,b)=>a.id.localeCompare(b.id))};}
 
@@ -22,10 +25,10 @@ export async function invokeCli(cliPath,args,input=''){
  for(const key of ['DATABASE_URL','DEBUG','VERCEL_DEBUG','VERCEL_LOG_LEVEL'])delete env[key];
  return await new Promise((done,fail)=>{
   const child=spawn(process.execPath,[cliPath,...args],{cwd:ROOT,env,windowsHide:true,stdio:['pipe','pipe','pipe']});
-  let output='',overflow=false;const timer=setTimeout(()=>{child.kill();fail(Error('CLI unavailable'));},30000);
+  let output='',stderr='',overflow=false;const deployment=args[0]==='deploy';const timer=setTimeout(()=>{child.kill();const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic={operation:'vercel deploy',exitCode:null,...safeDeploymentStderr('timeout',124)};fail(error);},30000);
   child.stdout.on('data',d=>{output+=d;if(output.length>2097152){overflow=true;child.kill();}});
-  child.stderr.on('data',()=>{});child.on('error',()=>{clearTimeout(timer);fail(Error('CLI unavailable'));});
-  child.on('close',code=>{clearTimeout(timer);if(code!==0||overflow)fail(Error('CLI unavailable'));else done(output);});
+  child.stderr.on('data',d=>{if(stderr.length<65536)stderr+=d.toString().slice(0,65536-stderr.length);});child.on('error',()=>{clearTimeout(timer);fail(Error('CLI unavailable'));});
+  child.on('close',code=>{clearTimeout(timer);if(code!==0||overflow){const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic={operation:'vercel deploy',exitCode:code,...safeDeploymentStderr(stderr,code)};fail(error);}else done(deployment?output+'\n'+stderr:output);});
   child.stdin.on('error',()=>{});child.stdin.end(input);
  });
 }
