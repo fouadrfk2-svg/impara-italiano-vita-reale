@@ -16,6 +16,16 @@ async function stripeTestReadiness() {
   const c = envConfig(env);
   if (!c.ready) return "config_incomplete";
   try {
+    // Separate transport/authentication failure from SDK behavior without exposing secrets.
+    if (c.mode !== "test") return "unavailable";
+    let probe;
+    try {
+      probe = await fetch("https://api.stripe.com/v1/prices/" + encodeURIComponent(c.price), {
+        headers: { Authorization: "Bearer " + c.key },
+        signal: AbortSignal.timeout(8000)
+      });
+    } catch { return "stripe_network_failed"; }
+    if (!probe.ok) return "stripe_http_" + String(probe.status);
     const stripe = new Stripe(c.key);
     const price = await stripe.prices.retrieve(c.price, { expand: ["product"] });
     const product = typeof price.product === "string"
@@ -32,6 +42,9 @@ async function stripeTestReadiness() {
     if (error?.type === "StripePermissionError") return "stripe_permission_failed";
     if (error?.type === "StripeInvalidRequestError") return "stripe_request_failed";
     if (error?.type === "StripeConnectionError") return "stripe_connection_failed";
+    if (error?.name === "TypeError") return "sdk_type_error";
+    if (error?.name === "StripeAPIError") return "stripe_api_error";
+    if (error?.name === "StripeRateLimitError") return "stripe_rate_limited";
     return "stripe_failed";
   }
 }
