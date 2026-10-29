@@ -75,8 +75,13 @@ async function processEvent(event,stripe,db,config){
  if(!subscriptionId)return event.type==='checkout.session.async_payment_failed'?'ok':'ignored';
  const subscription=await stripe.subscriptions.retrieve(subscriptionId,{expand:['items.data.price.product']});
  const itemList=subscription.items?.data||[];if(itemList.length!==1||itemList[0].quantity!==1)return 'ignored';const price=itemList[0].price,product=typeof price.product==='string'?price.product:price.product?.id;if(!price||!product)return 'retry';if(config&&(price.id!==config.price||product!==config.product))return 'ignored';
+ // The 2026 Stripe API provides the billing period on the subscription item.
+ // Fall back to subscription-level period for earlier supported API versions.
+ const periodEndSeconds=Number.isSafeInteger(itemList[0].current_period_end)
+  ?itemList[0].current_period_end:subscription.current_period_end;
+ if(!Number.isSafeInteger(periodEndSeconds)||periodEndSeconds<=0)return 'retry';
  const customer=typeof subscription.customer==='string'?subscription.customer:subscription.customer?.id;
- const eventResult=await db.billingRequest('sync_subscription',{eventId:event.id,eventType:event.type,eventCreated:created,customerId:customer,subscriptionId:subscription.id,intentId:subscription.metadata?.vita_pilot_intent_id||intentId||'',productId:product,priceId:price.id,status:subscription.status,currentPeriodEnd:new Date(subscription.current_period_end*1000).toISOString(),cancelAtPeriodEnd:subscription.cancel_at_period_end,cancelAt:subscription.cancel_at?new Date(subscription.cancel_at*1000).toISOString():''});
+ const eventResult=await db.billingRequest('sync_subscription',{eventId:event.id,eventType:event.type,eventCreated:created,customerId:customer,subscriptionId:subscription.id,intentId:subscription.metadata?.vita_pilot_intent_id||intentId||'',productId:product,priceId:price.id,status:subscription.status,currentPeriodEnd:new Date(periodEndSeconds*1000).toISOString(),cancelAtPeriodEnd:subscription.cancel_at_period_end,cancelAt:subscription.cancel_at?new Date(subscription.cancel_at*1000).toISOString():''});
  return eventResult?.ok||eventResult?.duplicate||eventResult?.stale?'ok':eventResult?.ignored?'retry':'retry';
 }
 module.exports={createHandlers,envConfig,stripeClient,normalizedEmail,processEvent,readRaw,BILLING_COOKIE,LIVE_PRODUCT,LIVE_PRICE};
