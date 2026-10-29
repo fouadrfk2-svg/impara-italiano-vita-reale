@@ -15,7 +15,7 @@ async function mockBilling(page,options={}){
 
 test("active verified Stripe user is sent directly into lessons",async({page})=>{
  const billing=await mockBilling(page);
- await page.goto("/index.html#/billing");
+ await page.goto("/index.html#/billing",{waitUntil:"domcontentloaded"});
  await expect.poll(()=>page.evaluate(()=>window.Router.current.route)).toBe("oggi");
  await expect(page.locator(".billing-page")).toHaveCount(0);
  expect(billing.activations).toBe(1);
@@ -23,7 +23,7 @@ test("active verified Stripe user is sent directly into lessons",async({page})=>
 
 test("unverified visitor never activates a course session",async({page})=>{
  const billing=await mockBilling(page,{verified:false});
- await page.goto("/index.html#/billing");
+ await page.goto("/index.html#/billing",{waitUntil:"domcontentloaded"});
  await expect(page.locator(".billing-page")).toBeVisible();
  await expect(page.locator("#billing-email")).toBeVisible();
  expect(billing.activations).toBe(0);
@@ -31,7 +31,7 @@ test("unverified visitor never activates a course session",async({page})=>{
 
 test("access denied by the server never bypasses the billing screen",async({page})=>{
  const billing=await mockBilling(page,{denied:true});
- await page.goto("/index.html#/billing");
+ await page.goto("/index.html#/billing",{waitUntil:"domcontentloaded"});
  await expect(page.locator("[data-open-learning]")).toBeVisible();
  await expect(page.locator(".billing-page")).toBeVisible();
  expect(billing.activations).toBeGreaterThan(0);
@@ -39,7 +39,7 @@ test("access denied by the server never bypasses the billing screen",async({page
 
 test("active subscribers can still open Stripe management when requested",async({page})=>{
  const billing=await mockBilling(page);
- await page.goto("/index.html#/billing?manage=1");
+ await page.goto("/index.html#/billing?manage=1",{waitUntil:"domcontentloaded"});
  await expect(page.locator("[data-portal]")).toBeVisible();
  expect(billing.activations).toBe(0);
 });
