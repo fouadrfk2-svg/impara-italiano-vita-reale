@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
-const {createHandlers,envConfig,processEvent,LIVE_PRICE,LIVE_PRODUCT}=require('../../server/stripe-billing.cjs');
+const {createHandlers,envConfig,stripeClient,processEvent,LIVE_PRICE,LIVE_PRODUCT}=require('../../server/stripe-billing.cjs');
 const {mac}=require('../../server/account-api.cjs');
 const secret='A'.repeat(43),old={PILOT_AUTH_SECRET:process.env.PILOT_AUTH_SECRET,VERCEL:process.env.VERCEL,VERCEL_URL:process.env.VERCEL_URL};
 before(()=>{process.env.PILOT_AUTH_SECRET=secret;process.env.VERCEL='1';process.env.VERCEL_URL='vita-reale-arabic-demo.vercel.app';});
@@ -42,3 +42,10 @@ test('webhook body remains raw and subscription snapshot must match configured p
 test('webhook retries unknown checkout mapping and acknowledges processed duplicates',async()=>{const event={id:'evt_SYNTH2',type:'customer.subscription.created',created:1900000000,data:{object:{id:'sub_SYNTH2',customer:'cus_SYNTH123'}}};const sub={id:'sub_SYNTH2',customer:'cus_SYNTH123',status:'active',current_period_end:1900000000,cancel_at_period_end:false,cancel_at:null,metadata:{vita_pilot_intent_id:'20000000-0000-4000-8000-000000000001'},items:{data:[{quantity:1,price:{id:ENV.STRIPE_PRICE_ID,product:ENV.STRIPE_PRODUCT_ID}}]}};const db=dbStub({sync_subscription:()=>({ignored:true})});assert.equal(await processEvent(event,stripeStub({subscription:sub}).client,db,envConfig(ENV)),'retry');});
 test('dispute events install and resolve scoped risk holds without touching manual entitlements',async()=>{const db=dbStub(),s=stripeStub(),event={id:'evt_SYNTH3',type:'charge.dispute.created',created:1900000000,data:{object:{id:'dp_SYNTH1',charge:'ch_SYNTH1',customer:null,status:'needs_response'}}};assert.equal(await processEvent(event,s.client,db,envConfig(ENV)),'ok');const call=db.calls[0];assert.equal(call.action,'risk_hold');assert.equal(call.payload.riskId,'dp_SYNTH1');assert.equal(call.payload.customerId,'cus_SYNTH123');});
 test('email validation normalizes case but rejects header injection and malformed addresses',()=>{const {normalizedEmail}=require('../../server/stripe-billing.cjs');assert.equal(normalizedEmail(' User+pilot@Example.test '),'user+pilot@example.test');assert.equal(normalizedEmail('victim@example.test\r\nBcc:x@y.test'),null);assert.equal(normalizedEmail('no-domain'),null);});
+
+test('Stripe v23 CommonJS constructor works for the default checkout client without network',()=>{
+ const client=stripeClient(envConfig(ENV));
+ assert.equal(typeof client.prices.retrieve,'function');
+ assert.equal(typeof client.customers.create,'function');
+ assert.equal(typeof client.checkout.sessions.create,'function');
+});
