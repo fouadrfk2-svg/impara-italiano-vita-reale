@@ -1,9 +1,9 @@
 "use strict";
 // Server-only: neither this helper nor the driver belongs in public assets.
 const {neon}=require('@neondatabase/serverless');
-const {RUNTIME_HEALTH_SQL,parsePilotUrl}=require('./runtime-policy.cjs');
+const {PILOT,RUNTIME_HEALTH_SQL,parsePilotUrl}=require('./runtime-policy.cjs');
 let cachedUrl,cachedClient;
-function client(){const url=parsePilotUrl(process.env.DATABASE_URL).toString();if(cachedUrl!==url||!cachedClient){cachedClient=neon(url);cachedUrl=url;}return cachedClient;}
+function client(){const url=parsePilotUrl(process.env.DATABASE_URL,PILOT.role,process.env).toString();if(cachedUrl!==url||!cachedClient){cachedClient=neon(url);cachedUrl=url;}return cachedClient;}
 async function checkDatabaseHealth(){try{const rows=await client().query(RUNTIME_HEALTH_SQL,[],{fetchOptions:{signal:AbortSignal.timeout(5000),cache:'no-store'}});if(!Array.isArray(rows)||rows.length!==1||rows[0].ok!==1||rows[0].identity_verified!==true)throw Error();}catch{throw new Error('Database unavailable');}}
 async function accountRequest(action,payload){const allowed=['redeem','session','logout','progress_read','progress_save','admin_login','admin_session','admin_logout','admin_list','admin_issue','admin_rotate','admin_revoke_code','admin_revoke_access','admin_grant'];if(!allowed.includes(action))throw new Error('Database unavailable');return callFunction('account_request',action,payload);}
 const BILLING_ACTIONS=new Set(['otp_request','otp_verify','checkout_intent','store_customer','record_checkout','billing_status','portal_identity','activate','sync_subscription','risk_hold']);

@@ -7,13 +7,15 @@ import {join} from 'node:path';
 import vm from 'node:vm';
 import {ROOT} from './_harness.mjs';
 const require=createRequire(import.meta.url),read=f=>readFileSync(join(ROOT,f),'utf8');
-const policy=require('../../server/runtime-policy.cjs'),{RUNTIME_HEALTH_SQL,PILOT}=policy;
+const policy=require('../../server/runtime-policy.cjs'),{RUNTIME_HEALTH_SQL,PILOT,STRIPE_PREVIEW}=policy;
 // Fictional credentials on the reviewed non-secret endpoint; every transport is stubbed.
 const URL_A='postgresql://vita_pilot_app:synthetic-password@'+PILOT.directHost+'/'+PILOT.database+'?sslmode=require';
 const URL_B=URL_A.replace(PILOT.directHost,PILOT.pooledHost);
+const PREVIEW_URL='postgresql://vita_pilot_app:synthetic-password@'+STRIPE_PREVIEW.directHost+'/'+STRIPE_PREVIEW.database+'?sslmode=require';
+const PREVIEW_ENV={VERCEL:'1',VERCEL_ENV:'preview',VERCEL_PROJECT_ID:STRIPE_PREVIEW.vercelProjectId,VERCEL_GIT_COMMIT_REF:STRIPE_PREVIEW.gitBranch};
 const plain=v=>JSON.parse(JSON.stringify(v));
 function foundation(options={}){
- const calls={clients:[],queries:[],timeouts:[],logs:[]},env={DATABASE_URL:URL_A,...options.env};
+ const calls={clients:[],queries:[],timeouts:[],logs:[]},env={NODE_ENV:'test',DATABASE_URL:URL_A,...options.env};
  const shared={URL,AbortSignal:{timeout(ms){calls.timeouts.push(ms);return options.signal||AbortSignal.timeout(ms);}},process:{env},console:{log:(...v)=>calls.logs.push(v),error:(...v)=>calls.logs.push(v),warn:(...v)=>calls.logs.push(v)}};
  const module={exports:{}};
  const neon=options.neon||((url)=>{calls.clients.push(url);return {query:async(...args)=>{calls.queries.push(args);if(options.error)throw options.error;return options.rows===undefined?[{ok:1,identity_verified:true}]:options.rows;}};});
@@ -39,6 +41,10 @@ test('actual HTTP request/response exposes neither input nor records and disallo
 for(const verified of [undefined,false,null,1,'true'])test('identity verification must be boolean true: '+String(verified),async()=>{const b=foundation({rows:[{ok:1,identity_verified:verified}]});assert.equal((await b.invoke()).status,503);assert.deepEqual(b.calls.logs,[]);});
 test('privileged owner configuration fails before any connection',async()=>{const b=foundation({env:{DATABASE_URL:URL_A.replace('vita_pilot_app:','vita_reale_test_owner:')}});assert.equal((await b.invoke()).status,503);assert.deepEqual(b.calls.clients,[]);});
 test('warm connections are reverified and cannot retain an earlier passing role result',async()=>{const options={rows:[{ok:1,identity_verified:true}]},b=foundation(options);assert.equal((await b.invoke()).status,200);options.rows=[{ok:1,identity_verified:false}];assert.equal((await b.invoke()).status,503);assert.equal(b.calls.clients.length,1);assert.equal(b.calls.queries.length,2);});
+test('Preview runtime connects only to its branch-scoped database binding',async()=>{const b=foundation({env:{...PREVIEW_ENV,DATABASE_URL:PREVIEW_URL}});assert.equal((await b.invoke()).status,200);assert.deepEqual(b.calls.clients,[PREVIEW_URL]);});
+test('Production runtime rejects the Preview database host before creating a client',async()=>{const b=foundation({env:{VERCEL:'1',VERCEL_ENV:'production',VERCEL_PROJECT_ID:PILOT.vercelProjectId,DATABASE_URL:PREVIEW_URL}});assert.equal((await b.invoke()).status,503);assert.deepEqual(b.calls.clients,[]);assert.deepEqual(b.calls.queries,[]);});
+test('unknown production runtime without Vercel scope metadata fails closed rather than defaulting to the pilot database',async()=>{const b=foundation({env:{NODE_ENV:'production',DATABASE_URL:URL_A}});assert.equal((await b.invoke()).status,503);assert.deepEqual(b.calls.clients,[]);assert.deepEqual(b.calls.queries,[]);});
+test('Preview runtime rejects production host and any missing or wrong Vercel scope before connecting',async()=>{for(const env of [{...PREVIEW_ENV,DATABASE_URL:URL_A},{...PREVIEW_ENV,DATABASE_URL:PREVIEW_URL,VERCEL_GIT_COMMIT_REF:'main'},{...PREVIEW_ENV,DATABASE_URL:PREVIEW_URL,VERCEL_PROJECT_ID:'another-project'},{VERCEL:'1',VERCEL_ENV:'preview',VERCEL_PROJECT_ID:STRIPE_PREVIEW.vercelProjectId,DATABASE_URL:PREVIEW_URL}]){const b=foundation({env});assert.equal((await b.invoke()).status,503);assert.deepEqual(b.calls.clients,[]);assert.deepEqual(b.calls.queries,[]);}});
 test('the fixed probe inspects only catalogs and never returns security details',()=>{assert(!/\b(?:FROM|JOIN)\s+(?:vita_pilot|public)\./i.test(RUNTIME_HEALTH_SQL));assert(!/DATABASE_URL|PASSWORD|\b(?:INSERT|UPDATE|DELETE)\s+(?:INTO|FROM|vita_pilot)/i.test(RUNTIME_HEALTH_SQL));});
 
 

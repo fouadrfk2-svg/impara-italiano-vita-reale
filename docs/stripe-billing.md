@@ -37,6 +37,21 @@ catalog and the canonical site URL. Do not copy a local environment file.
 | `RESEND_API_KEY` | Optional email delivery provider key; required before billing signup can be enabled |
 | `BILLING_EMAIL_FROM` | Verified sender identity; required before billing signup can be enabled |
 
+### Branch-scoped database binding
+
+The existing Production binding remains pinned to the original pilot endpoint.
+The `codex/stripe-subscriptions` Preview deployment must have its own
+`DATABASE_URL`, scoped to Preview and that Git branch, using the restricted
+`vita_pilot_app` role on Neon branch `br-morning-truth-b9gfj39x` and database
+`vita_reale_test`. Do not make this value available to Production or other
+Preview branches. The runtime also requires Vercel's `VERCEL_ENV`,
+`VERCEL_PROJECT_ID`, and `VERCEL_GIT_COMMIT_REF` system variables; it fails
+closed if the project or branch scope is absent or incorrect. Ensure Vercel's
+Automatically expose System Environment Variables setting is enabled for this
+project; otherwise runtime database access fails closed. Production
+accepts only its existing endpoint, and the Preview endpoint is rejected in
+Production. No fallback between these bindings is allowed.
+
 Values must be entered through the Vercel dashboard or authenticated CLI,
 never committed or printed. Preview validation rejects the reviewed live
 product/price IDs and live Stripe keys. Production validation rejects test
