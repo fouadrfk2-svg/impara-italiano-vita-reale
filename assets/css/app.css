@@ -482,6 +482,10 @@ button{font:inherit;color:inherit;}
   border-radius:var(--r-m);color:inherit;font-size:.82rem;font-weight:600;cursor:pointer;
 }
 .rail__theme:hover{background:oklch(0 0 0 / .26);}
+.rail__logout{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin-top:10px;padding:9px 12px;border:1px solid oklch(1 0 0 / .38);border-radius:var(--r-m);background:transparent;color:var(--on-rail);font:700 .9rem var(--sans);cursor:pointer;transition:background .16s ease;}
+.rail__logout:hover:not(:disabled){background:oklch(0 0 0 / .26);}
+.rail__logout:focus-visible{outline:3px solid var(--on-rail);outline-offset:2px;}
+.rail__logout:disabled{opacity:.65;cursor:wait;}
 
 .rail-toggle{display:none;}
 .bottom-nav{display:none;}
