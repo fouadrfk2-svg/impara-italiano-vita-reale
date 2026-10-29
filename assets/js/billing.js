@@ -6,7 +6,23 @@
  function post(path,body){return request(path,"POST",body,true);}
  function message(root,text,bad){var box=root.querySelector("[data-billing-message]");if(!box)return;box.textContent=text;box.hidden=!text;box.setAttribute("role",bad?"alert":"status");}
  function configuration(){if(!configPromise)configPromise=global.fetch("/api/billing/config",{credentials:"same-origin",cache:"no-store",headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw Error();return r.json();}).catch(function(){return {enabled:false};});return configPromise;}
- function upgradeGuest(){configuration().then(function(c){if(!c.enabled)return;document.querySelectorAll(".guest-subscribe").forEach(function(a){if(a.getAttribute("href")==="#/billing")return;a.setAttribute("href","#/billing");a.removeAttribute("target");a.removeAttribute("rel");a.removeAttribute("referrerpolicy");a.innerHTML="اشترك الآن — <bdi dir=\"ltr\">9.99€</bdi> شهريًا <span aria-hidden=\"true\">↗</span>";});document.querySelectorAll(".guest-how:not([data-billing-configured])").forEach(function(list){list.setAttribute("data-billing-configured","true");list.querySelectorAll("li").forEach(function(li,i){li.textContent=["أدخل بريدك الإلكتروني وتحقّق منه برمز آمن.","أكمل الدفع على صفحة Stripe الآمنة.","يُفعّل الوصول بعد تأكيد Stripe، ويمكنك إدارة اشتراكك أو إلغاؤه."][i]||li.textContent;});});});}
+ function updateGuestCopy(selector,copy){document.querySelectorAll(selector).forEach(function(el){if(el.getAttribute("data-billing-online")==="1")return;el.setAttribute("data-billing-online","1");el.textContent=copy;});}
+ function upgradeGuest(){configuration().then(function(c){
+  if(!c.enabled)return;
+  document.querySelectorAll(".guest-subscribe").forEach(function(a){if(a.getAttribute("href")==="#/billing")return;a.setAttribute("href","#/billing");a.removeAttribute("target");a.removeAttribute("rel");a.removeAttribute("referrerpolicy");a.innerHTML='اشترك الآن — <bdi dir="ltr">9.99€</bdi> شهريًا <span aria-hidden="true">↗</span>';});
+  document.querySelectorAll(".guest-how:not([data-billing-configured])").forEach(function(list){list.setAttribute("data-billing-configured","true");list.querySelectorAll("li").forEach(function(li,i){li.textContent=["أدخل بريدك الإلكتروني وتحقّق منه برمز آمن.","أكمل الدفع على صفحة Stripe الآمنة.","يُفعّل الوصول بعد تأكيد Stripe، ويمكنك إدارة اشتراكك أو إلغاؤه."][i]||li.textContent;});});
+  updateGuestCopy(".guest-price-disclosure","9.99€ شهريًا مع تجديد تلقائي، دون فترة تجريبية. يتم الدفع بأمان عبر Stripe ويمكنك إلغاء التجديد في أي وقت. إذا كان لديك رمز تفعيل يدوي، يمكنك الاستمرار باستخدامه.");
+  updateGuestCopy("#guest-request > div > p:last-of-type","يمكنك بدء الاشتراك الإلكتروني بـ 9.99€ شهريًا. أَكِّد بريدك الإلكتروني أولًا، ثم انتقل إلى صفحة الدفع الآمنة على Stripe.");
+  updateGuestCopy("#guest-request .guest-contact > p:first-child","يفتح الزر صفحة الاشتراك الآمن: التحقق من البريد ثم الدفع عبر Stripe. لن يتم خصم أي مبلغ قبل تأكيد الدفع.");
+  document.querySelectorAll(".guest-faq details:not([data-billing-configured])").forEach(function(d){
+   var heading=d.querySelector("summary"),answer=d.querySelector("p");if(!heading||!answer)return;
+   if(heading.textContent.trim()==="هل يمكنني الدفع الآن على الموقع؟")answer.textContent="نعم. يمكنك الاشتراك بـ 9.99€ شهريًا عبر Stripe بعد تأكيد بريدك الإلكتروني. الاشتراك يتجدد تلقائيًا ويمكنك إلغاء التجديد في أي وقت.";
+   else if(heading.textContent.trim()==="كيف أدخل بعد التفعيل؟")answer.textContent="بعد تأكيد Stripe للدفع، يُفتح الوصول تلقائيًا من خلال بريدك الإلكتروني. إذا كان لديك رمز تفعيل يدوي سابق، يمكنك الاستمرار في استخدامه.";
+   else return;
+   d.setAttribute("data-billing-configured","true");
+  });
+ });}
+
  if(global.MutationObserver&&global.document&&global.document.documentElement){new MutationObserver(upgradeGuest).observe(global.document.documentElement,{subtree:true,childList:true});global.addEventListener("hashchange",upgradeGuest);}
  function renderUnavailable(){global.Views.shell.publicSet('<div class="billing-page" lang="ar" dir="rtl"><a class="btn btn--quiet" href="#/home">العودة إلى الصفحة الرئيسية</a><section class="billing-card"><p class="guest-eyebrow">VITA REALE / الاشتراك</p><h1>الاشتراك الإلكتروني غير متاح الآن</h1><p>يمكنك الرجوع إلى الصفحة الرئيسية والاطّلاع على وسيلة التواصل المتاحة حاليًا.</p></section></div>');}
  global.Views.billing=function(params){configuration().then(function(c){if(!c.enabled){renderUnavailable();return;}renderForm(params||{});});};
