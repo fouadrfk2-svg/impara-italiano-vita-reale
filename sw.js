@@ -1,7 +1,7 @@
 /* Public shell only. Private course data/audio are network-only and require
    a fresh server session. Downloaded copies from older releases cannot be
    remotely revoked; activation removes their legacy Cache Storage entries. */
-var SW_VERSION = "v36.cb5ad5a2f7a9";
+var SW_VERSION = "v37.cb5ad5a2f7a9";
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 var PRECACHE = [
   "./assets/branding/header_public_light.svg",
@@ -156,8 +156,60 @@ var PRECACHE = [
   "./assets/css/guest.css",
   "./assets/js/guest.js"
 ];
+
+// Keep the public home page available offline without prefetching the entire
+// course UI, all icon variants, all language fonts, and unused media.
+// Optional public files are cached by the existing network-first fetch
+// handler when actually used. Never cache APIs or private lessons/audio.
+var FIRST_VISIT = new Set([
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./assets/branding/header_public_light.svg",
+  "./assets/branding/header_learning_dark.svg",
+  "./assets/branding/footer_light.svg",
+  "./assets/branding/footer_dark.svg",
+  "./assets/marketing/vita-italia.svg",
+  "./assets/marketing/learning-desk.svg",
+  "./assets/icons/favicon.svg",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
+  "./assets/fonts/noto-sans-arabic-arabic.woff2",
+  "./assets/css/app.css",
+  "./assets/css/icons.css",
+  "./assets/css/rtl.css",
+  "./assets/css/account.css",
+  "./assets/css/guest.css",
+  "./assets/css/billing.css",
+  "./assets/css/branding.css",
+  "./assets/js/fsrs.js",
+  "./assets/js/text.js",
+  "./assets/js/notice.js",
+  "./assets/js/store.js",
+  "./assets/js/registry.js",
+  "./assets/js/srs.js",
+  "./assets/js/core.js",
+  "./assets/js/i18n.js",
+  "./assets/js/i18n-merge.js",
+  "./assets/js/exercises.js",
+  "./assets/js/views.js",
+  "./assets/js/views-privacy.js",
+  "./assets/js/router.js",
+  "./assets/js/account-rules.js",
+  "./assets/js/account.js",
+  "./assets/js/views-account.js",
+  "./assets/js/billing.js",
+  "./assets/js/guest.js",
+  "./assets/js/app.js",
+  "./assets/js/pwa-rules.js",
+  "./assets/js/pwa.js",
+  "./data/i18n/ui-en.js",
+  "./data/i18n/ui-ar.js"
+]);
+var INSTALL_SHELL = PRECACHE.filter(function(url){return FIRST_VISIT.has(url);});
+
 self.addEventListener("install", function (e) {
- e.waitUntil(caches.open(SHELL_CACHE).then(function(c){return Promise.all(PRECACHE.map(function(u){return c.add(u).catch(function(){return null;});}));}));
+ e.waitUntil(caches.open(SHELL_CACHE).then(function(c){return Promise.all(INSTALL_SHELL.map(function(u){return c.add(u).catch(function(){return null;});}));}));
 });
 self.addEventListener("message", function(e){if(e.data&&e.data.typ==="przejmij")self.skipWaiting();});
 self.addEventListener("activate", function(e){
