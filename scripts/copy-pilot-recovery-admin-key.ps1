@@ -1,0 +1,10 @@
+param([string]$VaultPath=(Join-Path $env:LOCALAPPDATA 'VitaReale\AdminRecovery\replacement.dpapi'))
+$ErrorActionPreference='Stop';$b=$null;$pbytes=$null
+try{if([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT){throw 'Unsupported'};Add-Type -AssemblyName System.Security
+ $dir=[IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'VitaReale\AdminRecovery'));$path=[IO.Path]::GetFullPath((Join-Path $dir 'replacement.dpapi'))
+ if(-not [string]::Equals([IO.Path]::GetFullPath($VaultPath),$path,[StringComparison]::OrdinalIgnoreCase)-or -not [IO.File]::Exists($path)){throw 'Vault unavailable'}
+ $b=[IO.File]::ReadAllBytes($path);$pbytes=[Security.Cryptography.ProtectedData]::Unprotect($b,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser);$plain=[Text.Encoding]::UTF8.GetString($pbytes);$p=ConvertFrom-Json $plain
+ $expected=@('formatVersion','project','team','branch','database','adminId','adminKey','authSecret','requestId','createdAt','expiresAt','purpose');$names=@($p.PSObject.Properties|%{$_.Name});if(@(Compare-Object $expected $names).Count -ne 0-or $p.formatVersion -ne 1-or $p.project -ne 'vita-reale-arabic-demo'-or $p.team -ne 'team_1iIo3BfW8Vk8BduLPPTbgnpv'-or $p.branch -ne 'br-old-shape-b9onuuiu'-or $p.database -ne 'vita_reale_test'-or $p.purpose -ne 'owner-authorized-isolated-demo-auth-and-admin-recovery'-or $p.adminId -notmatch '^[0-9a-fA-F-]{36}$'-or $p.requestId -notmatch '^[0-9a-fA-F-]{36}$'-or $p.adminKey -notmatch '^[A-Za-z0-9_-]{43}$'-or $p.authSecret -notmatch '^[A-Za-z0-9_-]{43}$'){throw 'Wrong vault'}
+ $key=[string]$p.adminKey;Set-Clipboard -Value $key;[Console]::Out.WriteLine('Admin Key copied; paste only into the Arabic Demo login. Clipboard clears in 60 seconds.');Start-Sleep -Seconds 60;if((Get-Clipboard -Raw) -ceq $key){Set-Clipboard -Value ''};[Console]::Out.WriteLine('Clipboard cleared if it still held the key.')
+}catch{[Console]::Out.WriteLine('Vault read failed; no credential was displayed.');exit 1}
+finally{if($b){[Array]::Clear($b,0,$b.Length)};if($pbytes){[Array]::Clear($pbytes,0,$pbytes.Length)};$plain=$null;$p=$null;$key=$null}

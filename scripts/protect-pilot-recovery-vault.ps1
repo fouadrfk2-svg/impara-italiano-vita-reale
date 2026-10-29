@@ -1,0 +1,20 @@
+param([Parameter(Mandatory=$true)][string]$VaultPath)
+$ErrorActionPreference='Stop';$dirMade=$false;$fileMade=$false;$plain=$null;$pb=$null;$cb=$null;$rb=$null
+try{
+ if([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT){throw 'Unsupported platform'};Add-Type -AssemblyName System.Security
+ $local=[Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData);if(!$local){throw 'Profile unavailable'}
+ $dir=[IO.Path]::GetFullPath((Join-Path $local 'VitaReale\AdminRecovery'));$file=[IO.Path]::GetFullPath((Join-Path $dir 'replacement.dpapi'))
+ if(-not [IO.Path]::IsPathRooted($VaultPath)-or -not [string]::Equals([IO.Path]::GetFullPath($VaultPath),$file,[StringComparison]::OrdinalIgnoreCase)-or [IO.File]::Exists($file)){throw 'Target rejected'}
+ $identity=[Security.Principal.WindowsIdentity]::GetCurrent();$user=$identity.User;if(!$user){throw 'Identity unavailable'};$system=New-Object Security.Principal.SecurityIdentifier('S-1-5-18')
+ $acl=New-Object Security.AccessControl.DirectorySecurity;$acl.SetAccessRuleProtection($true,$false);$acl.SetOwner($user)
+ $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($user,'FullControl','ContainerInherit,ObjectInherit','None','Allow')))
+ $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($system,'FullControl','ContainerInherit,ObjectInherit','None','Allow')))
+ if([IO.Directory]::Exists($dir)){if(@([IO.Directory]::EnumerateFileSystemEntries($dir)).Count){throw 'Directory not empty'};[IO.Directory]::SetAccessControl($dir,$acl)}else{[void][IO.Directory]::CreateDirectory($dir,$acl);$dirMade=$true}
+ $plain=[Console]::In.ReadToEnd();if(!$plain-or $plain.Length -gt 4096){throw 'Payload rejected'};$p=ConvertFrom-Json -InputObject $plain;$names=@($p.PSObject.Properties|%{$_.Name})
+ $expected=@('formatVersion','project','team','branch','database','adminId','adminKey','authSecret','requestId','createdAt','expiresAt','purpose');if(@(Compare-Object $expected $names).Count -ne 0-or $p.formatVersion -ne 1-or $p.project -ne 'vita-reale-arabic-demo'-or $p.team -ne 'team_1iIo3BfW8Vk8BduLPPTbgnpv'-or $p.branch -ne 'br-old-shape-b9onuuiu'-or $p.database -ne 'vita_reale_test'-or $p.purpose -ne 'owner-authorized-isolated-demo-auth-and-admin-recovery'-or $p.adminId -notmatch '^[0-9a-fA-F-]{36}$'-or $p.requestId -notmatch '^[0-9a-fA-F-]{36}$'-or $p.adminKey -notmatch '^[A-Za-z0-9_-]{43}$'-or $p.authSecret -notmatch '^[A-Za-z0-9_-]{43}$'-or $p.adminKey -ceq $p.authSecret-or [string]::IsNullOrWhiteSpace([string]$p.createdAt)-or [string]::IsNullOrWhiteSpace([string]$p.expiresAt)){throw 'Payload rejected'}
+ $pb=[Text.Encoding]::UTF8.GetBytes($plain);$cb=[Security.Cryptography.ProtectedData]::Protect($pb,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser);$s=[IO.File]::Open($file,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None);$fileMade=$true
+ try{$fa=Get-Acl $file;$fa.SetAccessRuleProtection($true,$false);$fa.Access|%{[void]$fa.RemoveAccessRuleAll($_)};$fa.SetOwner($user);$fa.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($user,'FullControl','Allow')));$fa.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($system,'FullControl','Allow')));Set-Acl $file $fa;$s.Write($cb,0,$cb.Length);$s.Flush()}finally{$s.Dispose()}
+ $disk=[IO.File]::ReadAllBytes($file);$rb=[Security.Cryptography.ProtectedData]::Unprotect($disk,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser);$r=[Text.Encoding]::UTF8.GetString($rb);if($r -cne $plain){throw 'Roundtrip mismatch'};$q=ConvertFrom-Json $r;if($q.adminKey -cne $p.adminKey-or $q.authSecret -cne $p.authSecret){throw 'Comparison failed'}
+ $p=$null;$q=$null;$r=$null;[Console]::Out.Write('{"protected":true}')
+}catch{if($fileMade-and [IO.File]::Exists($file)){try{[IO.File]::Delete($file)}catch{}};if($dirMade-and [IO.Directory]::Exists($dir)){try{[IO.Directory]::Delete($dir,$false)}catch{}};[Console]::Out.Write('{"protected":false}');exit 1}
+finally{if($pb){[Array]::Clear($pb,0,$pb.Length)};if($cb){[Array]::Clear($cb,0,$cb.Length)};if($rb){[Array]::Clear($rb,0,$rb.Length)};$plain=$null}

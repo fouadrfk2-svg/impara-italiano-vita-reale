@@ -62,7 +62,7 @@ function validateSecret(secret) {
   return bytes;
 }
 
-function adminCredentialHash(secretBytes, adminKey) {
+export function adminCredentialHash(secretBytes, adminKey) {
   return createHmac('sha256', secretBytes)
     .update('vita-reale-arabic:pilot:v1:admin_credential:' + adminKey)
     .digest('hex');
@@ -74,7 +74,7 @@ function assertOwnerUrl(value) {
   return url;
 }
 
-const RUNTIME_AND_ACCOUNT_GRANT_SQL = `
+export const RUNTIME_AND_ACCOUNT_GRANT_SQL = `
 SELECT r.rolcanlogin, r.rolsuper, r.rolbypassrls, r.rolcreaterole,
        r.rolcreatedb, r.rolreplication, r.rolinherit,
        (SELECT count(*)::int FROM pg_catalog.pg_auth_members m WHERE m.member=r.oid) AS memberships,
