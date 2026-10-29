@@ -26,3 +26,10 @@ html:not([data-access="learner"]) .site-foot{margin-inline:auto;max-width:1200px
 @media(prefers-reduced-motion:reduce){.guest-page *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 .guest-page[lang="ar"]{font-family:var(--sans)}.guest-page[lang="ar"] :is(h1,h2,h3,.btn,.guest-nav button){font-family:inherit}.guest-page .btn{text-decoration:none}
+
+/* Make both returning-member options visible without crowding the header. */
+.guest-header-login{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 15px;border:1px solid var(--salvia-deep);border-radius:10px;text-decoration:none;white-space:nowrap;}
+.guest-header-login:hover{background:var(--salvia);}
+.guest-code-login{font-size:.92rem;color:var(--ink-soft);margin:14px 0 0;}
+.guest-code-login a{color:var(--salvia-deep);font-weight:700;text-underline-offset:4px;}
+@media(max-width:480px){.guest-header__actions{max-width:none;flex-wrap:nowrap}.guest-header-login{min-height:44px;padding:7px 10px;font-size:.82rem}}
