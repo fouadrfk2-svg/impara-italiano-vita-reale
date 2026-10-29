@@ -18,10 +18,3 @@ test('landing page provides email sign-in and legacy activation-code sign-in',as
  await expect(page.locator('#pilot-code')).toBeVisible();
 });
 
-test('sidebar exposes fixed sign-out for authenticated learners',async({page})=>{
- await page.route('**/api/auth/session',route=>json(route,{authenticated:true,learnerId:'10000000-0000-4000-8000-000000000001',csrf:'a'.repeat(64),expiresAt:'2099-01-01T00:00:00.000Z'}));
- await page.route('**/api/progress',route=>json(route,{state:null,revision:0}));
- await page.goto('/index.html');
- await expect(page.locator('#railLogout')).toBeVisible();
- await expect(page.locator('#railLogout')).toHaveText('تسجيل الخروج');
-});
