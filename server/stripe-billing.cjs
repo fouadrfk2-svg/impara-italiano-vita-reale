@@ -1,7 +1,7 @@
 "use strict";
 const {randomBytes,randomInt,timingSafeEqual}=require('node:crypto');
 const {TextDecoder}=require('node:util');
-const {Stripe}=require('stripe');
+const Stripe=require('stripe');
 const account=require('./account-api.cjs');
 const {billingRequest,accountRequest}=require('./database.cjs');
 const LIVE_PRODUCT='prod_VWHmlQLz4C7MOO',LIVE_PRICE='price_1UVFDCJps25FSUMkd3hBBqAO';
