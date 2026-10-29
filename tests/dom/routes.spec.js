@@ -68,3 +68,10 @@ for (const trasa of TRASY) {
     expect(bledy, `errors on route ${trasa}: ${bledy.join(" | ")}`).toEqual([]);
   });
 }
+
+test("public billing page is registered by index.html", async ({ page }) => {
+  await page.goto("/index.html");
+  await page.waitForFunction(() => !!window.Views);
+  const registered = await page.evaluate(() => typeof window.Views.billing === "function");
+  expect(registered, "billing.js must load before the public application router").toBe(true);
+});
