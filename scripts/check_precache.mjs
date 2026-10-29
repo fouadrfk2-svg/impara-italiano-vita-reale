@@ -48,7 +48,8 @@ function precache() {
     console.error("sw.js: nie znaleziono tablicy PRECACHE");
     process.exit(1);
   }
-  return { lista: box.PRECACHE.map(norm), wersja: box.SW_VERSION };
+  if (!Array.isArray(box.INSTALL_SHELL)) throw Error("sw.js: missing INSTALL_SHELL");
+  return { lista: box.PRECACHE.map(norm), starter: box.INSTALL_SHELL.map(norm), wersja: box.SW_VERSION };
 }
 
 /* ---------------- The resources from index.html ---------------- */
@@ -83,20 +84,21 @@ function zasobyStrony() {
 
 /* ---------------- The comparison ---------------- */
 
-const { lista, wersja } = precache();
+const { lista, starter, wersja } = precache();
+const pobrane = new Set(starter);
 const wPamieci = new Set(lista);
 const potrzebne = zasobyStrony();
-const brakujace = potrzebne.filter((p) => !wPamieci.has(p));
+const brakujace = potrzebne.filter((p) => !wPamieci.has(p) || !pobrane.has(p));
 
 if (brakujace.length) {
   console.error(`\nBŁĄD — index.html wczytuje ${brakujace.length} plik(ów) spoza PRECACHE.`);
   console.error("Pierwszy start bez sieci padnie na każdym z nich.\n");
   brakujace.forEach((p) => console.error(`  x ${p}`));
-  console.error(`\nDopisz je do PRECACHE w sw.js i podnieś SW_VERSION (teraz ${wersja}).\n`);
+  console.error(`\nDopisz obowiązkowy plik do INSTALL_SHELL w sw.js i podnieś SW_VERSION (teraz ${wersja}).\n`);
   process.exit(1);
 }
 
 console.log(
   `OK — wszystkie ${potrzebne.length} zasobów strony są w PRECACHE ` +
-  `(${lista.length} wpisów, ${wersja}).`
+  `(${starter.length} instalowanych, ${lista.length} w manifeście, ${wersja}).`
 );
