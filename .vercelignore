@@ -1,0 +1,14 @@
+# Vercel CLI does not apply .gitignore to the upload manifest.
+# The static build recreates dist/ remotely; these local artifacts are not inputs.
+node_modules/
+dist/
+test-results/
+playwright-report/
+.playwright-cli/
+.playwright-mcp/
+reports/
+tests/
+docs/
+.env
+.env.*
+*.dpapi
