@@ -49,3 +49,18 @@ test('Stripe v23 CommonJS constructor works for the default checkout client with
  assert.equal(typeof client.customers.create,'function');
  assert.equal(typeof client.checkout.sessions.create,'function');
 });
+
+test('Stripe v23 item-level period end synchronizes a paid subscription',async()=>{
+ const event={id:'evt_SYNTH_ITEM',type:'checkout.session.completed',created:1900000000,data:{object:{id:'cs_test_SYNTH_ITEM',mode:'subscription',status:'complete',payment_status:'paid',subscription:'sub_SYNTH_ITEM',metadata:{vita_pilot_intent_id:'20000000-0000-4000-8000-000000000001'}}}};
+ const sub={id:'sub_SYNTH_ITEM',customer:'cus_SYNTH123',status:'active',cancel_at_period_end:false,cancel_at:null,metadata:{vita_pilot_intent_id:'20000000-0000-4000-8000-000000000001'},items:{data:[{quantity:1,current_period_end:1900000000,price:{id:ENV.STRIPE_PRICE_ID,product:ENV.STRIPE_PRODUCT_ID}}]}};
+ const db=dbStub(),result=await processEvent(event,stripeStub({subscription:sub}).client,db,envConfig(ENV));
+ assert.equal(result,'ok');
+ assert.equal(db.calls.find(x=>x.action==='sync_subscription').payload.currentPeriodEnd,new Date(1900000000*1000).toISOString());
+});
+test('Subscription webhook retries without a trustworthy period end',async()=>{
+ const event={id:'evt_SYNTH_NOP_END',type:'customer.subscription.created',created:1900000000,data:{object:{id:'sub_SYNTH_NOP_END'}}};
+ const sub={id:'sub_SYNTH_NOP_END',customer:'cus_SYNTH123',status:'active',items:{data:[{quantity:1,price:{id:ENV.STRIPE_PRICE_ID,product:ENV.STRIPE_PRODUCT_ID}}]}};
+ const db=dbStub(),result=await processEvent(event,stripeStub({subscription:sub}).client,db,envConfig(ENV));
+ assert.equal(result,'retry');
+ assert.equal(db.calls.length,0);
+});
