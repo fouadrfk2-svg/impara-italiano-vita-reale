@@ -43,3 +43,9 @@ test("active subscribers can still open Stripe management when requested",async(
  await expect(page.locator("[data-portal]")).toBeVisible();
  expect(billing.activations).toBe(0);
 });
+
+test("authenticated learners can reach sign-out without scrolling the long menu",async({page})=>{
+ await page.goto("/index.html");
+ await expect(page.locator("#railLogout")).toBeVisible();
+ await expect(page.locator("#railLogout")).toHaveText("تسجيل الخروج");
+});
