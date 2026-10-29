@@ -1,0 +1,1 @@
+'use strict'; const h=require('../../server/stripe-billing.cjs').createHandlers(); module.exports=h.verifyCode;

@@ -23,6 +23,11 @@
       "version": "0004",
       "file": "0004_account_api.sql",
       "checksum": "9d759afbe3adaf3ae1a4eee1d98a9c83a355b06021b1169de09c1fc74d8cd464"
+    },
+    {
+      "version": "0005",
+      "file": "0005_stripe_billing.sql",
+      "checksum": "296307bc08531b87b57b2980efdffbcda1a065ab7ac385497c1b9ccae20938c9"
     }
   ]
 }

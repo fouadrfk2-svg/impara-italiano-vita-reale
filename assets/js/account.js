@@ -85,5 +85,5 @@
  global.Account={suspend:function(){verified=false;session=null;status='offline';if(active){active.state=learningSnapshot();saveCache();}emit();},t:t,request:request,login:login,logout:logout,refresh:refresh,sync:sync,importAnonymous:importAnonymous,resolve:resolve,exportPending:exportPending,
   subscribe:function(fn){listeners.push(fn);return function(){listeners=listeners.filter(function(f){return f!==fn;});};},
   snapshot:function(){return {checked:checked,active:active&&{id:active.id,pending:active.pending,conflicts:!!active.conflicts,importAvailable:!active.imported&&hasProgress(read(ANON))},authenticated:!!session&&verified,status:status,error:lastError};},
-  get adminSession(){return adminSession;},set adminSession(s){adminSession=s;},emit:emit};
+  requestBilling:function(path,body){if(!['billing/request-code','billing/verify-code'].includes(path))return Promise.reject(Error('Invalid request'));return request(path,body,false);},get adminSession(){return adminSession;},set adminSession(s){adminSession=s;},emit:emit};
 })(window);

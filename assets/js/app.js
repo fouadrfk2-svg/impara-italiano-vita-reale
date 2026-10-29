@@ -168,7 +168,7 @@
     return levels.length ? levels[0].code : null;
   }
 
-  function publicRoute(route) { return ["home", "account", "admin", "privacy"].indexOf(route) >= 0; }
+  function publicRoute(route) { return ["home", "account", "admin", "privacy", "billing"].indexOf(route) >= 0; }
   function remember(route, params) {
     if (!/^[a-z]+$/.test(route) || publicRoute(route)) return;
     var safe = {};

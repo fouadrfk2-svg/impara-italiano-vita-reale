@@ -53,6 +53,38 @@
     "api/admin/operation.js": {
       "maxDuration": 15,
       "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/config.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/request-code.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/verify-code.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/status.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/checkout.js": {
+      "maxDuration": 30,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/activate.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/billing/portal.js": {
+      "maxDuration": 15,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
+    },
+    "api/stripe/webhook.js": {
+      "maxDuration": 30,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"
     }
   },
   "rewrites": [

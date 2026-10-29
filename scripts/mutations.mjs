@@ -130,8 +130,8 @@ const MUTACJE = [
     z: 'esc(t(esito.verdetto === "sotto-soglia" ? "cils.verdictBelow" : "cils.verdictUnknown"))',
     na: 'esc(t("cils.verdictUnknown"))' },
   { plik: HTML, test: T_HTML, opis: "summary: without the source of the threshold",
-    z: 'esc(t("cils.thresholdSource")) + "</p></div>" +\n      scritta',
-    na: '"</p></div>" +\n      scritta' },
+    z: 'esc(t("cils.thresholdSource")) + "</p></div>" +\n      scritta(pisemna)',
+    na: '"</p></div>" +\n      scritta(pisemna)' },
   { plik: HTML, test: T_HTML, opis: "summary: the production cards never appear",
     z: "scritta(pisemna) + orale(ustna) +", na: '"" +' },
   { plik: HTML, test: T_HTML, opis: "summary: without the way back to the list",
@@ -396,7 +396,12 @@ const TYLKO = tylkoIdx >= 0 ? argv[tylkoIdx + 1] : null;
 
 const zrodla = new Map();
 for (const m of MUTACJE) {
-  if (!zrodla.has(m.plik)) zrodla.set(m.plik, readFileSync(join(ROOT, m.plik), "utf8"));
+  if (!zrodla.has(m.plik)) {
+    /* Mutation fragments are authored with LF. Git may materialize these
+       untouched legacy sources as CRLF on Windows; compare canonical text so
+       newline style cannot make a valid mutation look absent. */
+    zrodla.set(m.plik, readFileSync(join(ROOT, m.plik), "utf8").replace(/\r\n/g, "\n"));
+  }
 }
 
 /** How many times a string occurs in the file. */
