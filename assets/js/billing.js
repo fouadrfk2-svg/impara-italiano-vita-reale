@@ -9,6 +9,15 @@
  function updateGuestCopy(selector,copy){document.querySelectorAll(selector).forEach(function(el){if(el.getAttribute("data-billing-online")==="1")return;el.setAttribute("data-billing-online","1");el.textContent=copy;});}
  function upgradeGuest(){configuration().then(function(c){
   if(!c.enabled)return;
+  document.querySelectorAll(".guest-header-login").forEach(function(a){a.href="#/billing?signin=1";a.innerHTML='تسجيل الدخول <span aria-hidden="true">↗</span>';});
+  document.querySelectorAll(".guest-cta").forEach(function(a){a.href="#/billing?signin=1";a.textContent="تسجيل الدخول بالإيميل";});
+  document.querySelectorAll(".guest-actions").forEach(function(el){
+   if(el.nextElementSibling?.classList.contains("guest-code-login"))return;
+   var p=document.createElement("p");p.className="guest-code-login";
+   p.appendChild(document.createTextNode("عندك رمز تفعيل قديم؟ "));
+   var a=document.createElement("a");a.href="#/account";a.textContent="الدخول بالكود";
+   p.appendChild(a);el.insertAdjacentElement("afterend",p);
+  });
   document.querySelectorAll(".guest-subscribe").forEach(function(a){if(a.getAttribute("href")==="#/billing")return;a.setAttribute("href","#/billing");a.removeAttribute("target");a.removeAttribute("rel");a.removeAttribute("referrerpolicy");a.innerHTML='اشترك الآن — <bdi dir="ltr">9.99€</bdi> شهريًا <span aria-hidden="true">↗</span>';});
   document.querySelectorAll(".guest-how:not([data-billing-configured])").forEach(function(list){list.setAttribute("data-billing-configured","true");list.querySelectorAll("li").forEach(function(li,i){li.textContent=["أدخل بريدك الإلكتروني وتحقّق منه برمز آمن.","أكمل الدفع على صفحة Stripe الآمنة.","يُفعّل الوصول بعد تأكيد Stripe، ويمكنك إدارة اشتراكك أو إلغاؤه."][i]||li.textContent;});});
   updateGuestCopy(".guest-price-disclosure","9.99€ شهريًا مع تجديد تلقائي، دون فترة تجريبية. يتم الدفع بأمان عبر Stripe ويمكنك إلغاء التجديد في أي وقت. إذا كان لديك رمز تفعيل يدوي، يمكنك الاستمرار باستخدامه.");
