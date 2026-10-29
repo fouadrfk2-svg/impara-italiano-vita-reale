@@ -9,6 +9,9 @@ const require=createRequire(import.meta.url),{neon}=require('@neondatabase/serve
 const {PILOT,parsePilotUrl,RUNTIME_HEALTH_SQL}=require('../server/runtime-policy.cjs');
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const TARGETS=['preview','production'];
+export const VERCEL_DEPLOY_TIMEOUT_MS=15*60*1000;
+export const VERCEL_CLI_TIMEOUT_MS=30*1000;
+export const VERCEL_TIMEOUT_KILL_GRACE_MS=5*1000;
 function ensure(condition){if(!condition)throw Error('Operator verification failed');}
 function unpack(value){return value?.result??value;}
 function cliMessage(stderr,stdout){
@@ -23,22 +26,24 @@ export function safeDeploymentStderr(stderr,exitCode,stdout=''){
  const fallback={vercel_authentication_failed:'Vercel CLI authentication was rejected.',vercel_target_not_found:'The requested Vercel team or project was not found or not authorized.',vercel_deployment_payload_too_large:'Vercel rejected the deployment source size or file count.',vercel_cli_arguments_invalid:'Vercel CLI rejected one or more deployment arguments.',vercel_build_failed:'Vercel reported a deployment build failure.',vercel_network_failed:'The Vercel CLI reported a network failure.',deployment_result_unrecognized:'The Vercel CLI did not return a recognizable Production deployment URL.',vercel_cli_failed:'The Vercel CLI returned an error.'};
  if(!message)message=fallback[category];return{category,sanitizedStderr:message,source:String(stderr||'').trim()?'stderr':String(stdout||'').trim()?'stdout':'unavailable'};
 }
+function deploymentTimeoutDiagnostic(timeoutMs,exitCode,stderr,stdout){const captured=safeDeploymentStderr(stderr,exitCode,stdout),progress=captured.source==='unavailable'?null:captured.sanitizedStderr;return{operation:'vercel deploy',exitCode,timedOut:true,timeoutMs,category:'vercel_network_failed',sanitizedStderr:`Vercel CLI deployment exceeded its bounded wrapper timeout (${timeoutMs} ms) and was terminated.`,...(progress?{lastProgress:progress,outputSource:captured.source}:{})};}
 export function parseVercelDeploymentUrl(output){const text=String(output||''),labeled=text.match(/\bProduction(?:\s+deployment)?:\s*(https:\/\/[a-z0-9-]+\.vercel\.app\b)/i);if(labeled)return labeled[1];const urls=[...new Set(text.match(/https:\/\/[a-z0-9-]+\.vercel\.app\b/gi)||[])];return urls.length===1?urls[0]:null;}
 function envMetadata(e){return {id:e.id,key:e.key,type:e.type,target:[...(e.target||[])].sort(),gitBranch:e.gitBranch??null,customEnvironmentIds:e.customEnvironmentIds||[],updatedAt:e.updatedAt};}
 function databaseEnv(data){const envs=unpack(data).envs;ensure(Array.isArray(envs));const matches=envs.filter(e=>e.key==='DATABASE_URL');ensure(matches.length===1);const entry=envMetadata(matches[0]);ensure(JSON.stringify(entry.target)===JSON.stringify(TARGETS)&&!entry.gitBranch&&entry.customEnvironmentIds.length===0&&['sensitive','secret'].includes(entry.type));return {entry,others:envs.filter(e=>e.key!=='DATABASE_URL').map(envMetadata).sort((a,b)=>a.id.localeCompare(b.id))};}
 
 // Private pipes: neither the secret stdin nor CLI stdout/stderr is forwarded to logs.
-export async function invokeCli(cliPath,args,input=''){
+export async function invokeCli(cliPath,args,input='',limits={}){
  ensure(isAbsolute(cliPath)&&cliPath.replaceAll('\\','/').endsWith('/vercel/dist/vc.js'));
  const pkg=JSON.parse(readFileSync(join(dirname(cliPath),'../package.json'),'utf8'));ensure(pkg.name==='vercel');
  const env={...process.env,NO_COLOR:'1',VERCEL_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1'};
  for(const key of ['DATABASE_URL','DEBUG','VERCEL_DEBUG','VERCEL_LOG_LEVEL'])delete env[key];
  return await new Promise((done,fail)=>{
   const child=spawn(process.execPath,[cliPath,...args],{cwd:ROOT,env,windowsHide:true,stdio:['pipe','pipe','pipe']});
-  let output='',stderr='',overflow=false;const deployment=args[0]==='deploy';const timer=setTimeout(()=>{child.kill();const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic={operation:'vercel deploy',exitCode:null,...safeDeploymentStderr('timeout',124)};fail(error);},30000);
+  let output='',stderr='',overflow=false,timedOut=false,settled=false,graceTimer;const deployment=args[0]==='deploy';const timeoutMs=deployment?(limits.deployTimeoutMs??VERCEL_DEPLOY_TIMEOUT_MS):(limits.commandTimeoutMs??VERCEL_CLI_TIMEOUT_MS);
+  const timer=setTimeout(()=>{timedOut=true;child.kill();graceTimer=setTimeout(()=>{const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic=deploymentTimeoutDiagnostic(timeoutMs,null,stderr,output);if(!settled){settled=true;fail(error);}},limits.killGraceMs??VERCEL_TIMEOUT_KILL_GRACE_MS);},timeoutMs);
   child.stdout.on('data',d=>{output+=d;if(output.length>2097152){overflow=true;child.kill();}});
-  child.stderr.on('data',d=>{if(stderr.length<65536)stderr+=d.toString().slice(0,65536-stderr.length);});child.on('error',()=>{clearTimeout(timer);fail(Error('CLI unavailable'));});
-  child.on('close',code=>{clearTimeout(timer);if(code!==0||overflow){const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic={operation:'vercel deploy',exitCode:code,...safeDeploymentStderr(stderr,code,output)};fail(error);}else done(deployment?output+'\n'+stderr:output);});
+  child.stderr.on('data',d=>{if(stderr.length<65536)stderr+=d.toString().slice(0,65536-stderr.length);});child.on('error',()=>{clearTimeout(timer);clearTimeout(graceTimer);if(!settled){settled=true;fail(Error('CLI unavailable'));}});
+  child.on('close',code=>{clearTimeout(timer);clearTimeout(graceTimer);if(settled)return;settled=true;if(timedOut){const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic=deploymentTimeoutDiagnostic(timeoutMs,code,stderr,output);fail(error);}else if(code!==0||overflow){const error=Error('CLI unavailable');if(deployment)error.safeDeploymentDiagnostic={operation:'vercel deploy',exitCode:code,...safeDeploymentStderr(stderr,code,output)};fail(error);}else done(deployment?output+'\n'+stderr:output);});
   child.stdin.on('error',()=>{});child.stdin.end(input);
  });
 }
