@@ -134,6 +134,15 @@
       var t = Core.state.settings.theme === "dark" ? "light" : "dark";
       Core.state.settings.theme = t; Core.save(); applyTheme(t);
     });
+    var signout=document.getElementById("railLogout");
+    if(signout)signout.addEventListener("click",async function(){
+      if(signout.disabled)return;
+      signout.disabled=true;signout.textContent="جارٍ تسجيل الخروج…";
+      try{
+        if(await global.Account.logout()){Router.go("home");return;}
+      }catch(e){/* The session remains protected; never pretend logout succeeded. */}
+      signout.disabled=false;signout.textContent="تعذّر تسجيل الخروج، حاول مجدداً";
+    });
     Router.listen();
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { if (global.Audio2) global.Audio2.stop(); closeRail(); }
@@ -239,8 +248,8 @@
     await global.Account.refresh(); hadSession = global.Account.snapshot().authenticated;
     // Respect a public destination selected while verification was in flight.
     d = Router.decode(global.location.hash); explicit = !!global.location.hash;
-    if (hadSession) await App.enterCourse(explicit && publicRoute(d.route) && d.route !== "home" ? d : null);
-    else { document.documentElement.setAttribute("data-access", "guest"); var publicDestination=explicit && publicRoute(d.route) ? d.route : "home"; var billingParams=publicDestination==="billing" && d.params.checkout==="success" ? {checkout:"success"} : publicDestination==="billing" && d.params.manage==="1" ? {manage:"1"} : {}; Router.go(publicDestination,billingParams); }
+    if (hadSession) await App.enterCourse(explicit && publicRoute(d.route) && d.route !== "home" && !(d.route === "billing" && d.params.signin === "1") ? d : null);
+    else { document.documentElement.setAttribute("data-access", "guest"); var publicDestination=explicit && publicRoute(d.route) ? d.route : "home"; var billingParams=publicDestination==="billing" && d.params.checkout==="success" ? {checkout:"success"} : publicDestination==="billing" && d.params.manage==="1" ? {manage:"1"} : publicDestination==="billing" && d.params.signin==="1" ? {signin:"1"} : {}; Router.go(publicDestination,billingParams); }
     accessStarted = true;
     global.addEventListener("offline", function () { global.Account.suspend(); });
     global.addEventListener("focus", function () { if (global.Account.snapshot().authenticated) global.Account.refresh(); });
