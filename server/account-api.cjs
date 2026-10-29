@@ -17,6 +17,9 @@ function sameOrigin(req){
  let url;try{url=new URL(origin);if(url.origin!==origin)return false;}catch{return false;}
  const configured=process.env.PILOT_ORIGIN;
  if(configured){try{if(url.protocol==='https:'&&origin===new URL(configured).origin)return true;}catch{return false;}}
+ // Keep the operator-configured Vercel origin valid while accepting the
+ // canonical production host after the custom-domain migration.
+ if(url.protocol==='https:'&&origin==='https://www.vitare.it')return true;
  if(process.env.VERCEL==='1')return ['VERCEL_URL','VERCEL_BRANCH_URL'].some(k=>process.env[k]&&url.protocol==='https:'&&url.host===process.env[k]);
  return process.env.NODE_ENV!=='production'&&['localhost','127.0.0.1','[::1]'].includes(url.hostname)&&url.protocol==='http:'&&url.host===req.headers?.host;
 }
@@ -110,4 +113,4 @@ function createHandler(route,dependencies={}){
   }
  };
 }
-module.exports={createHandler,validateState,normalizedCode,newCode,mac,COOKIE,ADMIN_COOKIE};
+module.exports={createHandler,validateState,normalizedCode,newCode,mac,COOKIE,ADMIN_COOKIE,sameOrigin};

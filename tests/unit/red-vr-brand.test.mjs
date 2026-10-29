@@ -28,6 +28,6 @@ test('logos preserve guarded destinations, accessible names, attribution, Noto t
  assert.match(guest,/Andrea Bonacci/);assert.match(guest,/CC BY-SA 4.0/);assert.match(html,/© <a href="https:\/\/github.com\/AndreaBonn"/);
  assert.match(read('assets/css/rtl.css'),/font-family:"Noto Sans Arabic"/);assert.match(read('assets/js/app.js'),/document.querySelector\(".rail__brand"\).addEventListener\("click"/);
  for(const f of [...Object.keys(hashes),'assets/css/branding.css'])assert(sw.includes('./'+f),f);
- assert.match(html,/og:image[^>]+https:\/\/vita-reale-arabic-demo.vercel.app\/assets\/marketing\/social.png/);
+ assert.match(html,/og:image[^>]+https:\/\/www.vitare.it\/assets\/marketing\/social.png/);
  const png=readFileSync(join(ROOT,'assets/marketing/social.png'));assert.equal(png.readUInt32BE(16),1200);assert.equal(png.readUInt32BE(20),630);
 });
