@@ -240,7 +240,7 @@
     // Respect a public destination selected while verification was in flight.
     d = Router.decode(global.location.hash); explicit = !!global.location.hash;
     if (hadSession) await App.enterCourse(explicit && publicRoute(d.route) && d.route !== "home" ? d : null);
-    else { document.documentElement.setAttribute("data-access", "guest"); Router.go(explicit && publicRoute(d.route) ? d.route : "home", {}); }
+    else { document.documentElement.setAttribute("data-access", "guest"); var publicDestination=explicit && publicRoute(d.route) ? d.route : "home"; var billingParams=publicDestination==="billing" && d.params.checkout==="success" ? {checkout:"success"} : publicDestination==="billing" && d.params.manage==="1" ? {manage:"1"} : {}; Router.go(publicDestination,billingParams); }
     accessStarted = true;
     global.addEventListener("offline", function () { global.Account.suspend(); });
     global.addEventListener("focus", function () { if (global.Account.snapshot().authenticated) global.Account.refresh(); });
