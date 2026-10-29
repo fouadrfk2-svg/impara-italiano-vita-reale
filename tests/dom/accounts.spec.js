@@ -39,6 +39,20 @@ async function lesson(page){
 }
 for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+width,()=>{
  test.use({viewport:{width,height:920},locale:'ar',storageState:{cookies:[],origins:[]}});
+ test('Admin logout is prominent, Arabic, and invalidates the server session',async({browser})=>{
+  const context=await browser.newContext({viewport:{width,height:920},locale:'ar'}),page=await context.newPage();
+  try{
+   await adminLogin(page);
+   const logout=page.getByRole('button',{name:'تسجيل الخروج',exact:true});
+   await expect(logout).toBeVisible();
+   expect(await logout.evaluate(button=>button.closest('.account-session-actions')!==null)).toBe(true);
+   await logout.click();
+   await expect(page.locator('#pilot-admin-key')).toBeVisible();
+   expect(await page.evaluate(async()=>{try{await Account.request('admin/list');return 200;}catch(error){return error.status;}})).toBe(401);
+   expect((await page.evaluate(()=>Account.request('admin/session'))).authenticated).toBe(false);
+   await audit(page);
+  }finally{await context.close();}
+ });
  test('Admin issuance → all nine original exercises → second device → revocation, with no URL leakage',async({browser})=>{
   const contexts=[];async function page(){const c=await browser.newContext({viewport:{width,height:920},locale:'ar'});contexts.push(c);return await c.newPage();}
   const admin=await page(),a=await page(),b=await page(),errors=[],urls=[];

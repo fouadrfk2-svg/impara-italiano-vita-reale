@@ -10,7 +10,7 @@
   if(accountUnsubscribe)accountUnsubscribe();var s=A.snapshot(),identity=viewKey(s);if(!s.checked)A.refresh();
   var html=(!s.authenticated?'<p><a class="btn btn--quiet" href="#/home">'+esc(global.Guest.t('home'))+'</a></p>':'')+shell.head(t('account'),t('title'),t('intro'))+'<section class="account-panel"><p data-account-status role="status" aria-live="polite">'+esc(t(s.status))+'</p><p data-account-error role="alert" hidden></p>';
   if(s.authenticated&&s.active){
-   html+='<div class="account-actions">'+button('continue','js-continue')+button('retry','js-sync')+button('logout','js-logout')+'</div><p class="account-note">'+esc(t('device'))+'</p>';
+   html+='<div class="account-actions account-session-actions">'+button('logout','js-logout account-logout')+'</div><div class="account-actions">'+button('continue','js-continue')+button('retry','js-sync')+'</div><p class="account-note">'+esc(t('device'))+'</p>';
    if(s.active.importAvailable)html+='<section class="account-import"><h2>'+esc(t('importTitle'))+'</h2><p>'+esc(t('importHelp'))+'</p>'+button('import','js-import')+'</section>';
    if(s.active.conflicts)html+='<section class="account-import"><p>'+esc(t('conflict'))+'</p>'+button('resolve','js-resolve')+'</section>';
    html+=button('export','js-export');
@@ -34,7 +34,7 @@
    var html=shell.head(t('account'),t('admin'),t('adminHelp'))+'<section class="account-panel"><p class="js-admin-message" role="status" aria-live="polite">'+esc(initialMessage||'')+'</p>';
    if(!A.adminSession){html+='<fieldset class="account-fields"><legend>'+esc(t('login'))+'</legend><label for="pilot-admin-key">'+esc(t('key'))+'</label><input id="pilot-admin-key" dir="ltr" type="password" maxlength="43" autocomplete="off"><button type="button" class="btn btn--primary js-admin-login">'+esc(t('login'))+'</button></fieldset>';}
    else{
-    html+='<div class="account-actions">'+button('refresh','js-admin-refresh')+button('logout','js-admin-logout')+'</div>';
+    html+='<div class="account-actions account-session-actions">'+button('logout','js-admin-logout account-logout')+button('refresh','js-admin-refresh')+'</div>';
     html+='<fieldset class="account-fields"><legend>'+esc(t('issue'))+'</legend><label for="pilot-code-expiry">'+esc(t('codeExpiry'))+'</label><input id="pilot-code-expiry" type="datetime-local"><label for="pilot-access-expiry">'+esc(t('accessExpiry'))+'</label><input id="pilot-access-expiry" type="datetime-local"><label for="pilot-assign">'+esc(t('assignment'))+'</label><input id="pilot-assign" type="text" dir="ltr" maxlength="36" autocomplete="off"><button type="button" class="btn btn--primary js-issue">'+esc(t('issue'))+'</button></fieldset>';
     if(issued)html+='<aside class="account-import"><p>'+esc(t('oneTime'))+'</p><label for="pilot-issued-code">'+esc(t('code'))+'</label><input id="pilot-issued-code" type="text" readonly dir="ltr" autocomplete="off"><div>'+button('clear','js-clear')+'</div></aside>';
     if(data){
