@@ -43,7 +43,7 @@ function createHandlers(deps={}){
     const code=String(error?.code||'');
     result.diagnostic=['StripeInvalidRequestError','StripeAuthenticationError','StripePermissionError','StripeAPIError','StripeRateLimitError','StripeConnectionError'].includes(type)?type:'non_stripe_error';
     if(/^[a-z_]{3,60}$/.test(code))result.diagnosticCode=code;
-    const param=String(error?.param||'');if(/^[a-zA-Z0-9_\[\]\.]{1,90}$/.test(param))result.diagnosticParam=param;
+    const param=String(error?.param||'');if(/^[a-zA-Z0-9_[\].]{1,90}$/.test(param))result.diagnosticParam=param;
   }
   return reply(res,status,result);}}
  function ready(){const c=config();if(!c.ready)throw new HttpError(503);secret();return c;}
