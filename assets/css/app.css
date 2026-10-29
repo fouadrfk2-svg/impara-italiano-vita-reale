@@ -515,6 +515,7 @@ button{font:inherit;color:inherit;}
 .site-foot a{display:inline-block;padding:6px 4px;}
 
 .view-head{margin-bottom:30px;}
+.view-head h1{text-wrap:balance;}
 .view-head__kicker{
   font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   color:var(--salvia-deep);margin:0 0 8px;
@@ -661,6 +662,7 @@ button{font:inherit;color:inherit;}
 .node--done .node__dot{background:var(--salvia-deep);border-color:var(--salvia-deep);color:var(--on-primary);}
 .node--current .node__btn{border-color:var(--salvia-deep);box-shadow:0 0 0 5px oklch(var(--glow-primary) / .18);}
 .node--test .node__dot{background:var(--oro);border-color:var(--oro-deep);}
+.node--locked .node__dot{background:var(--paper-sunk);border-color:var(--line);color:var(--ink-faint);}
 
 /* ══════════════════ LEKCJA ══════════════════ */
 .lesson-top{
@@ -719,6 +721,10 @@ button{font:inherit;color:inherit;}
 .today-next{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;border-color:var(--salvia-deep);}
 .today-next__txt{flex:1;min-width:0;}
 .today-next h3{margin:0 0 2px;}
+.today-next__progress{display:grid;grid-template-columns:auto minmax(100px,200px);align-items:center;gap:12px;margin-top:12px;color:var(--ink-soft);font-size:.82rem;font-variant-numeric:tabular-nums}
+.today-next__progress b{color:var(--ink);font-family:var(--mono);font-size:.9rem}
+.today-next__track{height:8px;overflow:hidden;border-radius:var(--r-pill);background:var(--paper-sunk);border:1px solid var(--line);display:block}
+.today-next__track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--salvia-mid),var(--salvia-deep));transition:width .45s ease}
 .today-streak{margin:-6px 0 14px;font-size:.9rem;font-weight:600;color:var(--ink-soft);}
 .today-quiet{margin:0 0 18px;}
 .train-notyet{background:transparent;border:1px dashed var(--line-strong);color:var(--ink-soft);}
@@ -936,6 +942,9 @@ textarea.field{max-width:min(720px, 100%);line-height:1.7;font-weight:500;resize
 .fb.is-on{display:block;}
 .fb--ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);}
 .fb--ko{background:var(--ko-bg);border-color:var(--ko);color:var(--ko);}
+.fb--ok::before,.fb--ko::before{content:"";display:inline-block;width:17px;height:17px;margin-inline-end:7px;vertical-align:-.2em;background-color:currentColor;mask-repeat:no-repeat;mask-position:center;mask-size:contain}
+.fb--ok::before{mask-image:url("../icons/phosphor/regular/check-circle.svg")}
+.fb--ko::before{mask-image:url("../icons/phosphor/regular/lightbulb.svg")}
 .fb__why{display:block;margin-top:6px;color:var(--ink);font-weight:500;font-size:.88rem;line-height:1.55;}
 
 /* riepilogo */
@@ -947,6 +956,11 @@ textarea.field{max-width:min(720px, 100%);line-height:1.7;font-weight:500;resize
 .summary__score{font-family:var(--display);font-size:3.4rem;font-weight:700;color:var(--salvia-deep);line-height:1;}
 .summary__msg{font-size:1.06rem;color:var(--ink-soft);margin:8px 0 24px;}
 .summary__acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.summary::before{content:"";display:block;width:38px;height:38px;margin:0 auto 12px;background:var(--salvia-deep);mask:url("../icons/phosphor/regular/check-circle.svg") center/contain no-repeat}
+.summary__acts .js-next{min-height:52px;padding-inline:24px;box-shadow:var(--shadow-m)}
+.summary__acts .js-next:hover{transform:translateY(-2px);box-shadow:var(--shadow-l)}
+.unit__head{transition:transform .2s ease,box-shadow .2s ease}
+.node--done .node__dot{box-shadow:0 0 0 3px var(--ok-bg)}
 
 /* ══════════════════ PIĘĆ MINUT ══════════════════ */
 .flash__bar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
@@ -1169,6 +1183,7 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   .view-head h1{font-size:1.6rem;}
   .exq{padding:18px 16px;}
   .card{padding:18px 18px;}
+  .today-next__progress{grid-template-columns:auto minmax(90px,1fr);width:100%}
 }
 
 @media print{
@@ -1270,6 +1285,20 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   .js-rec.is-rec{animation:sh-puls 1.4s ease-in-out infinite;}
 }
 @keyframes sh-puls{50%{opacity:.72;}}
+
+/* Short, quiet feedback makes state changes legible without turning the
+   learning flow into a game. The global reduced-motion rule above remains
+   authoritative for learners who opt out. */
+@media(prefers-reduced-motion:no-preference){
+  .fb.is-on{animation:vr-feedback-in .18s ease-out both}
+  .summary{animation:vr-summary-in .28s cubic-bezier(.2,.7,.25,1) both}
+  .summary__acts .js-next{transition:transform .18s ease,box-shadow .18s ease}
+  .today-next__track i{transition:width .45s cubic-bezier(.22,.7,.25,1)}
+  .view-head{animation:vr-view-in .18s ease-out both}
+}
+@keyframes vr-feedback-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes vr-summary-in{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+@keyframes vr-view-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
 /* Zgoda na rozpoznawanie mowy (views-shadow.js) */
 .stt-consent{

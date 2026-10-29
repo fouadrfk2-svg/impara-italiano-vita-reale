@@ -23,6 +23,7 @@
   var set = Views.shell.set;
   var pageHead = Views.shell.head;
   var runCards = Views.shell.runCards;
+  var icon = Views.shell.icon;
 
   /* The composition of the session. The numbers are a product decision, not a measurement. */
   var PLAN = { errors: 6, drills: 3, cards: 8 };
@@ -60,10 +61,12 @@
     if (!next) return "";
     var L = next.lesson;
     var opis = [next.unit && next.unit.title, L.title].filter(Boolean).join(" · ");
+    var progress = Core.levelProgress(next.level);
     return '<div class="card today-next"><div class="today-next__txt">' +
-      '<p class="card-eyebrow">' + esc(t("today.nextEyebrow")) + "</p>" +
+      '<p class="card-eyebrow">' + icon("hand-pointing") + esc(t("today.nextEyebrow")) + "</p>" +
       "<h3>" + esc(L.titleIt || L.title) + "</h3>" +
-      (opis ? '<p class="exq__sub">' + esc(opis) + "</p>" : "") + "</div>" +
+      (opis ? '<p class="exq__sub">' + esc(opis) + "</p>" : "") +
+      '<div class="today-next__progress" role="group" aria-label="' + esc(t("nav.progress")) + '"><span><b>' + progress.done + "/" + progress.total + '</b> <span>' + esc(t("stats.lessons", { n: progress.total })) + '</span></span><span class="today-next__track" role="progressbar" aria-label="' + esc(t("nav.progress")) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(progress.pct * 100) + '"><i style="width:' + Math.round(progress.pct * 100) + '%"></i></span></div></div>' +
       '<button class="btn btn--primary js-next-lesson">' + esc(t("today.continue")) + "</button></div>";
   }
 

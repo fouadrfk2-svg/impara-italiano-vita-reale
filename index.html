@@ -50,6 +50,7 @@
 <meta name="theme-color" content="#064B3A">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png">
 <link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/icons.css">
 <link rel="stylesheet" href="assets/css/rtl.css">
 <link rel="stylesheet" href="assets/css/account.css">
 <link rel="stylesheet" href="assets/css/guest.css">
@@ -74,7 +75,7 @@
       <a class="rail__brand" href="#/oggi" dir="ltr" data-i18n-label="app.brandHome" aria-label="Vita Reale — العودة إلى لوحة التعلّم"><img class="brand-logo" src="assets/branding/header_learning_dark.svg" width="1050" height="244" alt="" decoding="async"></a>
       <p class="rail__tag" data-i18n="app.tagline">الإيطالية لحياتك في إيطاليا · A1 → C2</p>
       <button class="rail__search" id="railSearch" data-i18n-label="search.open" aria-label="Szukaj w kursie">
-        <span aria-hidden="true">🔍</span><span data-i18n="search.open">Szukaj w kursie</span>
+        <span class="vr-icon vr-icon--magnifying-glass" aria-hidden="true"></span><span data-i18n="search.open">Szukaj w kursie</span>
       </button>
     </div>
 
@@ -87,49 +88,49 @@
       <div class="rail__group" role="group" aria-labelledby="rg-study">
         <p class="rail__group-title" id="rg-study" data-i18n="nav.g.study">Nauka</p>
         <ul>
-        <li><button class="rail__item" data-route="oggi"><span class="rail__ico" aria-hidden="true">☀️</span><span data-i18n="nav.today">Dziś</span></button></li>
-        <li><button class="rail__item" data-route="percorso"><span class="rail__ico" aria-hidden="true">🗺️</span><span data-i18n="nav.path">Ścieżka nauki</span></button></li>
-        <li><button class="rail__item" data-route="ripasso"><span class="rail__ico" aria-hidden="true">🔁</span><span data-i18n="nav.review">Powtórki</span><span class="rail__badge" id="dueBadge" hidden>0</span></button></li>
-        <li><button class="rail__item" data-route="cinque"><span class="rail__ico" aria-hidden="true">⏱️</span><span data-i18n="nav.flash">Pięć minut</span></button></li>
+        <li><button class="rail__item" data-route="oggi"><span class="rail__ico vr-icon vr-icon--sun" aria-hidden="true"></span><span data-i18n="nav.today">Dziś</span></button></li>
+        <li><button class="rail__item" data-route="percorso"><span class="rail__ico vr-icon vr-icon--path" aria-hidden="true"></span><span data-i18n="nav.path">Ścieżka nauki</span></button></li>
+        <li><button class="rail__item" data-route="ripasso"><span class="rail__ico vr-icon vr-icon--arrows-counter-clockwise" aria-hidden="true"></span><span data-i18n="nav.review">Powtórki</span><span class="rail__badge" id="dueBadge" hidden>0</span></button></li>
+        <li><button class="rail__item" data-route="cinque"><span class="rail__ico vr-icon vr-icon--timer" aria-hidden="true"></span><span data-i18n="nav.flash">Pięć minut</span></button></li>
         </ul>
       </div>
       <div class="rail__group" role="group" aria-labelledby="rg-practise">
         <p class="rail__group-title" id="rg-practise" data-i18n="nav.g.practise">Ćwiczenia</p>
         <ul>
-        <li><button class="rail__item" data-route="allenamento"><span class="rail__ico" aria-hidden="true">🎯</span><span data-i18n="nav.train">Trening</span></button></li>
-        <li><button class="rail__item" data-route="conversazione"><span class="rail__ico" aria-hidden="true">🎙️</span><span data-i18n="nav.talk">Rozmowy na głos</span></button></li>
-        <li><button class="rail__item" data-route="chiacchiere"><span class="rail__ico" aria-hidden="true">💬</span><span data-i18n="nav.chat">Swobodna rozmowa</span></button></li>
-        <li><button class="rail__item" data-route="shadowing"><span class="rail__ico" aria-hidden="true">🗣️</span><span data-i18n="nav.shadow">Powtarzanie</span></button></li>
-        <li><button class="rail__item" data-route="velocita"><span class="rail__ico" aria-hidden="true">⏩</span><span data-i18n="nav.speed">Tempo</span></button></li>
-        <li><button class="rail__item" data-route="lettura"><span class="rail__ico" aria-hidden="true">📚</span><span data-i18n="read.title">Czytanie i słuchanie</span></button></li>
-        <li><button class="rail__item" data-route="scrittura"><span class="rail__ico" aria-hidden="true">✍️</span><span data-i18n="write.title">Pisanie po włosku</span></button></li>
-        <li><button class="rail__item" data-route="suoni"><span class="rail__ico" aria-hidden="true">👂</span><span data-i18n="sound.title">Pary minimalne</span></button></li>
-        <li><button class="rail__item" data-route="esame"><span class="rail__ico" aria-hidden="true">📋</span><span data-i18n="nav.exam">Egzamin</span></button></li>
+        <li><button class="rail__item" data-route="allenamento"><span class="rail__ico vr-icon vr-icon--target" aria-hidden="true"></span><span data-i18n="nav.train">Trening</span></button></li>
+        <li><button class="rail__item" data-route="conversazione"><span class="rail__ico vr-icon vr-icon--microphone" aria-hidden="true"></span><span data-i18n="nav.talk">Rozmowy na głos</span></button></li>
+        <li><button class="rail__item" data-route="chiacchiere"><span class="rail__ico vr-icon vr-icon--chat-circle" aria-hidden="true"></span><span data-i18n="nav.chat">Swobodna rozmowa</span></button></li>
+        <li><button class="rail__item" data-route="shadowing"><span class="rail__ico vr-icon vr-icon--speaker-high" aria-hidden="true"></span><span data-i18n="nav.shadow">Powtarzanie</span></button></li>
+        <li><button class="rail__item" data-route="velocita"><span class="rail__ico vr-icon vr-icon--fast-forward" aria-hidden="true"></span><span data-i18n="nav.speed">Tempo</span></button></li>
+        <li><button class="rail__item" data-route="lettura"><span class="rail__ico vr-icon vr-icon--book-open-text" aria-hidden="true"></span><span data-i18n="read.title">Czytanie i słuchanie</span></button></li>
+        <li><button class="rail__item" data-route="scrittura"><span class="rail__ico vr-icon vr-icon--pencil-line" aria-hidden="true"></span><span data-i18n="write.title">Pisanie po włosku</span></button></li>
+        <li><button class="rail__item" data-route="suoni"><span class="rail__ico vr-icon vr-icon--ear" aria-hidden="true"></span><span data-i18n="sound.title">Pary minimalne</span></button></li>
+        <li><button class="rail__item" data-route="esame"><span class="rail__ico vr-icon vr-icon--flag-checkered" aria-hidden="true"></span><span data-i18n="nav.exam">Egzamin</span></button></li>
         </ul>
       </div>
       <div class="rail__group" role="group" aria-labelledby="rg-lookup">
         <p class="rail__group-title" id="rg-lookup" data-i18n="nav.g.lookup">Do sprawdzenia</p>
         <ul>
-        <li><button class="rail__item" data-route="grammatica"><span class="rail__ico" aria-hidden="true">📐</span><span data-i18n="nav.grammar">Gramatyka</span></button></li>
-        <li><button class="rail__item" data-route="coniugatore"><span class="rail__ico" aria-hidden="true">🧩</span><span data-i18n="nav.verbs">Odmiana czasowników</span></button></li>
-        <li><button class="rail__item" data-route="lessico"><span class="rail__ico" aria-hidden="true">📖</span><span data-i18n="nav.lexicon">Mój słownik</span></button></li>
-        <li><button class="rail__item" data-route="falsi"><span class="rail__ico" aria-hidden="true">🪤</span><span data-i18n="nav.falsi">Fałszywi przyjaciele</span></button></li>
-        <li><button class="rail__item" data-route="copertura"><span class="rail__ico" aria-hidden="true">📊</span><span data-i18n="nav.coverage">Pokrycie</span></button></li>
+        <li><button class="rail__item" data-route="grammatica"><span class="rail__ico vr-icon vr-icon--calculator" aria-hidden="true"></span><span data-i18n="nav.grammar">Gramatyka</span></button></li>
+        <li><button class="rail__item" data-route="coniugatore"><span class="rail__ico vr-icon vr-icon--note-pencil" aria-hidden="true"></span><span data-i18n="nav.verbs">Odmiana czasowników</span></button></li>
+        <li><button class="rail__item" data-route="lessico"><span class="rail__ico vr-icon vr-icon--book-bookmark" aria-hidden="true"></span><span data-i18n="nav.lexicon">Mój słownik</span></button></li>
+        <li><button class="rail__item" data-route="falsi"><span class="rail__ico vr-icon vr-icon--mask-sad" aria-hidden="true"></span><span data-i18n="nav.falsi">Fałszywi przyjaciele</span></button></li>
+        <li><button class="rail__item" data-route="copertura"><span class="rail__ico vr-icon vr-icon--chart-line" aria-hidden="true"></span><span data-i18n="nav.coverage">Pokrycie</span></button></li>
         </ul>
       </div>
       <div class="rail__group" role="group" aria-labelledby="rg-you">
         <p class="rail__group-title" id="rg-you" data-i18n="nav.g.you">Ty</p>
         <ul>
-        <li><button type="button" class="rail__item" data-route="account"><span class="rail__ico" aria-hidden="true">↗</span><span data-account-nav>حسابي</span></button></li>
-        <li><button class="rail__item" data-route="progressi"><span class="rail__ico" aria-hidden="true">🌸</span><span data-i18n="nav.progress">Postępy</span></button></li>
-        <li><button class="rail__item" data-route="guida"><span class="rail__ico" aria-hidden="true">❔</span><span data-i18n="nav.guide">Przewodnik</span></button></li>
-        <li><button class="rail__item" data-route="impostazioni"><span class="rail__ico" aria-hidden="true">⚙️</span><span data-i18n="nav.settings">Ustawienia</span></button></li>
+        <li><button type="button" class="rail__item" data-route="account"><span class="rail__ico vr-icon vr-icon--user-circle" aria-hidden="true"></span><span data-account-nav>حسابي</span></button></li>
+        <li><button class="rail__item" data-route="progressi"><span class="rail__ico vr-icon vr-icon--chart-line" aria-hidden="true"></span><span data-i18n="nav.progress">Postępy</span></button></li>
+        <li><button class="rail__item" data-route="guida"><span class="rail__ico vr-icon vr-icon--question" aria-hidden="true"></span><span data-i18n="nav.guide">Przewodnik</span></button></li>
+        <li><button class="rail__item" data-route="impostazioni"><span class="rail__ico vr-icon vr-icon--gear" aria-hidden="true"></span><span data-i18n="nav.settings">Ustawienia</span></button></li>
         </ul>
       </div>
     </div>
 
     <div class="rail__foot">
-      <button class="rail__theme" id="themeToggle" data-i18n-label="theme.toggle" aria-label="Przełącz motyw">🌙 Tryb nocny</button>
+      <button class="rail__theme" id="themeToggle" data-i18n-label="theme.toggle" aria-label="Przełącz motyw"><span class="vr-icon vr-icon--moon" aria-hidden="true"></span> Tryb nocny</button>
     </div>
   </nav>
 
@@ -138,10 +139,10 @@
   <!-- Phones only (CSS): the three daily screens one tap away, and the menu
        behind "More". Every move used to go through the round toggle. -->
   <nav class="bottom-nav" data-i18n-label="nav.bottomLabel" aria-label="Szybka nawigacja">
-    <button type="button" class="bottom-nav__item" data-route="oggi"><span aria-hidden="true">☀️</span><span data-i18n="nav.today">Dziś</span></button>
-    <button type="button" class="bottom-nav__item" data-route="percorso"><span aria-hidden="true">🗺️</span><span data-i18n="nav.path">Ścieżka nauki</span></button>
-    <button type="button" class="bottom-nav__item" data-route="ripasso"><span aria-hidden="true">🔁</span><span data-i18n="nav.review">Powtórki</span></button>
-    <button type="button" class="bottom-nav__item js-more" aria-controls="rail" aria-expanded="false"><span aria-hidden="true">☰</span><span data-i18n="nav.more">Więcej</span></button>
+    <button type="button" class="bottom-nav__item" data-route="oggi"><span class="vr-icon vr-icon--sun" aria-hidden="true"></span><span data-i18n="nav.today">Dziś</span></button>
+    <button type="button" class="bottom-nav__item" data-route="percorso"><span class="vr-icon vr-icon--path" aria-hidden="true"></span><span data-i18n="nav.path">Ścieżka nauki</span></button>
+    <button type="button" class="bottom-nav__item" data-route="ripasso"><span class="vr-icon vr-icon--arrows-counter-clockwise" aria-hidden="true"></span><span data-i18n="nav.review">Powtórki</span></button>
+    <button type="button" class="bottom-nav__item js-more" aria-controls="rail" aria-expanded="false"><span class="vr-icon vr-icon--list" aria-hidden="true"></span><span data-i18n="nav.more">Więcej</span></button>
   </nav>
 
   <!-- ══════════ MAIN ══════════ -->

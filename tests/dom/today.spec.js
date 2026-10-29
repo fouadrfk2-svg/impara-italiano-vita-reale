@@ -9,6 +9,23 @@ async function oggi(page) {
   await page.waitForSelector(".list-row");
 }
 
+test("the next lesson card shows real progress and stays usable on narrow screens", async ({ page }) => {
+  await oggi(page);
+  const expected = await page.evaluate(() => {
+    const p = Core.levelProgress(Core.nextOpenLesson().level);
+    return { done: p.done, total: p.total, pct: Math.round(p.pct * 100) };
+  });
+  await expect(page.locator(".today-next__progress")).toContainText(expected.done + "/" + expected.total);
+  await expect(page.locator(".today-next__track")).toHaveAttribute("aria-valuenow", String(expected.pct));
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "horizontal overflow at " + width).toBe(true);
+    await expect(page.locator(".js-next-lesson")).toBeVisible();
+  }
+  const mask = await page.locator(".today-next .card-eyebrow .vr-icon").evaluate(n => getComputedStyle(n).maskImage);
+  expect(mask).toContain("hand-pointing.svg");
+});
+
 /** Creates n mistake cards with a due date in the past. */
 async function zalegleBledy(page, n) {
   return page.evaluate(ile => {

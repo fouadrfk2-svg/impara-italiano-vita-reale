@@ -2,7 +2,7 @@
  "use strict";
  var A=global.Account,t=A.t,esc=global.Core.esc,shell=global.Views.shell,accountUnsubscribe=null;
  function viewKey(s){return [s.active&&s.active.id,s.authenticated,s.active&&s.active.conflicts,s.active&&s.active.importAvailable].join(':');}
- function button(label,cls){return '<button type="button" class="btn btn--ghost '+(cls||'')+'">'+esc(t(label))+'</button>';}
+ function button(label,cls){var logout=cls&&(/(?:^|\s)(?:js-logout|js-admin-logout)(?:\s|$)/.test(cls));return '<button type="button" class="btn btn--ghost '+(cls||'')+'">'+(logout?shell.icon('sign-out','account-logout__icon'):'')+esc(t(label))+'</button>';}
  function errorText(error){return t(error&&error.status===429?'rate':error&&error.status===409?'duplicate':'error');}
  function status(){var s=A.snapshot(),n=global.document.querySelector('[data-account-status]'),e=global.document.querySelector('[data-account-error]');if(n)n.textContent=t(s.status);if(e){e.textContent=s.error?t(s.error):'';e.hidden=!s.error;}}
  function bindEnter(input,button){input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();button.click();}});}

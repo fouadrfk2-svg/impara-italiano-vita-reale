@@ -1,0 +1,62 @@
+/* Phosphor Icons Regular, distributed under the MIT license in this folder.
+   The SVGs are same-origin CSS masks: currentColor adapts to both themes and
+   no icon font, CDN request, inline SVG or runtime package is required. */
+.vr-icon{display:inline-block;flex:0 0 auto;width:1.15em;height:1.15em;background-color:currentColor;mask-repeat:no-repeat;mask-position:center;mask-size:contain;vertical-align:-.16em}
+.vr-icon--arrows-counter-clockwise{mask-image:url("../icons/phosphor/regular/arrows-counter-clockwise.svg")}
+.vr-icon--book-bookmark{mask-image:url("../icons/phosphor/regular/book-bookmark.svg")}
+.vr-icon--book-open-text{mask-image:url("../icons/phosphor/regular/book-open-text.svg")}
+.vr-icon--briefcase{mask-image:url("../icons/phosphor/regular/briefcase.svg")}
+.vr-icon--calendar-check{mask-image:url("../icons/phosphor/regular/calendar-check.svg")}
+.vr-icon--chart-line{mask-image:url("../icons/phosphor/regular/chart-line.svg")}
+.vr-icon--chat-circle{mask-image:url("../icons/phosphor/regular/chat-circle.svg")}
+.vr-icon--check-circle{mask-image:url("../icons/phosphor/regular/check-circle.svg")}
+.vr-icon--coffee{mask-image:url("../icons/phosphor/regular/coffee.svg")}
+.vr-icon--ear{mask-image:url("../icons/phosphor/regular/ear.svg")}
+.vr-icon--fast-forward{mask-image:url("../icons/phosphor/regular/fast-forward.svg")}
+.vr-icon--flag-checkered{mask-image:url("../icons/phosphor/regular/flag-checkered.svg")}
+.vr-icon--gear{mask-image:url("../icons/phosphor/regular/gear.svg")}
+.vr-icon--hand-pointing{mask-image:url("../icons/phosphor/regular/hand-pointing.svg")}
+.vr-icon--house{mask-image:url("../icons/phosphor/regular/house.svg")}
+.vr-icon--lightbulb{mask-image:url("../icons/phosphor/regular/lightbulb.svg")}
+.vr-icon--list{mask-image:url("../icons/phosphor/regular/list.svg")}
+.vr-icon--lock-key{mask-image:url("../icons/phosphor/regular/lock-key.svg")}
+.vr-icon--magnifying-glass{mask-image:url("../icons/phosphor/regular/magnifying-glass.svg")}
+.vr-icon--mask-sad{mask-image:url("../icons/phosphor/regular/mask-sad.svg")}
+.vr-icon--medal{mask-image:url("../icons/phosphor/regular/medal.svg")}
+.vr-icon--microphone{mask-image:url("../icons/phosphor/regular/microphone.svg")}
+.vr-icon--moon{mask-image:url("../icons/phosphor/regular/moon.svg")}
+.vr-icon--note-pencil{mask-image:url("../icons/phosphor/regular/note-pencil.svg")}
+.vr-icon--path{mask-image:url("../icons/phosphor/regular/path.svg")}
+.vr-icon--pause{mask-image:url("../icons/phosphor/regular/pause.svg")}
+.vr-icon--pencil-line{mask-image:url("../icons/phosphor/regular/pencil-line.svg")}
+.vr-icon--play{mask-image:url("../icons/phosphor/regular/play.svg")}
+.vr-icon--question{mask-image:url("../icons/phosphor/regular/question.svg")}
+.vr-icon--sign-out{mask-image:url("../icons/phosphor/regular/sign-out.svg")}
+.vr-icon--speaker-high{mask-image:url("../icons/phosphor/regular/speaker-high.svg")}
+.vr-icon--sparkle{mask-image:url("../icons/phosphor/regular/sparkle.svg")}
+.vr-icon--sun{mask-image:url("../icons/phosphor/regular/sun.svg")}
+.vr-icon--target{mask-image:url("../icons/phosphor/regular/target.svg")}
+.vr-icon--timer{mask-image:url("../icons/phosphor/regular/timer.svg")}
+.vr-icon--user-circle{mask-image:url("../icons/phosphor/regular/user-circle.svg")}
+
+.rail__ico.vr-icon{width:22px;height:22px;vertical-align:middle}
+.rail__search>.vr-icon,.rail__theme>.vr-icon{width:19px;height:19px}
+.bottom-nav__item>.vr-icon{width:21px;height:21px}
+.unit__badge>.vr-icon{width:25px;height:25px}
+.node__symbol{width:21px;height:21px;vertical-align:middle}
+.node__number{font-family:var(--mono);font-size:.95rem;font-weight:700}
+.guest-situation-icon.vr-icon{width:48px;height:48px;mask-size:24px;background-color:var(--salvia-deep)}
+.card-eyebrow>.vr-icon{width:16px;height:16px;margin-inline-end:5px;vertical-align:-.16em}
+.account-logout__icon{width:17px;height:17px;margin-inline-end:7px;vertical-align:-.18em}
+
+/* The button remains the same 44px keyboard/touch target and keeps its
+   localized aria-label; only the old platform-dependent emoji is replaced. */
+.say-btn{font-size:0}
+.say-btn::before{content:"";display:block;width:17px;height:17px;background-color:currentColor;mask:url("../icons/phosphor/regular/speaker-high.svg") center/contain no-repeat}
+
+@media(prefers-reduced-motion:no-preference){
+  .rail__item,.bottom-nav__item,.node__btn,.btn,.unit__head,.today-next{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+  .bottom-nav__item:hover{transform:translateY(-2px)}
+}
+
+@media(prefers-reduced-motion:reduce){.vr-icon{transition:none!important}}

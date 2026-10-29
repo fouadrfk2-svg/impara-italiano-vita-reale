@@ -19,6 +19,7 @@
   var el = Views.shell.root;
   var empty = Views.shell.empty;
   var pct = Views.shell.pct;
+  var icon = Views.shell.icon;
   /* ═══════════════════════════════════════════════════════════
      THE LEARNING PATH
      ═══════════════════════════════════════════════════════════ */
@@ -151,10 +152,10 @@
       if (!done && !firstOpen && unit.gated) locked = true;
       var current = !!next && l.id === next.lesson.id;
       if (!done) firstOpen = false;
-      var cls = "node" + (done ? " node--done" : "") + (current ? " node--current" : "") + (l._test ? " node--test" : "");
+      var cls = "node" + (done ? " node--done" : "") + (current ? " node--current" : "") + (locked ? " node--locked" : "") + (l._test ? " node--test" : "");
       return '<div class="' + cls + '">' +
         '<button class="node__btn" data-lesson="' + esc(l.id) + '"' + (locked ? " disabled" : "") + '>' +
-        '<span class="node__dot" aria-hidden="true">' + (done ? "✓" : l._test ? "🏆" : (l.icon || (i + 1))) + "</span>" +
+        '<span class="node__dot" aria-hidden="true">' + (done ? icon("check-circle", "node__symbol") : locked ? icon("lock-key", "node__symbol") : l._test ? icon("flag-checkered", "node__symbol") : '<span class="node__number">' + (l.icon || (i + 1)) + "</span>") + "</span>" +
         '<span class="node__txt"><b>' + esc(l.titleIt) + "</b><span>" + esc(l.title) + "</span></span>" +
         "</button></div>";
     }).join("");
@@ -163,7 +164,7 @@
     var pathId = "path-" + unit.id;
     return '<section class="unit">' +
       '<div class="unit__head">' +
-      '<div class="unit__badge" aria-hidden="true">' + esc(unit.icon || "🌸") + "</div>" +
+      '<div class="unit__badge" aria-hidden="true">' + icon("book-open-text") + "</div>" +
       '<div class="unit__titles"><h3>' + esc(unit.titleIt) + "</h3><p>" + esc(unit.title) + " · " + esc(unit.grammarNote || "") + "</p></div>" +
       '<div class="unit__count"><b>' + p.done + "/" + p.total + "</b><span>" + esc(t("stats.lessons", { n: p.total })) + "</span></div>" +
       "</div>" +

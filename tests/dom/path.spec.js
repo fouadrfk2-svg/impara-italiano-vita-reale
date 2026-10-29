@@ -61,3 +61,17 @@ test("each unit toggle names its unit", async ({ page }) => {
   const nazwy = await page.locator(".js-unit-toggle").evaluateAll(bs => bs.map(b => b.textContent.trim()));
   expect(new Set(nazwy).size).toBe(nazwy.length);
 });
+
+test("path states use consistent local icons while retaining the lesson number and completion state", async ({ page }) => {
+  await sciezka(page);
+  await expect(page.locator('.node--done .node__symbol')).toHaveCount(2);
+  await expect(page.locator('.node--done .node__symbol').first()).toHaveClass(/vr-icon--check-circle/);
+  await expect(page.locator('.node--current .node__number').first()).toHaveText("3");
+  await expect(page.locator(".unit__badge .vr-icon--book-open-text").first()).toBeVisible();
+  const locked = page.locator('.node--locked');
+  if (await locked.count()) await expect(locked.locator('.node__symbol')).toHaveCount(await locked.count());
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "horizontal overflow at " + width).toBe(true);
+  }
+});
