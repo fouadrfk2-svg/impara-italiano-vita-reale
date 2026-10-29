@@ -71,4 +71,4 @@ async function processEvent(event,stripe,db,config){
  const eventResult=await db.billingRequest('sync_subscription',{eventId:event.id,eventType:event.type,eventCreated:created,customerId:customer,subscriptionId:subscription.id,intentId:subscription.metadata?.vita_pilot_intent_id||intentId||'',productId:product,priceId:price.id,status:subscription.status,currentPeriodEnd:new Date(subscription.current_period_end*1000).toISOString(),cancelAtPeriodEnd:subscription.cancel_at_period_end,cancelAt:subscription.cancel_at?new Date(subscription.cancel_at*1000).toISOString():''});
  return eventResult?.ok||eventResult?.duplicate||eventResult?.stale?'ok':eventResult?.ignored?'retry':'retry';
 }
-module.exports={createHandlers,envConfig,normalizedEmail,processEvent,readRaw,BILLING_COOKIE,LIVE_PRODUCT,LIVE_PRICE};
+module.exports={createHandlers,envConfig,stripeClient,normalizedEmail,processEvent,readRaw,BILLING_COOKIE,LIVE_PRODUCT,LIVE_PRICE};
