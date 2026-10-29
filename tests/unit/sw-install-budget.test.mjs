@@ -33,7 +33,7 @@ test('offline guest boot has every parser-loaded script, stylesheet and manifest
 });
 test('no private lesson material is preloaded or intercepted by service worker',()=>{
  const w=worker();
- assert.equal(w.install.some(u=>/\\/api\\/|\\/data\\/core\\/|\\/audio\\/|\\/data\\/i18n\\/ar\\//.test(u)),false);
- assert.match(w.source,/if\\(\\/\\^\\\\\\/\\+api/);
- assert.match(w.source,/Promise\\.all\\(INSTALL_SHELL\\.map/);
+ assert.equal(w.install.some(u=>['/api/','/data/core/','/audio/','/data/i18n/ar/'].some(p=>u.includes(p))),false);
+ assert.ok(w.source.includes('if(/^\\/+api'),'API requests must bypass the SW');
+ assert.ok(w.source.includes('Promise.all(INSTALL_SHELL.map'),'first-visit budget must be enforced');
 });
