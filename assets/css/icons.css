@@ -16,24 +16,19 @@
 .vr-icon--flag-checkered{mask-image:url("../icons/phosphor/regular/flag-checkered.svg")}
 .vr-icon--gear{mask-image:url("../icons/phosphor/regular/gear.svg")}
 .vr-icon--hand-pointing{mask-image:url("../icons/phosphor/regular/hand-pointing.svg")}
-.vr-icon--house{mask-image:url("../icons/phosphor/regular/house.svg")}
 .vr-icon--lightbulb{mask-image:url("../icons/phosphor/regular/lightbulb.svg")}
 .vr-icon--list{mask-image:url("../icons/phosphor/regular/list.svg")}
 .vr-icon--lock-key{mask-image:url("../icons/phosphor/regular/lock-key.svg")}
 .vr-icon--magnifying-glass{mask-image:url("../icons/phosphor/regular/magnifying-glass.svg")}
 .vr-icon--mask-sad{mask-image:url("../icons/phosphor/regular/mask-sad.svg")}
-.vr-icon--medal{mask-image:url("../icons/phosphor/regular/medal.svg")}
 .vr-icon--microphone{mask-image:url("../icons/phosphor/regular/microphone.svg")}
 .vr-icon--moon{mask-image:url("../icons/phosphor/regular/moon.svg")}
 .vr-icon--note-pencil{mask-image:url("../icons/phosphor/regular/note-pencil.svg")}
 .vr-icon--path{mask-image:url("../icons/phosphor/regular/path.svg")}
-.vr-icon--pause{mask-image:url("../icons/phosphor/regular/pause.svg")}
 .vr-icon--pencil-line{mask-image:url("../icons/phosphor/regular/pencil-line.svg")}
-.vr-icon--play{mask-image:url("../icons/phosphor/regular/play.svg")}
 .vr-icon--question{mask-image:url("../icons/phosphor/regular/question.svg")}
 .vr-icon--sign-out{mask-image:url("../icons/phosphor/regular/sign-out.svg")}
 .vr-icon--speaker-high{mask-image:url("../icons/phosphor/regular/speaker-high.svg")}
-.vr-icon--sparkle{mask-image:url("../icons/phosphor/regular/sparkle.svg")}
 .vr-icon--sun{mask-image:url("../icons/phosphor/regular/sun.svg")}
 .vr-icon--target{mask-image:url("../icons/phosphor/regular/target.svg")}
 .vr-icon--timer{mask-image:url("../icons/phosphor/regular/timer.svg")}
@@ -53,10 +48,3 @@
    localized aria-label; only the old platform-dependent emoji is replaced. */
 .say-btn{font-size:0}
 .say-btn::before{content:"";display:block;width:17px;height:17px;background-color:currentColor;mask:url("../icons/phosphor/regular/speaker-high.svg") center/contain no-repeat}
-
-@media(prefers-reduced-motion:no-preference){
-  .rail__item,.bottom-nav__item,.node__btn,.btn,.unit__head,.today-next{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
-  .bottom-nav__item:hover{transform:translateY(-2px)}
-}
-
-@media(prefers-reduced-motion:reduce){.vr-icon{transition:none!important}}

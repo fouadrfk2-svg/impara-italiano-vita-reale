@@ -1,7 +1,7 @@
 /* Public shell only. Private course data/audio are network-only and require
    a fresh server session. Downloaded copies from older releases cannot be
    remotely revoked; activation removes their legacy Cache Storage entries. */
-var SW_VERSION = "v36.84eb51d433e8";
+var SW_VERSION = "v36.ce8faaa216a6";
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 var PRECACHE = [
   "./assets/branding/header_public_light.svg",
@@ -30,24 +30,19 @@ var PRECACHE = [
   "./assets/icons/phosphor/regular/flag-checkered.svg",
   "./assets/icons/phosphor/regular/gear.svg",
   "./assets/icons/phosphor/regular/hand-pointing.svg",
-  "./assets/icons/phosphor/regular/house.svg",
   "./assets/icons/phosphor/regular/lightbulb.svg",
   "./assets/icons/phosphor/regular/list.svg",
   "./assets/icons/phosphor/regular/lock-key.svg",
   "./assets/icons/phosphor/regular/magnifying-glass.svg",
   "./assets/icons/phosphor/regular/mask-sad.svg",
-  "./assets/icons/phosphor/regular/medal.svg",
   "./assets/icons/phosphor/regular/microphone.svg",
   "./assets/icons/phosphor/regular/moon.svg",
   "./assets/icons/phosphor/regular/note-pencil.svg",
   "./assets/icons/phosphor/regular/path.svg",
-  "./assets/icons/phosphor/regular/pause.svg",
   "./assets/icons/phosphor/regular/pencil-line.svg",
-  "./assets/icons/phosphor/regular/play.svg",
   "./assets/icons/phosphor/regular/question.svg",
   "./assets/icons/phosphor/regular/sign-out.svg",
   "./assets/icons/phosphor/regular/speaker-high.svg",
-  "./assets/icons/phosphor/regular/sparkle.svg",
   "./assets/icons/phosphor/regular/sun.svg",
   "./assets/icons/phosphor/regular/target.svg",
   "./assets/icons/phosphor/regular/timer.svg",

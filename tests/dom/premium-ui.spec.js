@@ -8,13 +8,13 @@ async function capture(page,name){if(gallery)await page.screenshot({path:path.jo
 
 rawTest('premium public homepage stays readable at mobile and desktop widths',async({page})=>{
  await page.goto('/index.html#/home');await expect(page.locator('.guest-page')).toBeVisible();
- for(const width of [320,360,390,768,1440]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'guest overflow '+width).toBe(true);if(width===390||width===1440)await capture(page,'home-'+(width===390?'mobile':'desktop'));}
+ for(const width of [320,360,390,768,1440]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'guest overflow '+width).toBe(true);if(width===360||width===768)await capture(page,'home-'+width);if(width===390||width===1440)await capture(page,'home-'+(width===390?'mobile':'desktop'));}
 });
 
 test('premium learner surfaces use local icons and remain responsive',async({page})=>{
 
  await page.goto('/index.html#/oggi');await expect(page.locator('.today-next')).toBeVisible();
- for(const width of [360,390,768,1440]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'today overflow '+width).toBe(true);}
+ for(const width of [360,390,768,1440]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'today overflow '+width).toBe(true);if(width===360||width===768)await capture(page,'today-'+width+'-light');}
  const nav=page.locator('.rail__item[data-route="oggi"] .vr-icon');await expect(nav).toHaveAttribute('aria-hidden','true');
  expect(await nav.evaluate(n=>getComputedStyle(n).maskImage)).toContain('sun.svg');
  await page.setViewportSize({width:390,height:900});await capture(page,'today-mobile-light');

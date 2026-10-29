@@ -18,7 +18,7 @@
   var t = function (k, v) { return I18n.t(k, v); };
   var Views = {};
   var mount = null;
-  var ICONS = { "arrows-counter-clockwise": 1, "book-bookmark": 1, "book-open-text": 1, "briefcase": 1, "calendar-check": 1, "chart-line": 1, "chat-circle": 1, "check-circle": 1, "coffee": 1, "ear": 1, "fast-forward": 1, "flag-checkered": 1, "gear": 1, "hand-pointing": 1, "house": 1, "lightbulb": 1, "list": 1, "lock-key": 1, "magnifying-glass": 1, "mask-sad": 1, "medal": 1, "microphone": 1, "moon": 1, "note-pencil": 1, "path": 1, "pause": 1, "pencil-line": 1, "play": 1, "question": 1, "sign-out": 1, "speaker-high": 1, "sparkle": 1, "sun": 1, "target": 1, "timer": 1, "user-circle": 1 };
+  var ICONS = { "arrows-counter-clockwise": 1, "book-bookmark": 1, "book-open-text": 1, "briefcase": 1, "calendar-check": 1, "chart-line": 1, "chat-circle": 1, "check-circle": 1, "coffee": 1, "ear": 1, "fast-forward": 1, "flag-checkered": 1, "gear": 1, "hand-pointing": 1, "lightbulb": 1, "list": 1, "lock-key": 1, "magnifying-glass": 1, "mask-sad": 1, "microphone": 1, "moon": 1, "note-pencil": 1, "path": 1, "pencil-line": 1, "question": 1, "sign-out": 1, "speaker-high": 1, "sun": 1, "target": 1, "timer": 1, "user-circle": 1 };
 
   /* Local Phosphor SVG masks keep one icon language without adding a runtime
      dependency. Names and class tokens are allow-listed before HTML output. */

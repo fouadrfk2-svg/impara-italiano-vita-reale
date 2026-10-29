@@ -26,5 +26,3 @@ html:not([data-access="learner"]) .site-foot{margin-inline:auto;max-width:1200px
 @media(prefers-reduced-motion:reduce){.guest-page *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 .guest-page[lang="ar"]{font-family:var(--sans)}.guest-page[lang="ar"] :is(h1,h2,h3,.btn,.guest-nav button){font-family:inherit}.guest-page .btn{text-decoration:none}
-.guest-situation-icon.vr-icon{border-radius:50%;background-color:var(--salvia-deep);box-shadow:0 6px 16px color-mix(in srgb,var(--salvia-deep) 18%,transparent)}
-@media(prefers-reduced-motion:no-preference){.guest-situation{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}.guest-situation:hover{transform:translateY(-3px);box-shadow:var(--shadow-m)}}
