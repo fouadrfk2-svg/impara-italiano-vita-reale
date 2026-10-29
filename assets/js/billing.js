@@ -87,7 +87,6 @@
  root.querySelector("[data-open-learning]").addEventListener("click",function(){enterLearning(false);});
  loadStatus().then(function(ok){if(ok&&!courseOpened&&params.checkout==="success")pollActivation(root);else if(!ok&&params.checkout==="success")message(root,"يجري تأكيد الدفع بأمان. تحقّق من بريدك الإلكتروني لمتابعة الوصول.",false);});
 
- }
  async function pollActivation(root){
   for(var i=0;i<15&&global.Router.current.route==="billing";i++){
    if(await enterLearning(true))return;
@@ -97,6 +96,7 @@
    root.querySelector("[data-open-learning]").hidden=false;
    message(root,"إذا تأخر تأكيد Stripe، يمكنك استعمال زر فتح مساحة التعلّم دون دفع جديد.",false);
   }
+ }
  }
 
  global.Billing={configuration:configuration,upgradeGuest:upgradeGuest};
