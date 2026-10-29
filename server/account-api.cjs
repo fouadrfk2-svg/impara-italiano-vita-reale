@@ -103,7 +103,7 @@ function createHandler(route,dependencies={}){
    if(result?.rateLimited)throw new ApiError(429);
    if(login){if(!result?.authenticated)throw new ApiError(401);setCookie(res,newToken,admin,admin?14400:2592000);result={...result,csrf:mac(admin?'admin_csrf':'learner_csrf',newToken)};}
    if(action==='session'&&result?.authenticated)result={...result,csrf:mac(admin?'admin_csrf':'learner_csrf',raw)};
-   if(action==='logout')setCookie(res,'',admin,0);
+   if(action==='logout'){setCookie(res,'',admin,0);if(!admin)res.setHeader('Set-Cookie',[COOKIE+'=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0','__Host-vita_billing=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0']);}
    if(newPlainCode&&!result.alreadyApplied)result={...result,code:newPlainCode};
    return reply(res,result?.conflict||result?.alreadyApplied?409:200,result);
   }catch(error){
