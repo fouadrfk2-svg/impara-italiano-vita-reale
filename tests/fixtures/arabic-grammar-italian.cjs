@@ -1364,7 +1364,7 @@ module.exports={
     "data/i18n/ar/c1-03.js": "f3c159afa4aeb496d9a1cda964e076d0cf65c55b27abc4c21881cfd64fd8ae5b",
     "data/i18n/ar/conversations.js": "f9cb32e366129b86051765dd0d85b24831e52c7d52f5ae7da1f9ea4d3c2bf8af",
     "data/i18n/ar/curriculum-index.js": "323fc926117c024c6944ac76fa9f66ede7c7917f466b447fafcfb82a3e62d739",
-    "data/i18n/en/grammar-reference.js": "803628efe2a0f2e5a8b86b5583f4a20cbe0dc911fa25e7e2cc1ff1f3d6da58d7",
+    "data/i18n/en/grammar-reference.js": "75f8d783427ca3fa325efdd9aa13b91a71246192e84d405ba55b34ed336d0f4b",
     "data/i18n/ui-ar.js": "7cbb4d8d3ac87d4bc3c27832f1e5ad601db35f4379cd27dba10f1f091a1eed69"
   }
 };

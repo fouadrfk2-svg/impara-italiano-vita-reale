@@ -2,13 +2,12 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {createHash} from 'node:crypto';
 import vm from 'node:vm';
-import {loadEngine,CORE,VERBS,ROOT} from './_harness.mjs';
+import {loadEngine,CORE,VERBS,ROOT,assertCanonicalSnapshots} from './_harness.mjs';
 import {checkPartialCourse} from '../../scripts/parity.mjs';
 import plans from '../fixtures/arabic-b1-plans.cjs';
 const preservedHashes={
-  "data/core/b1-01.js": "84ceb6712f58ad6e1d50116cf7315b9e9bdaaf02a213ba46b9984534f1756573",
+  "data/core/b1-01.js": "dffd4dadf404b57e69dc6a5e50d489a7f174b58815d3cbe532c80a8cb1658453",
   "data/i18n/ar/a1-01.js": "fb0816c334408a20991cf77404e68a54e6712f1ee5cb283588abad73e0d291d0",
   "data/i18n/ar/a1-02.js": "e1268fec9b02af562f38366e7af9e89bbe31f0bcde31e05a471423048fd596b7",
   "data/i18n/ar/a1-03.js": "cf87821e14692288c36882199e334becdd95ba8ad4425b53dd8ba310d71db488",
@@ -364,7 +363,7 @@ test('B1 contains exactly the 16 original lessons, four assessments and 203 orig
  language(b,'ar');const us=plain(b.Core.registry.byCode.B1.units);assert.equal(us.length,4);assert.equal(us.flatMap(u=>u.lessons).length,16);assert.equal(us.filter(u=>u.test).length,4);assert.equal(us.flatMap(u=>[...u.lessons,u.test]).reduce((n,l)=>n+l.exercises.length,0),203);
  assert.equal(plans.length,20);assert.equal(plans.reduce((n,p)=>n+p.answers.length,0),203);for(const u of us)for(const l of [...u.lessons,u.test])assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar',l.id),'ar');
 });
-test('all completed Arabic A1/A2 files and the original Italian B1 core are byte-identical',()=>{for(const[f,h]of Object.entries(preservedHashes))assert.equal(createHash('sha256').update(readFileSync(join(ROOT,f))).digest('hex'),h,f);});
+test('all completed Arabic A1/A2 files and the original Italian B1 core match canonical Git content',()=>assertCanonicalSnapshots(preservedHashes));
 for(const plan of plans){
  test(plan.id+' translates every existing learner field while preserving Italian and exact shape',()=>{
   const b=setup();language(b,'ar');const key='lesson:'+plan.id,patch=ar[key],base=en[key];assert.equal(patch.title,plan.title);

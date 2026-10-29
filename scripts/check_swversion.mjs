@@ -24,13 +24,14 @@
    ============================================================ */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, extname, join } from "node:path";
 import { createHash } from "node:crypto";
 import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SW = join(ROOT, "sw.js");
 const NAPRAW = process.argv.slice(2).includes("--napraw");
+const TEXT_EXTENSIONS = new Set([".css", ".html", ".js", ".svg", ".webmanifest"]);
 
 /* A version of the form "v35.7bb6e01ec9d6": the hand-written release name,
    a dot, the fingerprint. The fingerprint is optional in the expression, so
@@ -79,7 +80,13 @@ function odcisk(pliki) {
     }
     suma.update(rel);
     suma.update("\0");
-    suma.update(readFileSync(abs));
+    let contenuto = readFileSync(abs);
+    // Hash text in Git's canonical LF form so Windows checkout conversion
+    // cannot produce a different worker version from the deployed source.
+    if (TEXT_EXTENSIONS.has(extname(rel).toLowerCase())) {
+      contenuto = Buffer.from(contenuto.toString("utf8").replace(/\r\n/g, "\n"));
+    }
+    suma.update(contenuto);
     suma.update("\0");
   }
   return suma.digest("hex").slice(0, 12);

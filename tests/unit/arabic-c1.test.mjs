@@ -2,26 +2,25 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {createHash} from 'node:crypto';
 import vm from 'node:vm';
-import {loadEngine,CORE,VERBS,ROOT} from './_harness.mjs';
+import {loadEngine,CORE,VERBS,ROOT,assertCanonicalSnapshots} from './_harness.mjs';
 import {checkPartialCourse} from '../../scripts/parity.mjs';
 import plans from '../fixtures/arabic-c1-plans.cjs';
 const preservedHashes={
-  "data/core/a1-01.js": "8fd2ad2fd51e9f060df860666db1132c2681eca1eeafc4b3227e27fafe0cf8cd",
-  "data/core/a1-02.js": "4e341b7accf3f768216fcba91783c90397f19650da56ae293baec206c6273c42",
-  "data/core/a1-03.js": "25d2d18db9fd583f87b0cf1849583399972ba5f83b4f7cbdebf881a5a50ef62c",
-  "data/core/a2-01.js": "a5a59fa0ea4980e1b369155b6a42cac5c9553ac1d9f5a990ceb987caaf2a4d9e",
-  "data/core/a2-02.js": "57b31454a876b153d6f99acc997a8d74a4bef3c14ca77ba50a1e6b9c878aa3b2",
-  "data/core/b1-01.js": "84ceb6712f58ad6e1d50116cf7315b9e9bdaaf02a213ba46b9984534f1756573",
-  "data/core/b2-01.js": "a2d8f305d4d684ec9cb2dc45d1b8b0b3e7d7d33e8a87c3ebbb225d09386c2431",
-  "data/core/b2-02.js": "3aa2c700c634696bc569d2c189fc0642b4547996dfb179ea2c09a8d9bcbb9a67",
-  "data/core/b2-03.js": "33b7520263a1b80b9407d1b7547833fe11a8eeebb75c7864426a7e41e22f2d7e",
-  "data/core/c1-01.js": "f40c15594a03891e6ccfae0c421f57335c5947991f12782dc797df062801f3e3",
-  "data/core/c1-02.js": "e9290c45d1278886d43ca61bca40dbbcdaeeb5ff9e86006ded10f15aa54e5a23",
-  "data/core/c1-03.js": "a3287ab5893457a0ba5eefb82c429245269061f6350af47eb97dff21ec82fcd4",
-  "data/core/c2-01.js": "c83185f4749a53c8693026a2644f13d22edcaed68bdf21f4cbb6b53e040b01b5",
-  "data/core/c2-02.js": "7ac8b9764e6574caeefacce842ffc2dbafc3fe16e35fd8cad264b6e70c3de542",
+  "data/core/a1-01.js": "779f7a2f61f909997010a6d7600645c4b7b88ee5e1853a4d35585eb68bf9a793",
+  "data/core/a1-02.js": "c9b18817eba40257c827bed789b3b503a3284336833be701a739dfff0efd39ce",
+  "data/core/a1-03.js": "1bf593168636ada1ff03b472bf68414861aa1d0b303f3a89ee07ed6e0ede1323",
+  "data/core/a2-01.js": "7a7dea523610a596b05f280edead1b954da3950e57400ebb76ff0b88cb9d8c5a",
+  "data/core/a2-02.js": "e8f70cf2523bf046b7d5301c9655720c25f69251c014e747a79e8bc287c43f75",
+  "data/core/b1-01.js": "dffd4dadf404b57e69dc6a5e50d489a7f174b58815d3cbe532c80a8cb1658453",
+  "data/core/b2-01.js": "f46736d8588c1e352ed2147538347cc734df11df3322fc777a82818352b9a2b1",
+  "data/core/b2-02.js": "db0cba8570c0de6c6f2575cca1ebb8678bef3f56f0398d6f6c886fc29c613d0a",
+  "data/core/b2-03.js": "16efd5dfed0c213c2e1d21a23fc873cbcb30cdd80aafa8d46e72456e4ff74b3a",
+  "data/core/c1-01.js": "80c11f49e1a8162eb732f6c1bf9aa55d1ab2dc05499164ce984b4d13d0153dda",
+  "data/core/c1-02.js": "d072bbae565730e4788f64ea2281c39a46f1271277eeb9fab6b0f62b194c5c6c",
+  "data/core/c1-03.js": "cf2e651aafd9ad0cc1006be6f3d8f25fa87218266f37d8f10678dbeb6cee6146",
+  "data/core/c2-01.js": "d8f70d3379ea80d0675d98d95776c7f1189432d603c2f5881adae808dfa3fdc6",
+  "data/core/c2-02.js": "f530b91efb688a239b9a97b01937b508d26f06f130106b083596bff636316f20",
   "data/core/chat-scenarios.js": "606e82a17596ccbebd7ed8e65a2a2871027ea6ad2006a5ba678f5b6d67965237",
   "data/core/cils.js": "2bd7892342dee3cc940f74c9223b463a4755b75e2e165fba357745d6ec95f642",
   "data/core/conversations.js": "f31f9508a268781892e0a0d7a3442bd2e57f197c70487949de63b9c9266b13cb",
@@ -29,12 +28,12 @@ const preservedHashes={
   "data/core/frequenza.js": "75bd18bd2aafb98b6a6844bc90cefe52aff3d193d424b499b33e8b9004fc903c",
   "data/core/grammar-reference.js": "44134eb886beeb551d5053c1a7b3a3264a73355dc28966657800867abc226343",
   "data/core/interference.js": "33cebbd989efc27e6d630050461e68b509ae1a5468803c190d89f62d011719e3",
-  "data/core/library-a1.js": "dec87394a64e71e6299e115ec10aa2f0c12d279dd311316c8a86a8a4e100f631",
-  "data/core/library-a2.js": "d43173213ad5b28dfc1ef5223b3763349d43a28a7b17b4331753a09fcb9a3c35",
-  "data/core/library-b1.js": "2455914a966121319d2fc16a8c4517963f59948eca269e4dccc89aa76853192f",
-  "data/core/library-b2.js": "933fd38b8c32cffec65bf8e31ce0bebbd7c3f364db18f1b185a9bf9b3a60dc79",
-  "data/core/library-c1.js": "3a3e8f6a96af083427a7ecf92b3f4d37ff00fb547ccfa203d62ab78299631921",
-  "data/core/library-c2.js": "7f271d4d051a9dd1b549c8e8c5890db85f8f4c68c8084e9f6015c48c4b090794",
+  "data/core/library-a1.js": "5772815b0b1d5585fc865f4761dd182516e8c08429cd064f9062ffd3af114a75",
+  "data/core/library-a2.js": "6eea7beaeec6071758cee5e01807be8eca747ac386b7c92b32cfe8091170dd5f",
+  "data/core/library-b1.js": "930774c9a1444508501d0f04d3b881259b4e8f668ee2478efa14020aaef9439b",
+  "data/core/library-b2.js": "a65d051a971b85504153bd485c03dfdd1f1d628b5465a88094492c218bb516e3",
+  "data/core/library-c1.js": "72fe84f6df487f07805b96617d00ee93325c6f2e1edb50aa6ad7616fce0179a1",
+  "data/core/library-c2.js": "1736983d97bce20a01cc75dcf874d8225c785ed26e6d3ba8e95aa3b21913dbc1",
   "data/core/phonetics.js": "4a5a31b1abdda7118838347a18a831304db5d982f24c7b09a0bdff7655a8d1c2",
   "data/core/readings.js": "e3930ad98391099a55503a3b86e17f06721cf2b3ce8ca47d6a574ccaa1c5c7ff",
   "data/core/writing.js": "6013fd46b4aab041b94626539d0c3fb5cab5da6fa894e1ae140c2c264f4d41b3",
@@ -337,7 +336,7 @@ test('C1 has exactly five original units, 15 lessons, five assessments and 210 e
  const b=setup(),m=plain(b.sandbox.I18n.courseOverrides('ar'));assert.equal(Object.values(m).flat().length,187);assert.equal(Object.keys(ar).length,25);for(const f of c1Files)assert.deepEqual(m[f],Object.keys(bag('ar',f)));
  const errors=[];checkPartialCourse(m,bags('ar'),entries('en'),errors);assert.deepEqual(errors,[]);language(b,'ar');const us=plain(b.Core.registry.byCode.C1.units);assert.equal(us.length,5);assert.equal(us.flatMap(u=>u.lessons).length,15);assert.equal(us.filter(u=>u.test).length,5);assert.equal(us.flatMap(u=>[...u.lessons,u.test]).reduce((n,l)=>n+l.exercises.length,0),210);assert.equal(plans.length,20);assert.equal(plans.reduce((n,p)=>n+p.answers.length,0),210);for(const u of us)for(const l of [...u.lessons,u.test])assert.equal(b.sandbox.LINGUAI.lessonLanguage('ar',l.id),'ar');
 });
-test('all previously translated Arabic files and every original Italian core remain byte-identical',()=>{for(const[f,h]of Object.entries(preservedHashes))assert.equal(createHash('sha256').update(readFileSync(join(ROOT,f))).digest('hex'),h,f);});
+test('all previously translated Arabic files and every original Italian core match canonical Git content',()=>assertCanonicalSnapshots(preservedHashes));
 for(const plan of plans){
  test(plan.id+' completely translates the original fields, preserving exact structure and Italian',()=>{
   const b=setup({file:fileFor(plan.id)});language(b,'ar');const k='lesson:'+plan.id,patch=ar[k],base=en[k];assert.equal(patch.title,plan.title);

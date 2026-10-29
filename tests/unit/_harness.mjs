@@ -13,11 +13,37 @@
    supplied here rather than measured.
    ============================================================ */
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import vm from "node:vm";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+/**
+ * Compare protected text with its committed canonical Git blob. Git applies
+ * the repository's checkout filters when hashing the worktree file, so this
+ * remains byte-exact in Git's canonical representation on Windows and Unix.
+ */
+export function assertCanonicalSnapshots(snapshots) {
+  for (const [file, expectedSha256] of Object.entries(snapshots)) {
+    const committedOid = execFileSync("git", ["rev-parse", `HEAD:${file}`], {
+      cwd: ROOT,
+      encoding: "utf8"
+    }).trim();
+    const worktreeOid = execFileSync("git", ["hash-object", `--path=${file}`, file], {
+      cwd: ROOT,
+      encoding: "utf8"
+    }).trim();
+    assert.equal(worktreeOid, committedOid, `${file}: worktree differs from its committed Git blob`);
+
+    const committedBytes = execFileSync("git", ["show", `HEAD:${file}`], { cwd: ROOT });
+    const actualSha256 = createHash("sha256").update(committedBytes).digest("hex");
+    assert.equal(actualSha256, expectedSha256, `${file}: committed canonical content changed`);
+  }
+}
 
 /**
  * Substituting an engine file for the duration of one test run.
