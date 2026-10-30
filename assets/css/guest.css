@@ -52,3 +52,18 @@ html:not([data-access="learner"]) .site-foot{margin-inline:auto;max-width:1200px
 .startup-screen__brand{display:inline-block;color:var(--salvia-deep);font-weight:800;letter-spacing:.04em;font-size:1.15rem}
 .startup-screen h1{font-size:clamp(1.7rem,5.3vw,3rem);line-height:1.55;color:var(--ink);margin:18px auto 12px}
 .startup-screen p{color:var(--ink-soft);font-size:1rem}
+
+/* Optional WhatsApp subscription route, shown only alongside online billing. */
+.guest-actions--whatsapp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto);align-items:start;column-gap:12px;row-gap:8px}
+.guest-actions--whatsapp>.guest-subscribe{grid-column:1;grid-row:1;min-width:0}
+.guest-actions--whatsapp>.guest-whatsapp-alternative{grid-column:1;grid-row:2}
+.guest-actions--whatsapp>.guest-cta{grid-column:2;grid-row:1;min-width:0}
+.guest-whatsapp-alternative{display:flex;min-width:0;flex-direction:column;align-items:stretch;gap:6px;text-align:center}
+.guest-whatsapp-alternative[hidden]{display:none!important}
+.guest-whatsapp-separator{color:var(--ink-soft);font-size:.82rem;font-weight:600;line-height:1.35}
+.guest-whatsapp-link{display:inline-flex;min-height:48px;max-width:100%;align-items:center;justify-content:center;gap:9px;padding:10px 16px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink);font:inherit;font-size:.96rem;font-weight:700;line-height:1.45;text-align:center;text-decoration:none;transition:background-color .18s,border-color .18s,transform .18s}
+.guest-whatsapp-link svg{width:1.2rem;height:1.2rem;flex:0 0 auto;color:var(--salvia-deep)}
+.guest-whatsapp-link:hover{transform:translateY(-1px);border-color:var(--salvia-deep);background:var(--salvia)}
+.guest-whatsapp-link:focus-visible{outline:3px solid var(--salvia-deep);outline-offset:3px}
+@media(max-width:760px){.guest-actions--whatsapp{grid-template-columns:minmax(0,1fr)}.guest-actions--whatsapp>.guest-subscribe,.guest-actions--whatsapp>.guest-whatsapp-alternative,.guest-actions--whatsapp>.guest-cta{grid-column:1;grid-row:auto}.guest-actions--whatsapp>.guest-cta{width:100%}}
+@media(prefers-reduced-motion:reduce){.guest-whatsapp-link{transition:none}}
