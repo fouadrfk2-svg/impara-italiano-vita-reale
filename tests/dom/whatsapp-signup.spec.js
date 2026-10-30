@@ -24,6 +24,29 @@ async function expectWhatsAppLink(link){
  await expect(icon.locator("path")).toHaveAttribute("fill","currentColor");
 }
 
+test("member email sign-in CTA has a clear accessible door icon",async({page})=>{
+ await page.route("**/icon-fixture",route=>route.fulfill({status:200,contentType:"text/html",body:'<!doctype html><html lang="ar" dir="rtl"><body><main class="guest-page"><div class="guest-actions"><a class="btn btn--ghost guest-cta" href="#/account">الدخول بالكود</a></div></main></body></html>'}));
+ await page.goto("/icon-fixture",{waitUntil:"domcontentloaded"});
+ await page.addStyleTag({content:".guest-page{direction:rtl}.guest-page .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:12px 22px}.guest-page .guest-signin-icon{display:block;width:1.35rem;height:1.35rem;flex:0 0 auto;overflow:visible}"});
+ await page.evaluate(()=>{window.Views={};window.fetch=async()=>({ok:true,json:async()=>({enabled:true})});window.__signinMarkupChanges=0;new MutationObserver(records=>{window.__signinMarkupChanges+=records.length;}).observe(document.querySelector(".guest-cta"),{childList:true,subtree:true});});
+ await page.addScriptTag({content:fs.readFileSync("assets/js/billing.js","utf8")});
+ await page.evaluate(()=>{window.Billing.upgradeGuest();return true;});
+ const button=page.locator(".guest-cta"),icon=button.locator(".guest-signin-icon");
+ await expect(button).toHaveAttribute("href","#/billing?signin=1");
+ await expect(button).toHaveAccessibleName("تسجيل الدخول بالإيميل");
+ await expect(icon).toHaveAttribute("viewBox","0 0 24 24");
+ await expect(icon).toHaveAttribute("aria-hidden","true");
+ await expect(icon.locator("path")).toHaveAttribute("stroke-width","2.2");
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ expect(await page.evaluate(()=>window.__signinMarkupChanges)).toBe(1);
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  const buttonBounds=await button.boundingBox(),iconBounds=await icon.boundingBox();
+  expect(buttonBounds.height).toBeGreaterThanOrEqual(44);expect(buttonBounds.x).toBeGreaterThanOrEqual(0);expect(buttonBounds.x+buttonBounds.width).toBeLessThanOrEqual(width);
+  expect(iconBounds.width).toBeGreaterThanOrEqual(20);expect(Math.abs(iconBounds.width-iconBounds.height)).toBeLessThanOrEqual(0.5);
+ }
+});
+
 test("online signup retains its primary billing route and offers a separate WhatsApp request at mobile and desktop",async({page})=>{
  await configure(page);
  const apiWrites=[];page.on("request",request=>{if(request.url().includes("/api/billing/")&&request.method()!=="GET")apiWrites.push(new URL(request.url()).pathname);});
@@ -33,8 +56,15 @@ test("online signup retains its primary billing route and offers a separate What
   await expect(page.locator("#guest-title")).toBeVisible();
   await expect.poll(()=>page.locator(".guest-whatsapp-marketing").count()).toBe(4);
   const primary=page.locator(".guest-subscribe").first(),option=page.locator(".guest-whatsapp-marketing").first(),link=option.locator(".guest-whatsapp-link");
+  const memberSignIn=page.locator(".guest-cta").first(),signInIcon=memberSignIn.locator(".guest-signin-icon");
   await expect(primary).toHaveAttribute("href","#/billing");
   await expect(primary).toContainText("اشترك الآن");
+  await expect(memberSignIn).toHaveAttribute("href","#/billing?signin=1");
+  await expect(memberSignIn).toHaveAccessibleName("تسجيل الدخول بالإيميل");
+  await expect(signInIcon).toHaveAttribute("viewBox","0 0 24 24");
+  await expect(signInIcon).toHaveAttribute("aria-hidden","true");
+  await expect(signInIcon.locator("path")).toHaveCount(1);
+  const signInIconBounds=await signInIcon.boundingBox();expect(signInIconBounds.width).toBeGreaterThanOrEqual(20);expect(Math.abs(signInIconBounds.width-signInIconBounds.height)).toBeLessThanOrEqual(0.5);
   await expect(option.locator(".guest-whatsapp-separator")).toHaveText("أو");
   await expectWhatsAppLink(link);
   const dimensions=await page.evaluate(()=>{const a=document.querySelector(".guest-subscribe"),o=a.nextElementSibling,r=o.getBoundingClientRect(),p=a.getBoundingClientRect(),icon=o.querySelector("svg").getBoundingClientRect();return {width:r.width,height:r.height,x:r.x,right:r.right,top:r.top,primaryBottom:p.bottom,scrollWidth:document.documentElement.scrollWidth,innerWidth,dir:document.querySelector(".guest-page").dir,iconWidth:icon.width,iconHeight:icon.height};});

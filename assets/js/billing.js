@@ -19,7 +19,7 @@
  function upgradeGuest(){configuration().then(function(c){
   if(!c.enabled)return;
   document.querySelectorAll(".guest-header-login").forEach(function(a){var href="#/billing?signin=1",markup='تسجيل الدخول <span aria-hidden="true">↗</span>';if(a.getAttribute("href")!==href)a.setAttribute("href",href);if(a.innerHTML!==markup)a.innerHTML=markup;});
-  document.querySelectorAll(".guest-cta").forEach(function(a){var href="#/billing?signin=1",copy="تسجيل الدخول بالإيميل";if(a.getAttribute("href")!==href)a.setAttribute("href",href);if(a.textContent!==copy)a.textContent=copy;});
+  document.querySelectorAll(".guest-cta").forEach(function(a){var href="#/billing?signin=1",copy="تسجيل الدخول بالإيميل",markup='<svg class="guest-signin-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 17 5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>'+copy+'</span>';if(a.getAttribute("href")!==href)a.setAttribute("href",href);if(a.innerHTML!==markup)a.innerHTML=markup;});
   document.querySelectorAll(".guest-actions").forEach(function(el){
    if(el.nextElementSibling?.classList.contains("guest-code-login"))return;
    var p=document.createElement("p");p.className="guest-code-login";

@@ -63,6 +63,7 @@ html:not([data-access="learner"]) .site-foot{margin-inline:auto;max-width:1200px
 .guest-whatsapp-separator{color:var(--ink-soft);font-size:.82rem;font-weight:600;line-height:1.35}
 .guest-whatsapp-link{display:inline-flex;min-height:48px;max-width:100%;align-items:center;justify-content:center;gap:9px;padding:10px 16px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink);font:inherit;font-size:.96rem;font-weight:700;line-height:1.45;text-align:center;text-decoration:none;transition:background-color .18s,border-color .18s,transform .18s}
 .guest-whatsapp-link svg{width:1.2rem;height:1.2rem;flex:0 0 auto;color:var(--salvia-deep)}
+.guest-page .guest-signin-icon{display:block;width:1.35rem;height:1.35rem;flex:0 0 auto;overflow:visible}
 .guest-whatsapp-link:hover{transform:translateY(-1px);border-color:var(--salvia-deep);background:var(--salvia)}
 .guest-whatsapp-link:focus-visible{outline:3px solid var(--salvia-deep);outline-offset:3px}
 @media(max-width:760px){.guest-actions--whatsapp{grid-template-columns:minmax(0,1fr)}.guest-actions--whatsapp>.guest-subscribe,.guest-actions--whatsapp>.guest-whatsapp-alternative,.guest-actions--whatsapp>.guest-cta{grid-column:1;grid-row:auto}.guest-actions--whatsapp>.guest-cta{width:100%}}
