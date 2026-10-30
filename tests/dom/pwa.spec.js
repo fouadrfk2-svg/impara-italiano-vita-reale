@@ -92,11 +92,12 @@ test("the code is fetched from the network while there is a network", async ({ p
   await workerGotowy(page);
 
   const zadania = [];
-  page.on("request", r => { if (r.url().includes("/assets/js/core.js")) zadania.push(r.url()); });
+  const bundled = await page.locator('script[src*="vita-shell-"]').count();
+  const monitoredScript = bundled ? "/assets/js/vita-shell-" : "/assets/js/core.js";
+  page.on("request", r => { if (r.url().includes(monitoredScript)) zadania.push(r.url()); });
   await page.reload();
   await page.waitForFunction(() => window.Core);
-
-  expect(zadania.length, "core.js went to the network rather than straight to the cache").toBeGreaterThan(0);
+  expect(zadania.length, "app code must be requested even with an active service worker").toBeGreaterThan(0);
 });
 
 test("recordings are network-only and cannot be reopened anonymously or offline",async({page,context})=>{

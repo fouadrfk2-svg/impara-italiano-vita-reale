@@ -208,8 +208,25 @@
     }
     return lang;
   }
+  function showCourseOpening() {
+    // An authenticated visitor sees a real, accessible loading state instead
+    // of a frozen landing page while protected resources are being prepared.
+    var main = document.getElementById("main");
+    if (!main) return;
+    document.documentElement.setAttribute("data-access", "loading");
+    main.setAttribute("aria-busy", "true");
+    main.innerHTML = '<section class="course-opening" data-course-opening role="status" aria-live="polite">'
+      + '<span class="course-opening__mark" aria-hidden="true"></span>'
+      + '<p class="course-opening__eyebrow">Vita Reale</p>'
+      + '<h1>كنوجدو مساحة التعلّم ديالك…</h1>'
+      + '<p class="course-opening__description">دخولك مؤكد. الدروس كتتحمّل بطريقة آمنة.</p>'
+      + '<div class="course-opening__track" aria-hidden="true"><span></span></div>'
+      + '<p data-course-opening-count>جارٍ تحميل الدروس…</p>'
+      + '</section>';
+  }
   App.enterCourse = async function (keepPublic) {
     if (!global.Account.snapshot().authenticated) return;
+    if (!courseReady && !courseLoading) showCourseOpening();
     var preparedLanguage = null;
     if (!courseReady) {
       if (!courseLoading) courseLoading = (async function () {
@@ -229,6 +246,8 @@
           // batch, then fail closed instead of overlapping a retry.
           var results = await Promise.allSettled(batch);
           if (results.some(function (r) { return r.status === "rejected"; })) throw Error("Content unavailable");
+          var progress = document.querySelector("[data-course-opening-count]");
+          if (progress) progress.textContent = "جاري تجهيز الدروس… " + Math.min(i + 6, scripts.length) + " / " + scripts.length;
         }
         var prepared = await prepareCourseLanguage();
         Object.keys(global.Views).forEach(function (name) {
@@ -243,6 +262,7 @@
     try { if (preparedLanguage !== Core.state.settings.lang) await prepareCourseLanguage(); } catch (e) { document.documentElement.setAttribute("data-access", "guest"); Router.render("home", { unavailable: true }); return; }
     if (!global.Account.snapshot().authenticated) { closeCourse(); return; }
     document.documentElement.setAttribute("data-access", "learner");
+    document.getElementById("main").removeAttribute("aria-busy");
     App.refreshRail();
     if (keepPublic) Router.render(keepPublic.route, keepPublic.params); else startRouting();
   };

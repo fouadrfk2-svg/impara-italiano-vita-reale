@@ -21,6 +21,7 @@ import content from "../server/content-api.cjs";
 import contentPaths from "../server/content-path.cjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const STATIC_ROOT = process.env.VITA_STATIC_ROOT === "dist" ? join(ROOT, "dist") : ROOT;
 const PORT = Number(process.argv[2] || process.env.PORT || 8080);
 
 const TYPES = {
@@ -43,7 +44,7 @@ const TYPES = {
  * lead outside ROOT, not even on a test server.
  */
 function resolvePath(url) {
-  return resolvePublicPath(ROOT, url);
+  return resolvePublicPath(STATIC_ROOT, url);
 }
 
 /**

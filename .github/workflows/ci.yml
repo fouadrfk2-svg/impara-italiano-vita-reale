@@ -101,6 +101,19 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_NAME: reports/dom.json
         run: npm run test:dom -- --reporter=list,json
 
+      # Ship what was tested: the deployed /dist HTML uses static bundles
+      # instead of the 23 source scripts. Verify the generated app and PWA,
+      # including that no paid lesson was copied into a public JS bundle.
+      - name: Build and check bundled production output
+        run: |
+          npm run build
+          node --test tests/unit/public-bundle.test.mjs
+
+      - name: Browser smoke test of bundled production output
+        env:
+          VITA_STATIC_ROOT: dist
+        run: npx playwright test tests/dom/pwa.spec.js tests/dom/routes.spec.js tests/dom/progressive-opening.spec.js --project=chromium --workers=1
+
       # What the profile page (github.com/AndreaBonn) shows about this
       # repository. The numbers come from the three runs above, so they cannot
       # drift from the suite the way a figure written into a README does.

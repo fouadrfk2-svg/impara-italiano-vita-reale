@@ -149,7 +149,14 @@
 
   <!-- ══════════ MAIN ══════════ -->
   <div class="col">
-    <main class="main" id="main" tabindex="-1"></main>
+    <main class="main" id="main" tabindex="-1">
+      <!-- Visible from the first HTML paint, even before the JS bundles finish. -->
+      <section class="startup-screen" role="status" aria-live="polite">
+        <span class="startup-screen__brand">Vita Reale</span>
+        <h1>تعلّم الإيطالية لحياتك في إيطاليا</h1>
+        <p>كنوجدو ليك الصفحة…</p>
+      </section>
+    </main>
 
     <!-- The footer is a SIBLING of <main>, not a child of it: `Views.shell.set`
          replaces the innerHTML of #main at every route, so a footer living
