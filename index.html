@@ -180,17 +180,17 @@
 <!-- the recording index has to be loaded before recordings.js: that one reads it at startup -->
 <script type="application/json" data-course-src="data/audio-index.js"></script>
 <script type="application/json" data-course-src="assets/js/recordings.js"></script>
-<script src="assets/js/fsrs.js"></script>
+<script defer src="assets/js/fsrs.js"></script>
 <!-- before core.js: core re-exposes these functions under its own names -->
-<script src="assets/js/text.js"></script>
-<script src="assets/js/notice.js"></script>
-<script src="assets/js/store.js"></script>
-<script src="assets/js/registry.js"></script>
-<script src="assets/js/srs.js"></script>
-<script src="assets/js/core.js"></script>
-<script src="assets/js/i18n.js"></script>
+<script defer src="assets/js/text.js"></script>
+<script defer src="assets/js/notice.js"></script>
+<script defer src="assets/js/store.js"></script>
+<script defer src="assets/js/registry.js"></script>
+<script defer src="assets/js/srs.js"></script>
+<script defer src="assets/js/core.js"></script>
+<script defer src="assets/js/i18n.js"></script>
 <!-- attaching the student's texts to the course content: separate from the interface strings -->
-<script src="assets/js/i18n-merge.js"></script>
+<script defer src="assets/js/i18n-merge.js"></script>
 <script type="application/json" data-course-src="assets/js/consent.js"></script>
 <!-- the second judge: the provider tables and the rules before the file that
      makes the request, the same order as verbs-data.js before verbs.js. llm.js
@@ -211,7 +211,7 @@
 <!-- the Italian tables before the conjugation engine: verbs.js reads them at startup -->
 <script type="application/json" data-course-src="assets/js/verbs-data.js"></script>
 <script type="application/json" data-course-src="assets/js/verbs.js"></script>
-<script src="assets/js/exercises.js"></script>
+<script defer src="assets/js/exercises.js"></script>
 <!-- the families of exercise types: they call Ex.register and must come in before the first lesson -->
 <script type="application/json" data-course-src="assets/js/exercises-choice.js"></script>
 <script type="application/json" data-course-src="assets/js/exercises-text.js"></script>
@@ -222,7 +222,7 @@
 <!-- the lexicon before the generators, the generators before the practice view -->
 <script type="application/json" data-course-src="assets/js/drills-lex.js"></script>
 <script type="application/json" data-course-src="assets/js/drills.js"></script>
-<script src="assets/js/views.js"></script>
+<script defer src="assets/js/views.js"></script>
 <!-- screens split out of views.js: they consume Views.shell, their order among themselves does not matter -->
 <script type="application/json" data-course-src="assets/js/views-path.js"></script>
 <script type="application/json" data-course-src="assets/js/lesson-run.js"></script>
@@ -255,7 +255,7 @@
 <script type="application/json" data-course-src="assets/js/views-placement.js"></script>
 <script type="application/json" data-course-src="assets/js/views-welcome.js"></script>
 <script type="application/json" data-course-src="assets/js/views-guide.js"></script>
-<script src="assets/js/views-privacy.js"></script>
+<script defer src="assets/js/views-privacy.js"></script>
 <script type="application/json" data-course-src="assets/js/writing.js"></script>
 <script type="application/json" data-course-src="assets/js/cils.js"></script>
 <!-- the rules of form before the verdict: lemma.js reads LemmaMorf at module execution -->
@@ -285,8 +285,8 @@
 
 <!-- ══════════ DATA ══════════ -->
 <!-- Arabic interface and internal English fallback for incomplete strings. -->
-<script src="data/i18n/ui-en.js"></script>
-<script src="data/i18n/ui-ar.js"></script>
+<script defer src="data/i18n/ui-en.js"></script>
+<script defer src="data/i18n/ui-ar.js"></script>
 <!-- the language-neutral layer: structure, Italian, answer keys -->
 <script type="application/json" data-course-src="data/core/curriculum-index.js"></script>
 <script type="application/json" data-course-src="data/core/grammar-reference.js"></script>
@@ -306,16 +306,16 @@
 
 <!-- ══════════ START ══════════ -->
 <!-- the router before app.js: app hooks into Router.onRender at module execution -->
-<script src="assets/js/router.js"></script>
-<script src="assets/js/account-rules.js"></script>
-<script src="assets/js/account.js"></script>
-<script src="assets/js/views-account.js"></script>
+<script defer src="assets/js/router.js"></script>
+<script defer src="assets/js/account-rules.js"></script>
+<script defer src="assets/js/account.js"></script>
+<script defer src="assets/js/views-account.js"></script>
 <!-- Register public subscription route and upgrade WhatsApp only when Stripe is ready. -->
-<script src="assets/js/billing.js"></script>
-<script src="assets/js/guest.js"></script>
-<script src="assets/js/app.js"></script>
+<script defer src="assets/js/billing.js"></script>
+<script defer src="assets/js/guest.js"></script>
+<script defer src="assets/js/app.js"></script>
 <!-- the rules before the registration: pwa.js asks PwaRules for every decision -->
-<script src="assets/js/pwa-rules.js"></script>
-<script src="assets/js/pwa.js"></script>
+<script defer src="assets/js/pwa-rules.js"></script>
+<script defer src="assets/js/pwa.js"></script>
 </body>
 </html>
