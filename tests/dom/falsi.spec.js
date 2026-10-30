@@ -1,14 +1,34 @@
-/* Arabic false-friend view uses English only for entries not yet translated. */
 const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function open(page) {
   await page.goto("/index.html#/falsi");
+  await expect(page.locator(".empty")).toBeVisible();
+}
+
+async function openEnglishFallback(page) {
+  await open(page);
+  /* False-friend explanations are authored for a learner's first language.
+     Arabic has no matching source entries, so this test loads the existing
+     English overlay only to keep exercising the shared card/quiz rendering. */
+  await page.addScriptTag({ url: "/data/i18n/en/interference.js" });
+  await page.evaluate(() => {
+    window.LINGUAI.applyStrings("en");
+    window.App.go("falsi", {});
+  });
   await page.waitForSelector(".fa-card");
 }
 
 test.describe("false friends", () => {
-  test("the Arabic learner view retains Italian entries and readable English fallback explanations", async ({ page }) => {
+  test("Arabic shows its localized empty state instead of unrelated language traps", async ({ page }) => {
     await open(page);
+    await expect(page.locator(".empty h3")).toHaveText("لا توجد مدخلات لهذه اللغة بعد.");
+    await expect(page.locator(".empty p")).toContainText("لكل لغة على حدة");
+    await expect(page.locator(".fa-card,.js-quiz")).toHaveCount(0);
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  });
+
+  test("the existing English fallback renders the Italian entries and explanations", async ({ page }) => {
+    await openEnglishFallback(page);
     const cards = page.locator(".fa-card");
     expect(await cards.count()).toBeGreaterThan(10);
     await expect(cards.first().locator(".fa-it")).toContainText(/.+/);
@@ -19,7 +39,7 @@ test.describe("false friends", () => {
   });
 
   test("the exercise records one answer only", async ({ page }) => {
-    await open(page);
+    await openEnglishFallback(page);
     await page.click(".js-quiz");
     await page.waitForSelector(".exq");
     await page.evaluate(() => {
@@ -34,7 +54,7 @@ test.describe("false friends", () => {
   });
 
   test("fallback explanation is rendered as text, not markup", async ({ page }) => {
-    await open(page);
+    await openEnglishFallback(page);
     await expect(page.locator(".fa-card .js-why img")).toHaveCount(0);
     await expect(page.locator(".fa-card").first().locator(".js-why")).toContainText(/.+/);
   });

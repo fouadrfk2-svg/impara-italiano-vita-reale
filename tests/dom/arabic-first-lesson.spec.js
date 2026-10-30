@@ -83,6 +83,9 @@ for (const width of [1440, 390]) {
     });
 
     test("Arabic microphone consent can be refused and the real speaking exercise remains usable", async ({ page }) => {
+      await page.addInitScript(() => {
+        window.SpeechRecognition = function SyntheticSpeechRecognition() {};
+      });
       await page.goto("/index.html#/lezione?id=" + id); await ready(page);
       await page.locator('.ex-chip[data-go="8"]').click();
       const current = page.locator(active);

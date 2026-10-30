@@ -36,7 +36,13 @@ function client(db,remote='synthetic-device'){
   const req={method:options.method||(read?'GET':'POST'),headers:{host:'localhost:8080',origin:'http://localhost:8080','content-type':'application/json','x-vita-request':'1','x-vita-account':learnerId,'x-vita-csrf':admin?adminCsrf:learnerCsrf,cookie:Object.entries(cookies).map(([k,v])=>k+'='+v).join('; '),...options.headers},body:body??{},socket:{remoteAddress:remote}};
   const res={headers:{},setHeader(k,v){this.headers[k.toLowerCase()]=v;},end(v){this.body=JSON.parse(v);}};
   await createHandler(route,{run})(req,res);
-  if(res.headers['set-cookie']){const kv=res.headers['set-cookie'].split(';')[0].split('=');if(kv[1])cookies[kv[0]]=kv[1];else delete cookies[kv[0]];}
+  const setCookies=res.headers['set-cookie'];
+  for(const header of (Array.isArray(setCookies)?setCookies:setCookies?[setCookies]:[])){
+   const pair=String(header).split(';',1)[0],equals=pair.indexOf('=');
+   if(equals<1)continue;
+   const name=pair.slice(0,equals).trim(),value=pair.slice(equals+1);
+   if(value)cookies[name]=value;else delete cookies[name];
+  }
   if(res.body?.csrf){if(admin)adminCsrf=res.body.csrf;else learnerCsrf=res.body.csrf;}
   if(!admin&&res.body?.learnerId)learnerId=res.body.learnerId;
   return res;

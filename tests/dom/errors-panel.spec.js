@@ -14,6 +14,7 @@ async function zepsujOdpowiedz(page, lekcjaId, indeks) {
 async function start(page) {
   await page.goto("/index.html#/ripasso");
   await page.waitForFunction(() => window.Core && window.Errors && window.Train);
+  await page.evaluate(() => new Promise(resolve => window.Core.loadLevelData("A1", resolve)));
 }
 
 test("the tabs are visible and switch through the address", async ({ page }) => {

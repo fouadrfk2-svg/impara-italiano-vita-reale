@@ -55,6 +55,7 @@ module.exports = defineConfig({
     command: `node tests/helpers/renderer-server.mjs ${PORT}`,
     url: `http://localhost:${PORT}/index.html`,
     reuseExistingServer: false,
-    timeout: 20000
+    timeout: 20000,
+    env: { VITA_STATIC_ROOT: "dist" }
   }
 });

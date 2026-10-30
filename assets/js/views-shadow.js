@@ -165,62 +165,6 @@
     });
   }
 
-  /* ═══════════════ Consent for speech recognition ═══════════════
-
-     Substituted in consent.js, called from Audio2.listen — that is, it
-     covers ALL the places that send the voice outside today: 150 `speak`
-     exercises and ten conversations. This file only supplies the dialog,
-     because the view layer lives here and consent.js has no right to know
-     the DOM.
-     ══════════════════════════════════════════════════════════ */
-  function okienkoZgody(decyzja) {
-    var stary = document.getElementById("sttConsent");
-    if (stary) stary.remove();
-
-    var box = document.createElement("div");
-    box.id = "sttConsent";
-    box.className = "stt-consent";
-    box.setAttribute("role", "dialog");
-    box.setAttribute("aria-modal", "true");
-    box.setAttribute("aria-labelledby", "sttConsentTitle");
-    box.innerHTML =
-      '<div class="stt-consent__box">' +
-      '<h2 id="sttConsentTitle"></h2><p class="js-body"></p><p class="js-later"></p>' +
-      '<div class="stt-consent__row">' +
-      '<button class="btn btn--primary js-yes"></button>' +
-      '<button class="btn btn--ghost js-no"></button></div></div>';
-    document.body.appendChild(box);
-
-    box.querySelector("h2").textContent = t("stt.consentTitle");
-    box.querySelector(".js-body").textContent = t("stt.consentBody");
-    box.querySelector(".js-later").textContent = t("stt.consentLater");
-    var tak = box.querySelector(".js-yes");
-    var nie = box.querySelector(".js-no");
-    tak.textContent = t("stt.consentYes");
-    nie.textContent = t("stt.consentNo");
-
-    var wrocDo = document.activeElement;
-    function zamknij(odp) {
-      box.remove();
-      if (wrocDo && wrocDo.focus) wrocDo.focus();
-      decyzja(odp);
-    }
-    tak.addEventListener("click", function () { zamknij(true); });
-    nie.addEventListener("click", function () { zamknij(false); });
-    box.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { e.stopPropagation(); zamknij(false); }
-      /* A focus trap: two buttons, so wrapping around at the ends is enough. */
-      if (e.key !== "Tab") return;
-      var f = [tak, nie];
-      var i = f.indexOf(document.activeElement);
-      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
-      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
-    });
-    tak.focus();
-  }
-
-  if (global.Consent) global.Consent.uzyjPytania(okienkoZgody);
-
   var odtwarzacz = null;
 
   function odtworz(url, gotowe) {

@@ -18,6 +18,8 @@ test.describe.configure({ timeout: 60000 });
 async function otworz(page, sekundy) {
   await page.goto("/index.html#/esame");
   await page.waitForSelector(".js-start");
+  expect(await page.evaluate(() => ({ writing: !!window.Writing, recorder: !!window.Recorder, consent: !!window.Consent, llm: !!window.Llm })))
+    .toEqual({ writing: true, recorder: true, consent: true, llm: true });
   if (sekundy) {
     await page.evaluate(s => {
       window.CILS.forEach(sim => sim.sezioni.forEach(sez => { sez.minuti = s / 60; }));

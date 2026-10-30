@@ -1,7 +1,7 @@
 /* Public shell only. Private course data/audio are network-only and require
    a fresh server session. Downloaded copies from older releases cannot be
    remotely revoked; activation removes their legacy Cache Storage entries. */
-var SW_VERSION = "v37.31de5f696ba2";
+var SW_VERSION = "v37.667c0d24154b";
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 var PRECACHE = [
   "./assets/branding/header_public_light.svg",
@@ -191,7 +191,6 @@ var FIRST_VISIT = new Set([
   "./assets/js/core.js",
   "./assets/js/i18n.js",
   "./assets/js/i18n-merge.js",
-  "./assets/js/exercises.js",
   "./assets/js/views.js",
   "./assets/js/views-privacy.js",
   "./assets/js/router.js",

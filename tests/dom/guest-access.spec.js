@@ -12,7 +12,7 @@ test.beforeAll(async()=>{
 });
 test.beforeEach(async()=>{await helper.rollback(db);await helper.begin(db);});
 test.afterAll(async()=>{await new Promise(r=>server.close(r));await helper.rollback(db);await db.close();if(previous===undefined)delete process.env.PILOT_AUTH_SECRET;else process.env.PILOT_AUTH_SECRET=previous;});
-async function context(browser,width){const c=await browser.newContext({viewport:{width,height:900}});await c.addInitScript(AXE);return c;}
+async function context(browser,width,options={}){const c=await browser.newContext({viewport:{width,height:900},...options});await c.addInitScript(AXE);return c;}
 async function guest(page,hash=''){await page.goto(base+'/index.html'+hash);await expect(page.locator('.guest-page')).toBeVisible();await page.waitForFunction(()=>window.Account&&Account.snapshot().checked);}
 async function code(){const admin=helper.client(db);expect((await admin.request('admin/login',{key:helper.ADMIN_KEY})).statusCode).toBe(200);return (await helper.issue(admin)).code;}
 async function signIn(page,value){await page.evaluate(()=>App.go('account'));await page.locator('#pilot-code').fill(value);await page.locator('.js-login').click();await page.waitForFunction(()=>Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner');}
@@ -30,11 +30,12 @@ for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
   }finally{await c.close();}
  });
  test('invalid code, verified fallback/retry, intended lesson, reload, private delivery, saved progress and logout',async({browser})=>{
-  const c=await context(browser,width),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
-  let failTranslation=true;await p.route('**/data/i18n/ar/conversations.js',route=>failTranslation?route.abort('failed'):route.continue());
+  const c=await context(browser,width,{serviceWorkers:'block'}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+  let failTranslation=true,translationAttempts=0;await p.route('**/data/i18n/ar/conversations.js',route=>{translationAttempts++;return failTranslation?route.abort('failed'):route.continue();});
   try{
    await guest(p,'#/lezione?id=a1-u01-l1');await p.locator('.guest-cta').click();await p.locator('#pilot-code').fill('INVALID');await p.locator('.js-login').click();await expect(p.locator('[data-account-error]')).toBeVisible();expect(await p.evaluate(()=>Account.snapshot().authenticated)).toBe(false);
-   const activation=await code();await signIn(p,activation);await expect(p.locator('.exq').first()).toBeVisible();await expect(p.locator('#main h1')).toBeVisible();expect(await p.evaluate(()=>LINGUAI.entryLanguage('ar','conv:bar-mattina'))).toBe('en');failTranslation=false;await p.evaluate(()=>App.applyLang('ar'));await p.waitForFunction(()=>LINGUAI.entryLanguage('ar','conv:bar-mattina')==='ar');await expect(p.locator('.exq').first()).toBeVisible();
+   const activation=await code();await signIn(p,activation);await expect(p.locator('.exq').first()).toBeVisible();await expect(p.locator('#main h1')).toBeVisible();
+   await p.evaluate(()=>App.go('conversazione',{id:'bar-mattina'}));await expect(p.locator('.dlg__line').first()).toBeVisible();expect(translationAttempts).toBe(1);expect(await p.evaluate(()=>LINGUAI.entryLanguage('ar','conv:bar-mattina'))).toBe('en');await expect(p.locator('.view-head__intro')).toContainText('Monday');failTranslation=false;await p.evaluate(()=>App.applyLang('ar'));await expect.poll(()=>p.evaluate(()=>LINGUAI.entryLanguage('ar','conv:bar-mattina'))).toBe('ar');expect(translationAttempts).toBe(2);await expect(p.locator('.view-head__intro')).toContainText(/[\u0600-\u06ff]/);await p.evaluate(()=>App.go('lezione',{id:'a1-u01-l1'}));await expect(p.locator('.exq').first()).toBeVisible();
    const privateResponse=await c.request.get(base+'/data/core/a1-01.js');expect(privateResponse.status()).toBe(200);expect(privateResponse.headers()['cache-control']).toContain('no-store');
    await p.evaluate(()=>{Core.recordLesson('a1-u01-l1',9,9,30);Core.state.writing.synthetic={text:'Bozza privata sintetica.'};Core.save();});await p.waitForFunction(()=>Account.snapshot().status==='saved'&&!Account.snapshot().active.pending);
    await p.reload();await p.waitForFunction(()=>document.documentElement.dataset.access==='learner');expect(await p.evaluate(()=>Core.state.writing.synthetic.text)).toBe('Bozza privata sintetica.');await expect(p.locator('.exq').first()).toBeVisible();await audit(p);

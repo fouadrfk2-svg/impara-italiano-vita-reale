@@ -69,16 +69,24 @@
    * why a separate test guards it (tests/dom/routes.spec.js), and not the
    * router itself.
    */
-  function render(route, params) {
-    if (typeof Router.beforeRender === "function" && Router.beforeRender(route, params || {}) === false) return;
+  function leaveCurrent(route, params) {
+    if (encode(current.route, current.params) === encode(route, params || {})) return;
     if (global.Audio2) global.Audio2.stop();
-
     var Views = global.Views;
     if (typeof Views.onLeave === "function") {
       var sprzatnij = Views.onLeave;
       Views.onLeave = null;
       sprzatnij();
     }
+  }
+
+  function render(route, params) {
+    /* A lazy destination may render a loading state before its modules arrive.
+       Clean up the outgoing screen before that wait, not after it. */
+    leaveCurrent(route, params);
+    if (typeof Router.beforeRender === "function" && Router.beforeRender(route, params || {}) === false) return;
+
+    var Views = global.Views;
     current = { route: route, params: params };
     Views.keepFocus = false;
 
@@ -102,7 +110,10 @@
   function go(route, params) {
     var h = encode(route, params);
     if (global.location.hash === h) render(route, params || {});
-    else global.location.hash = h;
+    else {
+      leaveCurrent(route, params || {});
+      global.location.hash = h;
+    }
   }
 
   function onHashChange() {

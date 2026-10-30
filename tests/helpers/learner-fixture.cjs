@@ -40,7 +40,7 @@ async function prepare(context){
   }
  });
  function wrapPage(page){
-  const go=page.goto.bind(page);page.goto=async(url,options)=>{const requestedPath=new URL(url,'http://localhost:8123').pathname;const response=await go(url,options);if(/\/(?:index\.html)?$/.test(requestedPath)&&((!options||!['commit','domcontentloaded'].includes(options.waitUntil))&&await page.locator('#rail').count()))await page.waitForFunction(()=>window.Account&&window.Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner'&&window.Core.registry.levels.length>0&&Object.values(window.Core.registry.loaded).every(v=>v!=='loading'));return response;};
+  const go=page.goto.bind(page);page.goto=async(url,options)=>{const target=new URL(url,'http://localhost:8123'),requestedPath=target.pathname;const response=await go(url,options);if(/\/(?:index\.html)?$/.test(requestedPath)&&((!options||!['commit','domcontentloaded'].includes(options.waitUntil))&&await page.locator('#rail').count())){const requested=decodeURIComponent((target.hash||'').slice(1));const expected=(requested.split('?')[0].split('/')[1]||'oggi');await page.waitForFunction(route=>{const current=window.Router&&window.Router.current;return window.Account&&window.Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner'&&current&&current.route===route&&!document.getElementById('main').hasAttribute('aria-busy')&&!document.querySelector('[data-course-opening]')&&(!['oggi','percorso','allenamento','benvenuto','lettura','lezione'].includes(route)||window.Core.registry.levels.length>0)&&Object.values(window.Core.registry.loaded).every(v=>v!=='loading');},expected);}return response;};
  }
  context.on('page',wrapPage);for(const p of context.pages())wrapPage(p);
 }

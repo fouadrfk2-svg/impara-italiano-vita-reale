@@ -21,10 +21,14 @@ test('RED VR public artwork survives offline without caching private course byte
  await page.route('**/api/auth/session',r=>r.fulfill({status:200,contentType:'application/json',body:'{"authenticated":false}'}));
  await page.goto('/index.html#/home');await expect(page.locator('#guest-title')).toBeVisible();
  await page.waitForFunction(()=>navigator.serviceWorker.controller);
- const files=['assets/branding/header_public_light.svg','assets/branding/header_learning_dark.svg','assets/branding/footer_light.svg','assets/branding/footer_dark.svg','assets/icons/favicon.svg','assets/icons/favicon.ico','assets/icons/icon-180.png','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-192.png','assets/icons/icon-maskable-512.png','assets/marketing/social.png','assets/css/branding.css'];
- expect(await page.evaluate(async names=>(await Promise.all(names.map(f=>caches.match(f)))).every(Boolean),files)).toBe(true);
+ // Only assets declared as first-visit shell resources are required offline.
+ // Alternate install/share artwork is still checked for online delivery above,
+ // but must not inflate every learner's first cache installation.
+ const files=['assets/branding/header_public_light.svg','assets/branding/header_learning_dark.svg','assets/branding/footer_light.svg','assets/branding/footer_dark.svg','assets/marketing/vita-italia.svg','assets/marketing/learning-desk.svg','assets/icons/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/fonts/noto-sans-arabic-arabic.woff2','assets/css/app.css','assets/css/icons.css','assets/css/guest.css','assets/css/billing.css','assets/css/branding.css'];
+ const missing=await page.evaluate(async names=>(await Promise.all(names.map(async f=>[f,!!await caches.match(f)]))).filter(x=>!x[1]).map(x=>x[0]),files);expect(missing,"missing first-visit offline shell assets").toEqual([]);
+ const cachedShell=await page.evaluate(async()=>(await Promise.all((await caches.keys()).map(async k=>(await (await caches.open(k)).keys()).map(r=>new URL(r.url).pathname)))).flat().filter(p=>/\/assets\/js\/vita-shell-2\.[a-f0-9]+\.js$/.test(p)));expect(cachedShell.length,"the generated shell bundle containing the Arabic UI is precached").toBeGreaterThan(0);
  expect(await page.evaluate(async()=>(await Promise.all((await caches.keys()).map(async k=>(await (await caches.open(k)).keys()).map(r=>new URL(r.url).pathname)))).flat().filter(p=>/^\/(audio\/|data\/(?!i18n\/ui-))/.test(p)))).toEqual([]);
- await context.setOffline(true);await page.reload();await expect(page.locator('#guest-title')).toBeVisible();
+ await context.setOffline(true);await page.reload();await expect(page.locator('#guest-title')).toBeVisible();expect(await page.evaluate(()=>({lang:document.documentElement.lang,dir:document.documentElement.dir,arabic:/[\u0600-\u06ff]/.test(I18n.t('nav.today'))}))).toEqual({lang:'ar',dir:'rtl',arabic:true});
  expect(await page.locator('.guest-header .brand-logo--dark').evaluate(i=>i.complete&&i.naturalWidth===1050)).toBe(true);await expect(page.locator('#rail')).toBeHidden();
  expect(await page.evaluate(async()=>{try{await fetch('/data/core/a1-01.js');return 'leaked';}catch{return 'blocked';}})).toBe('blocked');
 });

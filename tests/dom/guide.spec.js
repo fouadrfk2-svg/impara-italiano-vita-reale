@@ -51,14 +51,22 @@ test("an address with a non-existent section does not steal the content focus", 
   expect(id, "the focus after arriving with a wrong section name").toBe("main");
 });
 
-/* The first point: every route in the map has its view. */
-test("no screen in the map leads nowhere", async ({ page }) => {
+/* Route views are loaded on demand. Check every guide link by actually
+   opening its screen instead of requiring all views in the startup shell. */
+test("every screen in the map opens its own rendered route", async ({ page }) => {
   await przewodnik(page);
-  const sieroty = await page.evaluate(() =>
-    [...document.querySelectorAll(".js-goto")]
-      .map(b => b.getAttribute("data-route"))
-      .filter(r => typeof window.Views[r] !== "function"));
-  expect(sieroty, `trasy bez widoku: ${sieroty.join(", ")}`).toEqual([]);
+  const routes = await page.locator(".js-goto").evaluateAll(nodes => [...new Set(nodes.map(n => n.getAttribute("data-route")))]);
+  for (const route of routes) {
+    await page.locator('.js-goto[data-route="' + route + '"]').first().click();
+    await expect(page).toHaveURL(new RegExp("#\\/" + route + "(?:$|[?])"));
+    await page.waitForFunction(r => window.Router.current.route === r
+      && !document.getElementById("main").hasAttribute("aria-busy")
+      && !document.querySelector("[data-course-opening]"), route);
+    await expect(page.locator("#main > *").first()).toBeVisible();
+    await expect(page.locator("#main [role=alert]:visible")).toHaveCount(0);
+    if (route !== "guida") await page.goto("/index.html#/guida");
+    await page.waitForSelector("#g-inizio");
+  }
 });
 
 /* The second point: the rail and the map speak about the same course. */

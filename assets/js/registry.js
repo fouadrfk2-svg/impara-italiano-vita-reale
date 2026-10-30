@@ -14,7 +14,7 @@
    - files come in through <script>, not through fetch, because the course
      must also work from file://, where fetch is forbidden by CORS;
    - the neutral layer goes before the text overlay and applyStrings is
-     only called after both — s.async = false keeps the order.
+     only called after both — each pipeline advances only after onload.
    ============================================================ */
 (function (global) {
   "use strict";
@@ -71,7 +71,11 @@
     reindex();
   }
 
-  /** Injects scripts one after another (s.async = false keeps the order). */
+  /**
+   * Injects this pipeline one file at a time so core data always precedes its
+   * overlay. Keep the scripts async: false serializes unrelated level pipelines
+   * globally, allowing a slow level to block a route that needs another one.
+   */
   function loadScripts(paths, cb) {
     var i = 0, failed = [];
     function next() {
@@ -79,7 +83,7 @@
       var s = document.createElement("script");
       var src = paths[i++];
       s.src = src;
-      s.async = false;
+      s.async = true;
       s.onload = next;
       s.onerror = function () { failed.push(src); next(); };
       document.head.appendChild(s);
@@ -89,6 +93,8 @@
 
   /* Text files already loaded for a given language: "lang/file.js" -> true */
   var i18nLoaded = {};
+  var supportLoaded = {};
+  var supportLoading = {};
 
   var I18N_DIR = "data/i18n/";
 
@@ -102,6 +108,19 @@
       if (overrides[f] && !i18nLoaded[lang + "/" + f]) paths.push(I18N_DIR + lang + "/" + f);
     });
     return paths;
+  }
+
+  /** Supporting datasets opt in to localization independently of course levels.
+      Some are Italian-only (for example free-chat scenarios) and have no
+      English or Arabic overlay; requesting a guessed overlay turns a valid
+      route into a false load failure. */
+  function supportingI18nPaths(lang, files) {
+    var declared = global.I18n && typeof global.I18n.contentOverrides === "function"
+      ? global.I18n.contentOverrides(lang) : null;
+    if (!declared) return i18nPaths(lang, files);
+    return i18nPaths(lang, files.filter(function (file) {
+      return Object.prototype.hasOwnProperty.call(declared, file);
+    }));
   }
 
   /** Remembers only what actually loaded: a failure must be retried. */
@@ -151,8 +170,44 @@
     });
   }
 
-  /* Text files loaded eagerly at startup, independent of any level. */
-  var EAGER_FILES = ["curriculum-index.js", "conversations.js", "grammar-reference.js", "phonetics.js", "readings.js", "writing.js", "interference.js"];
+  /* Only the small navigation index is needed to enter the learner shell.
+     Route-specific reference and activity datasets are loaded on demand. */
+  var EAGER_FILES = ["curriculum-index.js"];
+
+  function loadOneSupportingFile(file) {
+    if (supportLoaded[file]) return Promise.resolve(true);
+    if (supportLoading[file]) return supportLoading[file];
+    supportLoading[file] = new Promise(function (resolve) {
+      var path = "data/core/" + file;
+      var request = global.Guest && typeof global.Guest.loadScript === "function"
+        ? global.Guest.loadScript(path).then(function () { return true; }, function () { return false; })
+        : new Promise(function (done) { loadScripts([path], function (failed) { done(failed.length === 0); }); });
+      request.then(function (ok) {
+        if (ok) supportLoaded[file] = true;
+        delete supportLoading[file];
+        resolve(ok);
+      });
+    });
+    return supportLoading[file];
+  }
+
+  /** Loads only the neutral supporting datasets requested by the active view.
+      Every request still passes through the authenticated Guest loader. */
+  function loadSupportingData(files, cb) {
+    var requested = (files || []).filter(function (file, index, all) {
+      return /^[a-z0-9-]+\.js$/.test(file) && all.indexOf(file) === index;
+    });
+    var promise = requested.reduce(function (chain, file) {
+      return chain.then(function (failed) {
+        return loadOneSupportingFile(file).then(function (ok) {
+          if (!ok) failed.push("data/core/" + file);
+          return failed;
+        });
+      });
+    }, Promise.resolve([]));
+    if (typeof cb === "function") promise.then(cb);
+    return promise;
+  }
 
   /**
    * Changes the language of explanations. The neutral layer stays in memory
@@ -166,12 +221,24 @@
   function setLanguage(lang, cb) {
     lang = "ar";
     var files = EAGER_FILES.slice();
+    var supportingFiles = Object.keys(supportLoaded);
     registry.levels.forEach(function (lv) {
       if (registry.loaded[lv.code] === true) files = files.concat(lv.dataFiles || []);
     });
     Store.state.settings.lang = lang;
     save();
-    var paths = i18nPaths(lang, files);
+    var paths = i18nPaths(lang, files).concat(supportingI18nPaths(lang, supportingFiles));
+    // Keep every neutral fallback ahead of every localized overlay, even when
+    // they come from different loading scopes. Otherwise an English support
+    // file appended after the Arabic curriculum overlay can overwrite Arabic
+    // fields when the scripts register their strings.
+    var basePrefix = I18N_DIR + (global.I18n && global.I18n.contentLanguage
+      ? global.I18n.contentLanguage(lang) : lang) + "/";
+    paths = paths.filter(function (path, index) { return paths.indexOf(path) === index; })
+      .filter(function (path) { return path.indexOf(basePrefix) === 0; })
+      .concat(paths.filter(function (path, index) {
+        return path.indexOf(basePrefix) !== 0 && paths.indexOf(path) === index;
+      }));
     loadScripts(paths, function (failed) {
       markI18n(paths, failed);
       global.LINGUAI.applyStrings(lang);
@@ -186,6 +253,8 @@
     reindex: reindex,
     i18nPaths: i18nPaths, markI18n: markI18n,
     loadLevelData: loadLevelData, setLanguage: setLanguage,
+    loadSupportingData: loadSupportingData,
+    loadedSupportingData: function () { return Object.keys(supportLoaded); },
     EAGER_FILES: EAGER_FILES
   };
 

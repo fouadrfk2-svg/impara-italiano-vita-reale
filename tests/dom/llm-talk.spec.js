@@ -234,7 +234,9 @@ test.describe("the second judge in a written exercise", () => {
   async function odpowiedz(page, opcje) {
     await przygotuj(page, { key: "sk-test-key-1234", esito: opcje.esito, commento: opcje.commento });
     await zgoda(page);
-    await page.goto("/index.html#/impostazioni");
+    await page.goto("/index.html#/lezione?id=a1-u01-l1");
+    await page.waitForFunction(() => window.Ex && window.Ex.build);
+    await page.evaluate(() => window.App.go("impostazioni"));
     await page.waitForSelector(".js-llm-key");
 
     return page.evaluate(async (cfg) => {

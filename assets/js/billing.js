@@ -9,8 +9,8 @@
  function updateGuestCopy(selector,copy){document.querySelectorAll(selector).forEach(function(el){if(el.getAttribute("data-billing-online")==="1")return;el.setAttribute("data-billing-online","1");el.textContent=copy;});}
  function upgradeGuest(){configuration().then(function(c){
   if(!c.enabled)return;
-  document.querySelectorAll(".guest-header-login").forEach(function(a){a.href="#/billing?signin=1";a.innerHTML='تسجيل الدخول <span aria-hidden="true">↗</span>';});
-  document.querySelectorAll(".guest-cta").forEach(function(a){a.href="#/billing?signin=1";a.textContent="تسجيل الدخول بالإيميل";});
+  document.querySelectorAll(".guest-header-login").forEach(function(a){var href="#/billing?signin=1",markup='تسجيل الدخول <span aria-hidden="true">↗</span>';if(a.getAttribute("href")!==href)a.setAttribute("href",href);if(a.innerHTML!==markup)a.innerHTML=markup;});
+  document.querySelectorAll(".guest-cta").forEach(function(a){var href="#/billing?signin=1",copy="تسجيل الدخول بالإيميل";if(a.getAttribute("href")!==href)a.setAttribute("href",href);if(a.textContent!==copy)a.textContent=copy;});
   document.querySelectorAll(".guest-actions").forEach(function(el){
    if(el.nextElementSibling?.classList.contains("guest-code-login"))return;
    var p=document.createElement("p");p.className="guest-code-login";

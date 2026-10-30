@@ -37,7 +37,9 @@
     m.removeAttribute("data-lesson-language");
     m.innerHTML = html;
     I18n.isolateContent(m);
-    Ex.wireSpeakers(m);
+    // Public routes use the same shell but intentionally do not load the
+    // protected exercise engine. Wire learner speakers only when available.
+    if (global.Ex) global.Ex.wireSpeakers(m);
     wireGuide(m);
     wireIntro(m);
     m.scrollTop = 0;

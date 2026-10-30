@@ -81,19 +81,39 @@ describe("Arabic interface pilot", () => {
     assert.equal(I.t("stats.lessons", { n: 2 }), "درسان");
   });
 
-  test("Arabic loads the English base plus only declared lesson files and caches both", () => {
+  test("Arabic loads the English base and overlays only for support data the active routes used", async () => {
     const box = setup(), R = box.sandbox.Registry;
     assert.deepEqual(R.i18nPaths("ar", ["a1-01.js"]), ["data/i18n/en/a1-01.js", "data/i18n/ar/a1-01.js"]);
     R.markI18n(["data/i18n/en/a1-01.js", "data/i18n/ar/a1-01.js"], []);
     assert.deepEqual(R.i18nPaths("ar", ["a1-01.js"]), []);
+
+    const support = R.loadSupportingData(["grammar-reference.js", "conversations.js"]);
+    for (let i = 0; i < 2; i++) {
+      await new Promise(resolve => setImmediate(resolve));
+      box.settleScripts();
+    }
+    assert.deepEqual(Array.from(await support), []);
+
     R.setLanguage("ar", () => {});
     box.settleScripts();
-    assert.ok(box.scripts.length > 0);
-    assert.deepEqual(Array.from(box.scripts), ["curriculum-index.js", "conversations.js", "grammar-reference.js", "phonetics.js", "readings.js", "writing.js", "interference.js"].map(f => "data/i18n/en/" + f).concat(["data/i18n/ar/curriculum-index.js", "data/i18n/ar/conversations.js", "data/i18n/ar/grammar-reference.js", "data/i18n/ar/phonetics.js", "data/i18n/ar/readings.js", "data/i18n/ar/writing.js"]));
+    assert.deepEqual(Array.from(box.scripts.slice(2)), [
+      "data/i18n/en/curriculum-index.js",
+      "data/i18n/en/grammar-reference.js",
+      "data/i18n/en/conversations.js",
+      "data/i18n/ar/curriculum-index.js",
+      "data/i18n/ar/grammar-reference.js",
+      "data/i18n/ar/conversations.js"
+    ]);
+    assert.equal(box.scripts.some(file => /(?:phonetics|readings|writing|interference)\.js$/.test(file)), false,
+      "unopened supporting datasets must not be fetched just to change interface language");
   });
 
-  test("a failed English fallback file remains retryable and is reported", () => {
+  test("a failed English fallback for a loaded supporting dataset remains retryable and is reported", async () => {
     const box = setup(), R = box.sandbox.Registry;
+    const support = R.loadSupportingData(["writing.js"]);
+    await new Promise(resolve => setImmediate(resolve));
+    box.settleScripts();
+    assert.deepEqual(Array.from(await support), []);
     let failed;
     R.setLanguage("ar", result => { failed = result; });
     box.settleScripts(["data/i18n/en/writing.js"]);

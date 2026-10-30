@@ -7,7 +7,7 @@ import { isPublicPath } from "./public-files.mjs";
 
 const digest = text => createHash("sha256").update(text).digest("hex").slice(0,12);
 const shellPattern = /<script defer src="([^"]+)"><\/script>/g;
-const coursePattern = /<script type="application\/json" data-course-src="([^"]+)"><\/script>/g;
+const coursePattern = /<script type="application\/json" data-course-src="([^"]+)" data-course-feature="([a-z-]+)"><\/script>/g;
 
 export function bundlePublic(root, out) {
   const output = join(out, "index.html");
@@ -49,22 +49,26 @@ export function bundlePublic(root, out) {
   // remain verbatim and in the same order (and are fetched AFTER login).
   const course=Array.from(html.matchAll(coursePattern));
   if(course.length<60)throw Error("Unexpected course module inventory");
-  let index=0, chunks=[], sequence=[], count=0, outHtml="";
+  let index=0, chunks=[], sequence=[], count=0, outHtml="", chunkFeature=null;
   function flush(){
     if(!chunks.length)return;
-    const source=pack(chunks,"course-"+(++count));
-    sequence.push({bundle:source,count:chunks.length});
-    outHtml+='<script type="application/json" data-course-src="'+source+'"></script>';
-    chunks=[];
+    const source=pack(chunks,"course-"+chunkFeature+"-"+(++count));
+    sequence.push({bundle:source,count:chunks.length,feature:chunkFeature});
+    outHtml+='<script type="application/json" data-course-src="'+source+'" data-course-feature="'+chunkFeature+'"></script>';
+    chunks=[]; chunkFeature=null;
   }
   for(const m of course){
     outHtml+=html.slice(index,m.index);
-    const path=m[1];
-    if(/^assets\/js\//.test(path)&&isPublicPath(path))chunks.push(path);
+    const path=m[1], feature=m[2];
+    if(!/^[a-z-]+$/.test(feature))throw Error("Invalid course feature: "+feature);
+    if(/^assets\/js\//.test(path)&&isPublicPath(path)){
+      if(chunks.length&&chunkFeature!==feature)flush();
+      chunkFeature=feature; chunks.push(path);
+    }
     else{
       flush();
       outHtml+=m[0];
-      sequence.push({private:path});
+      sequence.push({private:path,feature});
     }
     index=m.index+m[0].length;
   }

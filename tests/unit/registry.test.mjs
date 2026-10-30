@@ -127,6 +127,30 @@ describe("fetching a level's data", () => {
     ]);
   });
 
+  test("independent level loads do not share a browser script execution queue", () => {
+    const box = swiezy();
+    R(box).registerLevel(poziom({ code: "A1", dataFiles: ["a1-01.js"] }));
+    R(box).registerLevel(poziom({ code: "B2", dataFiles: ["b2-01.js"] }));
+    R(box).markI18n(["data/i18n/ar/a1-01.js", "data/i18n/ar/b2-01.js"], []);
+    let a1 = null, b2 = null;
+    R(box).loadLevelData("A1", ok => { a1 = ok; });
+    R(box).loadLevelData("B2", ok => { b2 = ok; });
+
+    const a1Script = box.utworzone.find(script => script.src === "data/core/a1-01.js");
+    const b2Script = box.utworzone.find(script => script.src === "data/core/b2-01.js");
+    assert.equal(a1Script.async, true);
+    assert.equal(b2Script.async, true);
+
+    R(box).addUnits("B2", [jednostka("b2-u01")]);
+    b2Script.onload();
+    assert.equal(b2, true, "the fast level finishes while the unrelated A1 request is pending");
+    assert.equal(a1, null, "the still-loading level has not been marked complete");
+
+    R(box).addUnits("A1", [jednostka("a1-u01")]);
+    a1Script.onload();
+    assert.equal(a1, true);
+  });
+
   test("the registry normalizes unsupported saved codes to the Arabic overlay", () => {
     const box = swiezy();
     box.Core.state.settings.lang = "en";
@@ -299,12 +323,72 @@ describe("normalizing the explanation language", () => {
     assert.equal(box.scripts.indexOf("data/i18n/ar/a1-01.js"), -1);
   });
 
-  test("the files that failed come back to the caller, so it has something to show", () => {
+  test("the files that failed come back to the caller, so it has something to show", async () => {
     const box = swiezy();
+    const support = R(box).loadSupportingData(["phonetics.js"]);
+    await new Promise(resolve => setImmediate(resolve));
+    box.settleScripts();
+    assert.deepEqual(Array.from(await support), []);
     let brakujace = null;
     R(box).setLanguage("ar", failed => { brakujace = failed; });
     box.settleScripts(["data/i18n/ar/phonetics.js"]);
     assert.deepEqual(Array.from(brakujace), ["data/i18n/ar/phonetics.js"]);
+  });
+});
+
+describe("route-scoped supporting data", () => {
+  test("Italian-only support data does not request a nonexistent language overlay", async () => {
+    const box = swiezy();
+    box.sandbox.I18n = {
+      contentLanguage: () => "en",
+      contentOverrides: () => ({}),
+      overlayOverrides: () => ({
+        "curriculum-index.js": ["level:A1"]
+      })
+    };
+    const loaded = R(box).loadSupportingData(["chat-scenarios.js"]);
+    await new Promise(resolve => setImmediate(resolve));
+    box.settleScripts();
+    assert.deepEqual(Array.from(await loaded), []);
+
+    R(box).setLanguage("ar", () => {});
+    box.settleScripts();
+
+    assert.ok(box.scripts.includes("data/i18n/en/curriculum-index.js"));
+    assert.ok(box.scripts.includes("data/i18n/ar/curriculum-index.js"));
+    assert.equal(box.scripts.includes("data/i18n/en/chat-scenarios.js"), false);
+    assert.equal(box.scripts.includes("data/i18n/ar/chat-scenarios.js"), false);
+  });
+
+  test("loads only the requested neutral file, deduplicates concurrent callers, and localizes only loaded files", async () => {
+    const box = swiezy();
+    const first = R(box).loadSupportingData(["grammar-reference.js"]);
+    const concurrent = R(box).loadSupportingData(["grammar-reference.js"]);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(box.scripts, ["data/core/grammar-reference.js"]);
+    box.settleScripts();
+    assert.deepEqual(Array.from(await first), []);
+    assert.deepEqual(Array.from(await concurrent), []);
+    assert.deepEqual(Array.from(R(box).loadedSupportingData()), ["grammar-reference.js"]);
+
+    R(box).setLanguage("ar", () => {});
+    box.settleScripts();
+    assert.ok(box.scripts.includes("data/i18n/ar/grammar-reference.js"));
+    assert.equal(box.scripts.includes("data/i18n/ar/conversations.js"), false);
+    assert.equal(box.scripts.includes("data/core/conversations.js"), false);
+  });
+
+  test("a failed neutral file is reported and remains retryable", async () => {
+    const box = swiezy();
+    const first = R(box).loadSupportingData(["conversations.js"]);
+    await new Promise(resolve => setImmediate(resolve));
+    box.settleScripts(["data/core/conversations.js"]);
+    assert.deepEqual(Array.from(await first), ["data/core/conversations.js"]);
+    assert.deepEqual(Array.from(R(box).loadedSupportingData()), []);
+    const retry = R(box).loadSupportingData(["conversations.js"]);
+    await new Promise(resolve => setImmediate(resolve));
+    box.settleScripts();
+    assert.deepEqual(Array.from(await retry), []);
   });
 });
 

@@ -16,8 +16,10 @@ const { test, expect } = require("../helpers/learner-fixture.cjs");
  * otherwise turns with the date.
  */
 async function zTalia(page, n, pisane) {
-  await page.goto("/index.html#/percorso");
-  await page.waitForFunction(() => window.Views && window.Views.cinque && window.Core);
+  await page.goto("/index.html#/cinque");
+  await page.waitForFunction(() => window.Views && window.Views.cinque && window.FlashModes && window.Audio2 && window.Core
+    && window.Account.snapshot().authenticated && !document.getElementById("main").hasAttribute("aria-busy"));
+  await page.waitForFunction(() => window.Core.registry.loaded.A1 === true);
   await page.evaluate(([ile, tylkoPisane]) => {
     const dzien = window.Core.today();
     let dodane = 0;
@@ -33,7 +35,7 @@ async function zTalia(page, n, pisane) {
     window.Store.flush();
   }, [n, !!pisane]);
   await page.evaluate(() => window.App.go("cinque"));
-  await page.waitForSelector(".view-head");
+  await page.waitForFunction(() => document.querySelector(".view-head") && !document.getElementById("main").hasAttribute("aria-busy"));
 }
 
 /** Advance the study clock without advancing account/network request deadlines. */
@@ -304,8 +306,8 @@ test("a level that lands after the student picked another unit keeps the student
  * with at least two distractors. Returns its Italian and gloss.
  */
 async function kartaWyboru(page) {
-  await page.goto("/index.html#/percorso");
-  await page.waitForFunction(() => window.Core && window.Core.registry.loaded.A1 === true);
+  await page.goto("/index.html#/cinque");
+  await page.waitForFunction(() => window.Core && window.FlashModes && window.Audio2 && window.Core.registry.loaded.A1 === true);
   const karta = await page.evaluate(() => {
     const R = window.FlashModes, C = window.Core, dzien = C.today();
     for (const lv of C.registry.levels) for (const u of lv.units || []) for (const l of u.lessons || []) {
@@ -380,8 +382,8 @@ test("a choice card by keyboard, a wrong pick graded 0", async ({ page }) => {
  * today. Counts Audio2.speak calls in window.__mowi.
  */
 async function kartaSluchu(page, tryb) {
-  await page.goto("/index.html#/percorso");
-  await page.waitForFunction(() => window.Core && window.Core.registry.loaded.A1 === true);
+  await page.goto("/index.html#/cinque");
+  await page.waitForFunction(() => window.Core && window.FlashModes && window.Audio2 && window.Core.registry.loaded.A1 === true);
   const karta = await page.evaluate(szukany => {
     const R = window.FlashModes, C = window.Core, dzien = C.today();
     const stabilna = szukany === "listen-write";
@@ -530,7 +532,7 @@ test("moving to the next card silences the word still playing", async ({ page })
    "new word" chip belongs to a word met here for the first time; on a word
    the student has reviewed for weeks it says something false. */
 test("the new-word chip marks only a word never seen", async ({ page }) => {
-  await page.goto("/index.html#/percorso");
+  await page.goto("/index.html#/cinque?unit=a1-u01");
   await page.waitForFunction(() => window.Core && window.FlashModes);
   await page.evaluate(() => {
     const d = window.Core.today();

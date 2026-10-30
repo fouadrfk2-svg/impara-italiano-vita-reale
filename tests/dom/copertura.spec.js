@@ -46,8 +46,9 @@ test("the ceiling counts every level, not only the ones already in memory", asyn
 });
 
 test("the student's deck meets the frequency list at all", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.Core && window.Core.registry.levels.length > 0);
+  await page.goto("/index.html#/copertura");
+  await page.waitForFunction(() => window.Core && window.Frequency && window.FREQUENCY
+    && window.Core.registry.levels.length > 0 && !document.getElementById("main").hasAttribute("aria-busy"));
 
   /* The card key is normalised for identity — "il caffè" is filed under
      "il caffe" — while the frequency list holds bare accented forms. A deck

@@ -76,7 +76,8 @@ test("with the network gone the page still opens", async ({ page, context }) => 
   await page.reload();
 
   await expect(page.locator("#main")).toBeVisible();
-  await page.waitForFunction(() => window.Core && window.Views && window.Ex, null, { timeout: 10000 });
+  await page.waitForFunction(() => window.Core && window.Views && window.Account, null, { timeout: 10000 });
+  expect(await page.evaluate(() => typeof window.Ex)).toBe("undefined");
   await expect(page.locator(".guest-page")).toBeVisible();
   await expect(page.locator("#rail")).toBeHidden();
   expect(await page.evaluate(() => window.Core.registry.levels.length)).toBe(0);

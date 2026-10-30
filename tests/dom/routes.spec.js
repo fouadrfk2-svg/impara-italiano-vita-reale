@@ -1,55 +1,38 @@
 /* ============================================================
-   Every route has its view and that view draws something.
-
-   The reason this file exists sits in router.js, in render() —
-
-       var fn = Views[route];
-       if (!fn) { Views[DOMYSLNA]({}); route = DOMYSLNA; }
-
-   A missing view does NOT bring the application down: it shows the learning
-   path. Since the screens live in a dozen files loaded by separate
-   <script> tags, a forgotten tag in index.html (or a typo in a file name)
-   produces exactly that: the course runs and one menu entry quietly leads
-   somewhere else. It shows neither in the console nor in any other test —
-   each of those enters ITS OWN screen.
-
-   Hence two checks, in this order: whether the view exists at all (that
-   catches a missing file), and then whether it drew anything (that catches
-   a file that loaded but blows up on its first run).
+   Each route is checked after its own feature chunk has loaded. Views are
+   intentionally absent from the initial shell now; checking the global view
+   registry at startup would reject the lazy-loading architecture itself.
    ============================================================ */
 const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 /* The routes from the side menu plus the ones reachable only from inside the course. */
 const TRASY = [
-  "oggi", "percorso", "ripasso", "cinque", "allenamento", "conversazione", "grammatica",
+  "oggi", "percorso", "ripasso", "cinque", "allenamento", "conversazione", "chiacchiere", "grammatica",
   "coniugatore", "lessico", "shadowing", "velocita", "esame", "falsi",
-  "copertura", "progressi", "impostazioni",
+  "copertura", "account", "progressi", "guida", "impostazioni",
   "lezione", "piazzamento", "cerca", "lettura", "scrittura", "suoni", "privacy"
 ];
 
-/** Waits until the engine comes up and loads the course index. */
+/** Waits until the authenticated shell is ready, not until every route is. */
 async function otworz(page) {
   await page.goto("/index.html");
-  await page.waitForFunction(() => window.Views && window.Core && window.Core.registry.levels.length > 0);
+  await page.waitForFunction(() => window.Account && Account.snapshot().authenticated && window.App && window.Router);
 }
 
-test("every route in the menu has a registered view", async ({ page }) => {
-  await otworz(page);
-  const brakujace = await page.evaluate(
-    trasy => trasy.filter(r => typeof window.Views[r] !== "function"),
-    TRASY
-  );
-  expect(brakujace, "widok bez pliku albo plik bez <script> w index.html").toEqual([]);
-});
+async function navigate(page, route) {
+  await page.evaluate(r => window.App.go(r), route);
+  await page.waitForFunction(r => window.Router.current.route === r
+    && !document.getElementById("main").hasAttribute("aria-busy")
+    && !document.querySelector("[data-course-opening]"), route);
+  await expect(page.locator("#main > *").first()).toBeVisible();
+  await expect(page.locator("#main [role=alert]:visible")).toHaveCount(0);
+}
 
-test("the side menu entries point at views that exist", async ({ page }) => {
+test("rail routes are all covered by the route behavior checks", async ({ page }) => {
   await otworz(page);
-  const zle = await page.evaluate(() =>
-    Array.from(document.querySelectorAll(".rail__item"))
-      .map(b => b.getAttribute("data-route"))
-      .filter(r => typeof window.Views[r] !== "function")
-  );
-  expect(zle, "the menu leads to a route with no view: the router will quietly show the learning path").toEqual([]);
+  const menu = await page.locator(".rail__item").evaluateAll(nodes => nodes.map(n => n.getAttribute("data-route")));
+  expect(menu.filter(route => !TRASY.includes(route)), "menu route without a dedicated route test").toEqual([]);
+  for (const route of menu) await navigate(page, route);
 });
 
 for (const trasa of TRASY) {
@@ -59,12 +42,11 @@ for (const trasa of TRASY) {
     page.on("console", m => { if (m.type() === "error") bledy.push(m.text()); });
 
     await otworz(page);
-    await page.evaluate(r => window.App.go(r, {}), trasa);
+    await navigate(page, trasa);
 
     /* Not "any HTML at all": an empty screen after a route change would look
        like a correct render. The view has to leave at least one element in
        #main — even the empty state is an element (the .empty class). */
-    await expect(page.locator("#main > *").first()).toBeVisible();
     expect(bledy, `errors on route ${trasa}: ${bledy.join(" | ")}`).toEqual([]);
   });
 }

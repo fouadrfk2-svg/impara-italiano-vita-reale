@@ -140,8 +140,9 @@ test.describe("conversations", () => {
      would also pass if the view stopped drawing it altogether.
      ───────────────────────────────────────────────────────────── */
   async function otworzZeStt(page, wspierane) {
-    await page.goto("/index.html#/");
-    await page.waitForFunction(() => window.Audio2 && window.App);
+    await page.goto("/index.html#/conversazione?id=bar-mattina");
+    await page.waitForFunction(() => window.Audio2 && window.Router && window.Router.current.route === "conversazione");
+    await czekajNaTure(page);
     await page.evaluate(w => { window.Audio2.sttSupported = w; }, wspierane);
     await page.evaluate(() => App.go("conversazione", { id: "bar-mattina" }));
     await czekajNaTure(page);

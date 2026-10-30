@@ -77,9 +77,8 @@ const MIERNIK = () => {
 
 async function przygotuj(page, theme) {
   await page.addInitScript(MIERNIK);
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.Core && window.Errors && window.Train);
-  await page.waitForFunction(() => window.Core.getLesson("a1-u01-l2"));
+  await page.goto("/index.html#/lezione?id=a1-u01-l2");
+  await page.waitForFunction(() => window.Core && window.Errors && window.Core.registry.loaded.A1 === true && window.Core.getLesson("a1-u01-l2"));
   await page.evaluate(t => {
     document.documentElement.setAttribute("data-theme", t);
     const L = window.Core.getLesson("a1-u01-l2").lesson;
@@ -427,8 +426,8 @@ for (const theme of ["light", "dark"]) {
 for (const theme of ["light", "dark"]) {
   test(`the five-minute session: contrast in the ${theme} theme`, async ({ page }) => {
     await page.addInitScript(MIERNIK);
-    await page.goto("/index.html#/percorso");
-    await page.waitForFunction(() => window.Views && window.Views.cinque && window.Core);
+    await page.goto("/index.html#/cinque");
+    await page.waitForFunction(() => window.Views && window.Views.cinque && window.Core && document.querySelector("#main")?.getAttribute("aria-busy") !== "true");
     await page.evaluate(t => {
       document.documentElement.setAttribute("data-theme", t);
       window.Core.addCard("il gatto", "kot", "test");
