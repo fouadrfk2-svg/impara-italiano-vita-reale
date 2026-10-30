@@ -17,7 +17,11 @@ async function expectWhatsAppLink(link){
  await expect(link).toHaveAttribute("rel","noopener noreferrer");
  await expect(link).toHaveAttribute("referrerpolicy","no-referrer");
  await expect(link).toHaveAccessibleName("التسجيل والدفع عبر واتساب");
- await expect(link.locator("svg")).toHaveAttribute("aria-hidden","true");
+ const icon=link.locator("svg");
+ await expect(icon).toHaveAttribute("aria-hidden","true");
+ await expect(icon).toHaveAttribute("viewBox","0 0 24 24");
+ await expect(icon.locator("path")).toHaveCount(1);
+ await expect(icon.locator("path")).toHaveAttribute("fill","currentColor");
 }
 
 test("online signup retains its primary billing route and offers a separate WhatsApp request at mobile and desktop",async({page})=>{
@@ -33,8 +37,9 @@ test("online signup retains its primary billing route and offers a separate What
   await expect(primary).toContainText("اشترك الآن");
   await expect(option.locator(".guest-whatsapp-separator")).toHaveText("أو");
   await expectWhatsAppLink(link);
-  const dimensions=await page.evaluate(()=>{const a=document.querySelector(".guest-subscribe"),o=a.nextElementSibling,r=o.getBoundingClientRect(),p=a.getBoundingClientRect();return {width:r.width,height:r.height,x:r.x,right:r.right,top:r.top,primaryBottom:p.bottom,scrollWidth:document.documentElement.scrollWidth,innerWidth,dir:document.querySelector(".guest-page").dir};});
+  const dimensions=await page.evaluate(()=>{const a=document.querySelector(".guest-subscribe"),o=a.nextElementSibling,r=o.getBoundingClientRect(),p=a.getBoundingClientRect(),icon=o.querySelector("svg").getBoundingClientRect();return {width:r.width,height:r.height,x:r.x,right:r.right,top:r.top,primaryBottom:p.bottom,scrollWidth:document.documentElement.scrollWidth,innerWidth,dir:document.querySelector(".guest-page").dir,iconWidth:icon.width,iconHeight:icon.height};});
   expect(dimensions.dir).toBe("rtl");expect(dimensions.scrollWidth).toBeLessThanOrEqual(width);expect(dimensions.width).toBeGreaterThanOrEqual(44);expect(dimensions.height).toBeGreaterThanOrEqual(44);expect(dimensions.x).toBeGreaterThanOrEqual(0);expect(dimensions.right).toBeLessThanOrEqual(width);expect(dimensions.top).toBeGreaterThanOrEqual(dimensions.primaryBottom);
+  expect(dimensions.iconWidth).toBeGreaterThanOrEqual(18);expect(Math.abs(dimensions.iconWidth-dimensions.iconHeight)).toBeLessThanOrEqual(0.5);
   expect(await page.locator(".guest-italian").first().evaluate(el=>getComputedStyle(el).direction)).toBe("ltr");
   const audit=await page.evaluate(()=>window.axe.run(document.querySelector("#main"),{runOnly:{type:"tag",values:["wcag2a","wcag2aa","wcag21aa"]}}));expect(audit.violations.map(v=>v.id)).toEqual([]);
  }
