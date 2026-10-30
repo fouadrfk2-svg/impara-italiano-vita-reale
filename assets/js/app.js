@@ -256,8 +256,10 @@
       if (previous && !authenticated) closeCourse();
       else if (!previous && authenticated && (courseReady || accessStarted) && Router.current.route === "home") App.enterCourse();
     });
-    await global.Guest.clearPrivateCaches();
-    await global.Account.refresh(); hadSession = global.Account.snapshot().authenticated;
+    // Clean legacy cache entries while the server checks the session.
+    // Wait for both before any protected learner content is displayed.
+    await Promise.all([global.Guest.clearPrivateCaches(), global.Account.refresh()]);
+    hadSession = global.Account.snapshot().authenticated;
     // Respect a public destination selected while verification was in flight.
     d = Router.decode(global.location.hash); explicit = !!global.location.hash;
     if (hadSession) await App.enterCourse(explicit && publicRoute(d.route) && d.route !== "home" && !(d.route === "billing" && d.params.signin === "1") ? d : null);
