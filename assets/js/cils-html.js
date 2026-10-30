@@ -226,7 +226,8 @@
         ? d.punti + " / " + d.max + " " + (d.sopraSoglia ? "✓" : "✗")
         : t("cils.notMeasured");
       var scad = czyScadla(a) ? " " + t("cils.expiredMark") : "";
-      return "<tr><th>" + esc(t("cils.sec." + a)) + "</th><td>" + esc(val + scad) + "</td></tr>";
+      var valore = d.misurata ? '<bdi dir="ltr">' + esc(val + scad) + "</bdi>" : esc(val + scad);
+      return '<tr><th scope="row">' + esc(t("cils.sec." + a)) + "</th><td>" + valore + "</td></tr>";
     }).join("") + "</tbody></table>" +
       '<p class="cils-hint">' + esc(t("cils.threshold", { n: Cils.SOGLIA_ABILITA, max: Cils.MAX_ABILITA })) + "</p>";
   }

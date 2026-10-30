@@ -772,12 +772,19 @@ button{font:inherit;color:inherit;}
 .gram-box__note{font-size:.9rem;color:var(--ink-soft);margin:0 0 16px;}
 
 .table-wrap{overflow-x:auto;border-radius:var(--r-m);border:1px solid var(--line);}
+.table-wrap[role="region"]:focus-visible{outline:3px solid var(--salvia-deep);outline-offset:2px;}
 table.gt{border-collapse:collapse;width:100%;min-width:380px;background:var(--paper-2);font-size:.92rem;}
 table.gt th,table.gt td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);}
 table.gt thead th{background:var(--paper-3);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
 table.gt tbody tr:last-child td{border-bottom:none;}
 table.gt td:first-child{font-weight:600;color:var(--ink-soft);white-space:nowrap;}
 table.gt .it{font-weight:700;color:var(--salvia-deep);}
+/* The 14-day activity chart is a compact time series, not a table: all days
+   stay visible without a nested horizontal scroller on narrow phones. */
+.progress-chart{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;align-items:end;height:154px;min-width:0;}
+.progress-chart__day{display:flex;min-width:0;height:100%;flex-direction:column;align-items:stretch;justify-content:flex-end;text-align:center;}
+.progress-chart__bar{display:block;min-height:4px;border-radius:5px 5px 0 0;}
+.progress-chart__label{margin-top:5px;min-width:0;color:var(--ink-faint);font-size:.65rem;line-height:1.2;white-space:nowrap;}
 
 .ex-list{list-style:none;margin:16px 0 0;padding:0;}
 .ex-list li{
@@ -1375,3 +1382,31 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
 /* nie szare do granicy niewidzialności. */
 .cils-src{font-size:.88rem;color:var(--ink-soft);line-height:1.55;margin:10px 0 0;}
 .cils-struct{margin:0;line-height:1.6;}
+
+/* Narrow tables whose rows stand alone become labelled record cards. Keep
+   native table structure and headers for assistive technology; the labels
+   repeat each column heading visually only at the mobile breakpoint. */
+@media (max-width:560px){
+  .table-wrap[data-mobile-layout="records"]{overflow:visible;border:0;border-radius:0;}
+  table.gt[data-mobile-layout="records"]{display:block;width:100%;min-width:0;border-collapse:separate;background:transparent;}
+  table.gt[data-mobile-layout="records"] thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  table.gt[data-mobile-layout="records"] tbody{display:grid;gap:8px;}
+  table.gt[data-mobile-layout="records"] tbody tr{display:grid;grid-template-columns:minmax(0,1fr);overflow:hidden;border:1px solid var(--line);border-radius:var(--r-m);background:var(--paper-2);}
+  table.gt[data-mobile-layout="records"] tbody td{display:grid;grid-template-columns:minmax(6.75rem,.85fr) minmax(0,1.15fr);gap:10px;align-items:start;padding:9px 11px;text-align:start;white-space:normal;overflow-wrap:anywhere;border-bottom:1px solid var(--line);}
+  table.gt[data-mobile-layout="records"] tbody td:last-child{border-bottom:0;}
+  table.gt[data-mobile-layout="records"] tbody td::before{content:attr(data-label);color:var(--ink-soft);font-size:.72rem;line-height:1.45;font-weight:700;}
+  table.gt[data-mobile-layout="records"] tbody td[data-label-language="ar"]::before{direction:rtl;unicode-bidi:isolate;text-align:right;}
+  table.gt[data-mobile-layout="records"] tbody td:first-child{white-space:normal;}
+  table.gt[data-mobile-layout="records"] .it{font-size:.96rem;}
+  table.gt[data-mobile-layout="compact"]{width:100%;min-width:0;table-layout:fixed;font-size:.92rem;}
+  table.gt[data-mobile-layout="compact"] th,table.gt[data-mobile-layout="compact"] td{padding:8px 10px;white-space:normal;overflow-wrap:anywhere;}
+  table.gt[data-mobile-layout="compact"] th{width:38%;}
+  table.gt[data-mobile-layout="compact"] td{width:62%;}
+  table.gt[data-mobile-layout="compact"] .say-btn{min-width:44px;min-height:44px;}
+  .cils-tab[data-mobile-layout="records"]{display:block;margin:0;}
+  .cils-tab[data-mobile-layout="records"] tbody{display:grid;gap:8px;}
+  .cils-tab[data-mobile-layout="records"] tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--paper-2);}
+  .cils-tab[data-mobile-layout="records"] th,.cils-tab[data-mobile-layout="records"] td{border:0;padding:0;text-align:start;}
+  .progress-chart{gap:2px;height:132px;}
+  .progress-chart__label{font-size:.58rem;letter-spacing:-.02em;}
+}

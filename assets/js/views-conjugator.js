@@ -54,17 +54,17 @@
         '<div class="grid-2">' + Verbs.TENSES.map(function (tn) {
           var forms = table[tn.key];
           if (!forms || !forms.filter(Boolean).length) return "";
-          // the table always in a scrollable container: without it the page scrolls horizontally at 320 px
           return '<div class="card"><h3 style="font-size:1rem;margin-bottom:2px">' + esc(tn.labelIt) + "</h3>" +
             '<p style="font-size:.8rem;color:var(--ink-soft);margin-bottom:10px">' + esc(t("tense." + tn.key)) + "</p>" +
-            '<div class="table-wrap" tabindex="0" role="region" aria-label="' + esc(tn.labelIt) + '"><table class="gt"><tbody>' + forms.map(function (f, k) {
+            '<div class="table-wrap" aria-label="' + esc(tn.labelIt) + '"><table class="gt gt--conjugation" lang="it" dir="ltr"><tbody>' + forms.map(function (f, k) {
               if (!f) return "";
-              return "<tr><td>" + esc(Verbs.PERSONS[k]) + '</td><td class="it">' + esc(f) +
+              return '<tr><th scope="row">' + esc(Verbs.PERSONS[k]) + '</th><td class="it" lang="it" dir="ltr">' + esc(f) +
                 ' <button type="button" class="say-btn" data-say="' + esc(f) + '" aria-label="' + esc(t("a11y.listen")) + '">🔊</button></td></tr>';
             }).join("") + "</tbody></table></div></div>";
         }).join("") + "</div>";
       var box = document.getElementById("conjOut");
       box.innerHTML = out;
+      Views.shell.prepareResponsiveTables(box);
       Ex.wireSpeakers(box);
     }
     el().querySelector(".js-go").addEventListener("click", run);

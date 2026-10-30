@@ -18,6 +18,7 @@
   var t = function (k, v) { return I18n.t(k, v); };
   var Views = {};
   var mount = null;
+  var tableId = 0;
   var ICONS = { "arrows-counter-clockwise": 1, "book-bookmark": 1, "book-open-text": 1, "briefcase": 1, "calendar-check": 1, "chart-line": 1, "chat-circle": 1, "check-circle": 1, "coffee": 1, "ear": 1, "fast-forward": 1, "flag-checkered": 1, "gear": 1, "hand-pointing": 1, "lightbulb": 1, "list": 1, "lock-key": 1, "magnifying-glass": 1, "mask-sad": 1, "microphone": 1, "moon": 1, "note-pencil": 1, "path": 1, "pencil-line": 1, "question": 1, "sign-out": 1, "speaker-high": 1, "sun": 1, "target": 1, "timer": 1, "user-circle": 1 };
 
   /* Local Phosphor SVG masks keep one icon language without adding a runtime
@@ -37,6 +38,7 @@
     m.removeAttribute("data-lesson-language");
     m.innerHTML = html;
     I18n.isolateContent(m);
+    prepareResponsiveTables(m);
     // Public routes use the same shell but intentionally do not load the
     // protected exercise engine. Wire learner speakers only when available.
     if (global.Ex) global.Ex.wireSpeakers(m);
@@ -45,6 +47,81 @@
     m.scrollTop = 0;
     global.scrollTo(0, 0);
     return m;
+  }
+
+  /**
+   * Make table behaviour a property of the shared view shell, not a patch in
+   * each screen. Short row-based reference tables become labelled records on
+   * narrow screens; wide comparison tables keep a named, keyboard-scrollable
+   * region. Conjugations are a compact two-column table because person/form
+   * alignment is the learning relationship.
+   */
+  function prepareResponsiveTables(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll(".table-wrap table.gt, table.cils-tab").forEach(function (table) {
+      var wrap = table.closest(".table-wrap");
+      var heads = Array.prototype.slice.call(table.querySelectorAll("thead th"));
+      var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+      var columns = heads.length || (rows[0] ? rows[0].children.length : 0);
+      var conjugation = table.classList.contains("gt--conjugation");
+      var cils = table.classList.contains("cils-tab");
+      var layout = conjugation ? "compact" : (cils || (columns > 0 && columns <= 3 && heads.length) ? "records" : "scroll");
+      table.setAttribute("data-mobile-layout", layout);
+      table.setAttribute("role", "table");
+      if (!table.hasAttribute("aria-label") && !table.hasAttribute("aria-labelledby")) {
+        if (wrap && wrap.hasAttribute("aria-label")) table.setAttribute("aria-label", wrap.getAttribute("aria-label"));
+        else {
+          var title = root.querySelector(".view-head h1");
+          if (title) {
+            if (!title.id) title.id = "responsive-view-title-" + (++tableId);
+            table.setAttribute("aria-labelledby", title.id);
+          }
+        }
+      }
+      table.querySelectorAll("thead,tbody").forEach(function (group) { group.setAttribute("role", "rowgroup"); });
+      table.querySelectorAll("tr").forEach(function (row) { row.setAttribute("role", "row"); });
+
+      heads.forEach(function (head, index) {
+        head.setAttribute("role", "columnheader");
+        head.setAttribute("scope", "col");
+        if (!head.id) head.id = "responsive-table-" + (++tableId) + "-column-" + index;
+      });
+      rows.forEach(function (row) {
+        Array.prototype.slice.call(row.children).forEach(function (cell, index) {
+          if (/[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufeff]/.test(cell.textContent)) {
+            I18n.markMeaning(cell, cell.textContent);
+          } else if (cell.classList.contains("it")) {
+            I18n.markContent(cell, "it");
+          }
+          if (cell.tagName === "TH") {
+            cell.setAttribute("role", "rowheader");
+            cell.setAttribute("scope", "row");
+            return;
+          }
+          cell.setAttribute("role", "cell");
+          if (layout === "records" && heads[index]) {
+            cell.setAttribute("data-label", heads[index].textContent.trim());
+            if (/[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufeff]/.test(heads[index].textContent)) cell.setAttribute("data-label-language", "ar");
+            cell.setAttribute("headers", heads[index].id);
+          }
+        });
+      });
+
+      if (wrap) {
+        wrap.setAttribute("data-mobile-layout", layout);
+        if (layout === "scroll") {
+          wrap.setAttribute("tabindex", "0");
+          wrap.setAttribute("role", "region");
+          if (!wrap.hasAttribute("aria-label")) wrap.setAttribute("aria-label", table.getAttribute("aria-label") || "Tabella scorrevole");
+        } else {
+          wrap.removeAttribute("tabindex");
+          if (wrap.getAttribute("role") === "region") wrap.removeAttribute("role");
+        }
+      }
+    });
+    // Arabic reference cells can contain italic Italian examples. Reapply the
+    // existing mixed-script isolation after adding cell-level language marks.
+    I18n.isolateContent(root);
   }
 
   /**
@@ -180,7 +257,7 @@
    * set/pageHead/el locally — three copies of the same thing, drifting
    * apart at the first change to the header.
    */
-  Views.shell = { set: set, publicSet: function (html) { return set(html, true); }, head: pageHead, root: el, empty: empty, pct: pct, icon: icon,
+  Views.shell = { set: set, publicSet: function (html) { return set(html, true); }, head: pageHead, root: el, empty: empty, pct: pct, icon: icon, prepareResponsiveTables: prepareResponsiveTables,
                   runCards: runCards, guideLink: guideLink };
 
   global.Views = Views;
