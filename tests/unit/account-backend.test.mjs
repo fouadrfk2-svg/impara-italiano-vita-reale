@@ -51,3 +51,24 @@ test('twelve Neon-compatible synthetic assertions fully roll back identities and
 test('unexpected account function grant options or search paths fail the actual runtime policy',async()=>{await owner('GRANT EXECUTE ON FUNCTION vita_pilot.account_request(text,jsonb) TO vita_pilot_app WITH GRANT OPTION');assert.equal((await db.query(RUNTIME_HEALTH_SQL)).rows[0].identity_verified,false);await owner('REVOKE GRANT OPTION FOR EXECUTE ON FUNCTION vita_pilot.account_request(text,jsonb) FROM vita_pilot_app');await owner('ALTER FUNCTION vita_pilot.account_request(text,jsonb) SET search_path=pg_catalog');assert.equal((await db.query(RUNTIME_HEALTH_SQL)).rows[0].identity_verified,false);});
 
 test('progress cannot store known schema-2 field types that the unchanged learning engine cannot load',async()=>{for(const name of ['cils','streak','backup'])for(const value of [null,[],'invalid',false])assert.throws(()=>validateState({schema:2,[name]:value}));for(const name of ['createdAt','xp','minutes'])assert.throws(()=>validateState({schema:2,[name]:'invalid'}));assert.throws(()=>validateState({schema:2,onboarded:'yes'}));for(const value of [[],'invalid',false])assert.throws(()=>validateState({schema:2,placement:value}));const compatible={schema:2,cils:{runs:[]},streak:{count:0,lastDay:null,best:0},backup:{},placement:null,onboarded:false,createdAt:0,xp:0,minutes:0,historicalExtension:{preserved:true}};assert.deepEqual(validateState(compatible),compatible);const {a}=await authenticated();assert.equal((await a.request('learner/progress',{revision:0,state:{schema:2,cils:'invalid'}})).statusCode,400);assert.equal((await a.request('learner/progress')).body.revision,0);assert.equal((await a.request('learner/progress',{revision:0,state:compatible})).statusCode,200);assert.deepEqual((await a.request('learner/progress')).body.state.historicalExtension,{preserved:true});});
+
+test('account progress safely syncs onboarding choices and correctness-only resumes across devices',async()=>{
+ const {a,code}=await authenticated();
+ const profile={goal:'work',startMode:'known',startingLevel:'B1',dailyMinutes:20,onboardingStep:5,meaningfulSessions:2,lastMeaningfulInteractionAt:Date.now(),lastCompletedLessonId:null,lastCompletedLevel:null,activitySession:null};
+ const resume={activeLessonId:'a1-u01-l1',lessons:{'a1-u01-l1':{exerciseIndex:2,answers:[true,false,null,null,null,null,null,null,null],startedAt:10,updatedAt:20}}};
+ const saved={schema:2,onboarded:true,learningProfile:profile,resume};
+ assert.doesNotThrow(()=>validateState(saved));
+ assert.equal((await a.request('learner/progress',{revision:0,state:saved})).statusCode,200);
+ await a.request('auth/logout',{});
+ const b=learner();assert.equal((await b.request('auth/redeem',{code:code.code})).statusCode,200);
+ const restored=(await b.request('learner/progress')).body.state;
+ assert.deepEqual(restored.learningProfile,profile);
+ assert.deepEqual(restored.resume,resume);
+ const invalid=[
+  {...saved,learningProfile:{...profile,dailyMinutes:15}},
+  {...saved,resume:{...resume,lessons:{'a1-u01-l1':{...resume.lessons['a1-u01-l1'],answers:[true,'typed answer',null,null,null,null,null,null,null]}}}},
+  {...saved,resume:{activeLessonId:'a1-u01-l1',lessons:{}}},
+  {...saved,resume:{activeLessonId:null,lessons:{'not-a-lesson':{exerciseIndex:0,answers:[null],startedAt:1,updatedAt:1}}}}
+ ];
+ for(const state of invalid)assert.throws(()=>validateState(state));
+});

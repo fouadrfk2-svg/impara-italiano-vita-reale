@@ -23,6 +23,18 @@
     return { answers: answers, current: 0 };
   }
 
+  /** Restores validated correctness booleans only; free-text answers are not saved. */
+  function restore(total, savedAnswers, current) {
+    var state = create(total);
+    if (Array.isArray(savedAnswers) && savedAnswers.length === total) {
+      state.answers = savedAnswers.map(function (answer) {
+        return answer === true ? true : answer === false ? false : null;
+      });
+    }
+    if (Number.isInteger(current) && current >= 0 && current < total) state.current = current;
+    return state;
+  }
+
   function unanswered(state) {
     var out = [];
     state.answers.forEach(function (a, i) { if (a === null) out.push(i); });
@@ -70,7 +82,7 @@
   }
 
   global.LessonRun = {
-    create: create, go: go, answer: answer, next: next,
+    create: create, restore: restore, go: go, answer: answer, next: next,
     unanswered: unanswered, wrong: wrong, isDone: isDone
   };
 })(window);

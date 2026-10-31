@@ -91,6 +91,14 @@
          and without the two other conditions (no progress, no test result)
          would see the welcome screen after forty lessons of study. */
       onboarded: false,
+      /* Account-synced learner choices and meaningful learning sessions. */
+      learningProfile: {
+        goal: "general", startMode: null, startingLevel: null, dailyMinutes: 20,
+        onboardingStep: 1, meaningfulSessions: 0, lastMeaningfulInteractionAt: 0,
+        lastCompletedLessonId: null, lastCompletedLevel: null, activitySession: null
+      },
+      /* Per-lesson correctness only; typed exercise answers are never stored. */
+      resume: { activeLessonId: null, lessons: {} },
       streak: { count: 0, lastDay: null, best: 0 },
       xp: 0,
       minutes: 0,
@@ -440,7 +448,7 @@
     errors: "object", drills: "object", reviews: "array",
     session: "object", writing: "object", cils: "object",
     backup: "object", onboarded: "boolean", retention: "object",
-    library: "object"
+    library: "object", learningProfile: "object", resume: "object"
   };
 
   function typeOf(v) {

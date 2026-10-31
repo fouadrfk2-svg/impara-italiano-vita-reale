@@ -1,82 +1,172 @@
-/* ============================================================
-   views-welcome.js — the first-run screen.
-
-   The course has fifteen entries in the rail and none of them says "start
-   here". A student opening it for the first time faces three different
-   decisions at once: from which level, in what order, and how Training
-   differs from Reviews. This screen takes the first one away and leaves the
-   rest for later.
-
-   It appears ONLY with an empty profile (app.js, startRouting) and
-   disappears after the first choice — it is not a tab and has no entry in
-   the rail. A student who closes the tab without choosing will see it
-   again: the marker is set by the decision, not by the screen being shown.
-
-   It loads AFTER views.js, because `Views.shell` is created at the end of
-   that file.
-   ============================================================ */
+/* First-run onboarding: a five-step, resumable guide for authenticated learners. */
 (function () {
   "use strict";
 
   var esc = Core.esc;
   var t = function (k, v) { return I18n.t(k, v); };
   var set = Views.shell.set;
-  var pageHead = Views.shell.head;
   var el = Views.shell.root;
+  var step = 1;
 
-  /** One of the three roads: a heading, an explaining sentence and a button. */
-  function droga(klucz, klasaPrzycisku, etykieta) {
-    return '<div class="list-row list-row--stack"><span class="list-row__main">' +
-      "<b>" + esc(t("welcome." + klucz + "Title")) + "</b>" +
-      "<span>" + esc(t("welcome." + klucz + "Hint")) + "</span></span>" +
-      '<button class="btn ' + klasaPrzycisku + ' js-' + klucz + '">' + esc(etykieta) + "</button></div>";
+  function profile() { return LearningJourney.profile(); }
+  function checked(name, value, current) { return value === current ? " checked" : ""; }
+  function goalOptions(current) {
+    return [
+      ["everyday", "welcome.goalEveryday"],
+      ["work", "welcome.goalWork"],
+      ["a2-exam", "welcome.goalA2"],
+      ["b1-exam", "welcome.goalB1"],
+      ["general", "welcome.goalGeneral"]
+    ].map(function (item) {
+      return '<label class="journey-choice"><input type="radio" name="journey-goal" value="' + item[0] + '"' +
+        checked("goal", item[0], current) + '><span><b>' + esc(t(item[1])) + "</b></span></label>";
+    }).join("");
   }
-
-  Views.benvenuto = function () {
-    set(pageHead(t("welcome.kicker"), t("welcome.title"), t("welcome.intro")) +
-      '<div class="stack">' +
-      droga("zero", "btn--primary", t("welcome.zeroGo")) +
-      droga("test", "btn--ghost", t("place.start")) +
-      droga("look", "btn--quiet", t("welcome.lookGo")) +
-      "</div>" +
-      /* The guide is a link under the choice, not a fourth road: whoever
-         lands here is meant to answer one question, not start reading. */
-      '<p style="margin-top:20px"><button class="btn btn--quiet js-guide">' +
-      esc(t("welcome.guide")) + "</button></p>");
-
-    /* The choice is what ends the welcome — not the screen being shown.
-       Otherwise: whoever closed the tab while reading would come back to the
-       course without the one answer this screen was meant to give them. */
-    el().querySelector(".js-zero").addEventListener("click", function () { odZera(); });
-    el().querySelector(".js-test").addEventListener("click", function () { wybrano("piazzamento"); });
-    el().querySelector(".js-look").addEventListener("click", function () { wybrano("percorso"); });
-    /* The guide does not end the welcome: the student is meant to come back and choose. */
-    el().querySelector(".js-guide").addEventListener("click", function () { App.go("guida"); });
-  };
-
-  function wybrano(trasa, params) {
-    Core.state.onboarded = true;
-    Core.save();
-    App.go(trasa, params);
+  function minuteOptions(current) {
+    return LearningJourney.MINUTES.map(function (n) {
+      return '<label class="journey-choice journey-choice--compact"><input type="radio" name="journey-minutes" value="' + n + '"' +
+        checked("minutes", n, current) + '><span><b>' + n + "</b> " + esc(t("welcome.minutesLabel")) + "</span></label>";
+    }).join("");
   }
-
-  /**
-   * "Starting from scratch" leads to the FIRST LESSON, not to the level list.
-   *
-   * Two reasons. The button's caption promises a lesson ("the first A1
-   * lesson, from saying hello"), and the level list is one choice further —
-   * that is, another choice this screen was meant to spare the student. The
-   * second: the path has a "not sure which level to start from" bar
-   * waiting, which is exactly the question they have just answered.
-   *
-   * When the level has not finished loading, the learning path is what
-   * remains: an empty lesson screen would be worse than a list that at
-   * least shows the course exists.
-   */
-  function odZera() {
-    var poziom = Core.registry.levels[0];
-    var next = poziom && Core.nextLesson(poziom);
-    if (next) wybrano("lezione", { id: next.lesson.id });
-    else wybrano("percorso");
+  function startOptions(current) {
+    return [
+      ["zero", "welcome.startZero", "welcome.startZeroHint"],
+      ["known", "welcome.startKnown", "welcome.startKnownHint"],
+      ["placement", "welcome.startPlacement", "welcome.startPlacementHint"]
+    ].map(function (item) {
+      return '<label class="journey-choice"><input type="radio" name="journey-start" value="' + item[0] + '"' +
+        checked("start", item[0], current) + '><span><b>' + esc(t(item[1])) + "</b><small>" +
+        esc(t(item[2])) + "</small></span></label>";
+    }).join("");
   }
+  function levelOptions(current) {
+    return (Core.registry.levels || []).map(function (level) {
+      return '<option value="' + esc(level.code) + '"' + (level.code === current ? " selected" : "") + ">" +
+        esc(level.code + (level.name ? " · " + level.name : "")) + "</option>";
+    }).join("");
+  }
+  function head(current, title, body) {
+    return '<header class="journey-head"><p class="journey-eyebrow">' + esc(t("welcome.wizardKicker")) +
+      " · " + esc(t("welcome.wizardStep", { i: current, n: 5 })) + "</p><h1>" + esc(title) +
+      "</h1><p>" + esc(body) + '</p><div class="journey-track" role="progressbar" aria-label="' +
+      esc(t("welcome.wizardProgress")) + '" aria-valuemin="1" aria-valuemax="5" aria-valuenow="' + current +
+      '"><i style="width:' + (current * 20) + '%"></i></div></header>';
+  }
+  function render() {
+    var p = profile();
+    step = p.onboardingStep;
+    var html = '<section class="journey-wizard" dir="rtl">';
+    if (step === 1) {
+      html += head(1, t("welcome.wizardWelcomeTitle"), t("welcome.wizardWelcomeText")) +
+        '<div class="journey-card"><p>' + esc(t("welcome.wizardApproach")) + '</p></div>' +
+        '<button type="button" class="btn btn--primary js-step-next">' + esc(t("welcome.wizardContinue")) + "</button>";
+    } else if (step === 2) {
+      html += head(2, t("welcome.wizardLevelTitle"), t("welcome.wizardLevelText")) +
+        '<fieldset class="journey-options"><legend class="sr-only">' + esc(t("welcome.wizardLevelTitle")) + "</legend>" +
+        startOptions(p.startMode) + '</fieldset><div class="journey-level" ' +
+        (p.startMode === "known" ? "" : "hidden") + '><label for="journeyLevel">' + esc(t("welcome.selectLevel")) +
+        '</label><select id="journeyLevel">' + levelOptions(p.startingLevel || "A1") +
+        '</select></div><button type="button" class="btn btn--primary js-step-next" ' +
+        (p.startMode ? "" : "disabled") + ">" + esc(t("welcome.wizardContinue")) + "</button>";
+    } else if (step === 3) {
+      html += head(3, t("welcome.wizardGoalTitle"), t("welcome.wizardGoalText")) +
+        '<fieldset class="journey-options"><legend class="sr-only">' + esc(t("welcome.wizardGoalTitle")) +
+        "</legend>" + goalOptions(p.goal) + '</fieldset><button type="button" class="btn btn--primary js-step-next">' +
+        esc(t("welcome.wizardContinue")) + "</button>";
+    } else if (step === 4) {
+      html += head(4, t("welcome.wizardTimeTitle"), t("welcome.wizardTimeText")) +
+        '<fieldset class="journey-options journey-options--minutes"><legend class="sr-only">' +
+        esc(t("welcome.wizardTimeTitle")) + "</legend>" + minuteOptions(p.dailyMinutes) +
+        '</fieldset><p class="journey-note">' + esc(t("welcome.wizardNoSchedule")) +
+        '</p><button type="button" class="btn btn--primary js-step-next">' + esc(t("welcome.wizardContinue")) + "</button>";
+    } else {
+      var secondary = p.startMode === "zero"
+        ? '<button type="button" class="btn btn--quiet js-start-direct">' + esc(t("welcome.startLessonDirect")) + "</button>"
+        : '<button type="button" class="btn btn--quiet js-sounds">' + esc(t("welcome.optionalSounds")) + "</button>";
+      html += head(5, t("welcome.wizardReadyTitle"), recommendation(p)) +
+        '<div class="journey-card journey-card--summary"><b>' + esc(t("welcome.goalLabel")) + "</b><span>" +
+        esc(t("welcome.goal." + p.goal)) + "</span><b>" + esc(t("welcome.minutesLabel")) +
+        "</b><span>" + esc(String(p.dailyMinutes)) + "</span></div>" +
+        '<button type="button" class="btn btn--primary js-start-journey">' + esc(t("welcome.startJourney")) + "</button>" + secondary;
+    }
+    html += "</section>";
+    set(html);
+    wire(p);
+  }
+  function recommendation(p) {
+    if (p.startMode === "placement") return t("welcome.recommendPlacement");
+    if (p.startMode === "known") return t("welcome.recommendKnown", { level: p.startingLevel || "A1" });
+    return t("welcome.recommendZero");
+  }
+  function advance(changes) {
+    changes.onboardingStep = step + 1;
+    LearningJourney.updateProfile(changes);
+    render();
+  }
+  function wire(p) {
+    var next = el().querySelector(".js-step-next");
+    if (step === 2) {
+      el().querySelectorAll('[name="journey-start"]').forEach(function (radio) {
+        radio.addEventListener("change", function () {
+          var mode = radio.value;
+          LearningJourney.updateProfile({ startMode: mode, startingLevel: mode === "known" ? (p.startingLevel || "A1") : null });
+          var group = el().querySelector(".journey-level");
+          if (group) group.hidden = mode !== "known";
+          next.disabled = false;
+        });
+      });
+      var level = el().querySelector("#journeyLevel");
+      if (level) level.addEventListener("change", function () { LearningJourney.updateProfile({ startingLevel: level.value }); });
+    }
+    if (next) next.addEventListener("click", function () {
+      if (step === 1) advance({});
+      else if (step === 2) {
+        var mode = el().querySelector('[name="journey-start"]:checked');
+        if (!mode) return;
+        var selected = mode.value === "known" ? el().querySelector("#journeyLevel").value : null;
+        advance({ startMode: mode.value, startingLevel: selected });
+      } else if (step === 3) {
+        var goal = el().querySelector('[name="journey-goal"]:checked');
+        if (goal) advance({ goal: goal.value });
+      } else if (step === 4) {
+        var minutes = el().querySelector('[name="journey-minutes"]:checked');
+        advance({ dailyMinutes: minutes ? Number(minutes.value) : 20 });
+      }
+    });
+    el().querySelectorAll('[name="journey-goal"]').forEach(function (radio) {
+      radio.addEventListener("change", function () { LearningJourney.updateProfile({ goal: radio.value }); });
+    });
+    el().querySelectorAll('[name="journey-minutes"]').forEach(function (radio) {
+      radio.addEventListener("change", function () { LearningJourney.updateProfile({ dailyMinutes: Number(radio.value) }); });
+    });
+    var start = el().querySelector(".js-start-journey");
+    if (start) start.addEventListener("click", function () { begin(p, false); });
+    var direct = el().querySelector(".js-start-direct");
+    if (direct) direct.addEventListener("click", function () { begin(p, true); });
+    var sounds = el().querySelector(".js-sounds");
+    if (sounds) sounds.addEventListener("click", function () { App.go("suoni"); });
+  }
+  function begin(p, skipSounds) {
+    var mode = p.startMode || "zero";
+    if (mode === "placement") {
+      App.go("piazzamento", { go: "1", onboarding: "1" });
+      return;
+    }
+    if (mode === "zero" && !skipSounds) {
+      /* Reuse the existing A1 recordings before the first lesson. */
+      App.go("suoni", { set: "ph-doppie", onboarding: "1" });
+      return;
+    }
+    var code = mode === "known" ? (p.startingLevel || "A1") : "A1";
+    var from = Math.max(0, Core.registry.levels.findIndex(function (level) { return level.code === code; }));
+    Core.findNextLesson(function (next) {
+      if (!next || (mode === "known" && Core.registry.levels.indexOf(next.level) < from)) {
+        Core.toast(t("welcome.startLoadError"));
+        return;
+      }
+      LearningJourney.markOnboarded();
+      App.go("lezione", { id: next.lesson.id });
+    }, from);
+  }
+  Views.benvenuto = function () { render(); };
 })();

@@ -55,7 +55,11 @@
     }
     var L = found.lesson, U = found.unit, LV = found.level;
 
-    session = { id: L.id, total: (L.exercises || []).length, score: 0, answered: 0, started: Date.now() };
+    var savedResume = LearningJourney.resumeFor(L.id, (L.exercises || []).length);
+    session = {
+      id: L.id, total: (L.exercises || []).length, score: 0, answered: 0,
+      started: savedResume ? savedResume.startedAt : Date.now()
+    };
 
     var parts = [];
 
@@ -71,6 +75,12 @@
       "</div>");
 
     parts.push('<header class="view-head"><h1 lang="it" dir="ltr">' + esc(L.titleIt) + "</h1><p>" + esc(L.title) + "</p></header>");
+    var journeyProfile = LearningJourney.profile();
+    var journeyCoach = journeyProfile.meaningfulSessions === 0 ? "journey.coachFirst"
+      : journeyProfile.meaningfulSessions < 3 ? "journey.coachEarly"
+      : journeyProfile.meaningfulSessions < 5 ? "journey.coachReview"
+      : journeyProfile.meaningfulSessions < 7 ? "journey.coachIndependent" : null;
+    if (journeyCoach) parts.push('<aside class="journey-coach" role="note">' + esc(t(journeyCoach)) + "</aside>");
     parts.push(steps(L));
 
     if (L.objectives && L.objectives.length) {
@@ -230,14 +240,32 @@
       var built = L.exercises.map(function (ex, i) { return Ex.build(ex, i, L.id); });
       wrap.innerHTML = built.map(function (b) { return b.html; }).join("");
       var nodes = wrap.querySelectorAll(".exq");
-      run = LessonRun.create(built.length);
+      run = savedResume
+        ? LessonRun.restore(built.length, savedResume.answers, savedResume.exerciseIndex)
+        : LessonRun.create(built.length);
+      session.answered = run.answers.filter(function (answer) { return answer !== null; }).length;
+      session.score = run.answers.filter(function (answer) { return answer === true; }).length;
+      /* A previous free-text response is never retained. Restored steps show
+         only their saved correctness, so a learner can continue without
+         silently submitting the same answer or changing its score. */
+      nodes.forEach(function (node, i) {
+        if (run.answers[i] === null) return;
+        node.innerHTML = '<div class="journey-answer" role="status"><b>' +
+          esc(t(run.answers[i] ? "journey.savedCorrect" : "journey.savedReview")) + "</b><p>" +
+          esc(t("journey.savedPrivacy")) + "</p></div>";
+      });
       /* An answer may report late (the model judge goes over the network):
          one from a lesson the student has left must not land in this one. */
       var mine = session;
       built.forEach(function (b, i) {
+        /* Restored answers render as read-only feedback above, so their
+           original input controls are intentionally absent from the DOM. */
+        if (run.answers[i] !== null) return;
         b.wire(nodes[i], function (ok) {
           if (session !== mine) return;
           run = LessonRun.answer(run, i, ok);
+          LearningJourney.saveResume(L.id, i, run.answers);
+          LearningJourney.recordInteraction(false);
           drawRun();
           onAnswer(ok, L, U, LV);
         });
@@ -253,6 +281,22 @@
         else document.getElementById("lessonEnd").scrollIntoView({ behavior: "smooth", block: "center" });
       });
       drawRun();
+      if (LessonRun.isDone(run)) finishRestoredRun(L, U, LV);
+      else if (!savedResume) LearningJourney.saveResume(L.id, run.current, run.answers);
+      if (savedResume && (run.current > 0 || session.answered > 0)) {
+        requestAnimationFrame(function () {
+          var restoredExercise = wrap.querySelector(".exq:not([hidden])");
+          if (!restoredExercise) return;
+          /* The root's smooth-scroll preference otherwise leaves the learner
+             looking at the lesson introduction while the saved exercise
+             animates from several screens away. Resume is a location change,
+             so place the active task immediately and preserve the preference. */
+          var root = document.documentElement, scrollBehavior = root.style.scrollBehavior;
+          root.style.scrollBehavior = "auto";
+          restoredExercise.scrollIntoView({ behavior: "auto", block: "center" });
+          root.style.scrollBehavior = scrollBehavior;
+        });
+      }
     }
     // Give screen readers the actual language of each explanation block.
     var translated = ".view-head > p,.prose,.gram-box__rule,.gram-box__note,.pl,.nb,.vocab-card__pl,.dlg__pl,.exq__prompt,.exq__sub,.voice-pl,.gt th";
@@ -274,6 +318,7 @@
 
   function showEx(i) {
     run = LessonRun.go(run, i);
+    if (session && run.answers.length) LearningJourney.saveResume(session.id, run.current, run.answers);
     drawRun();
     var cur = document.querySelectorAll("#exWrap .exq")[run.current];
     if (cur) cur.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -282,6 +327,10 @@
   /** Draws the run: which exercise shows, the chips' states, the counters. */
   function drawRun() {
     var n = run.answers.length;
+    var answered = n - LessonRun.unanswered(run).length;
+    var bar = document.getElementById("lessonBar"), score = document.getElementById("lessonScore");
+    if (bar) bar.style.width = pct(n ? answered / n : 0) + "%";
+    if (score) score.textContent = run.answers.filter(function (answer) { return answer === true; }).length + "/" + n;
     document.querySelectorAll("#exWrap .exq").forEach(function (q, i) { q.hidden = i !== run.current; });
     document.querySelectorAll(".ex-chip").forEach(function (c, i) {
       var a = run.answers[i];
@@ -317,16 +366,35 @@
 
     if (session.answered >= session.total) {
       var wasDone = Core.isLessonDone(L.id);
-      var res = Core.recordLesson(L.id, session.score, session.total, (Date.now() - session.started) / 1000);
+      var previous = Core.lessonState(L.id);
+      var saved = LearningJourney.resumeFor(L.id, session.total);
+      var alreadyRecorded = saved && previous && previous.ts >= saved.updatedAt &&
+        previous.total === session.total && previous.score === session.score;
+      var res = alreadyRecorded ? previous : Core.recordLesson(L.id, session.score, session.total, (Date.now() - session.started) / 1000);
       /* A lesson passed for the FIRST time puts its words in the reviews: until
          now only a star, "add all" or a mistake did, and after two lessons the
          deck was empty. Only then: at every run it brought back words the
          student had deleted, and a failed run will be taken again. */
       session.newWords = res.done && !wasDone;
       if (session.newWords) (L.vocab || []).forEach(function (v) { Core.addCard(v.it, v.tr, L.id); });
+      LearningJourney.recordLessonCompletion(L.id, LV.code);
+      LearningJourney.clearResume(L.id);
       renderLessonEnd(res, L, U, LV);
       App.refreshRail();
     }
+  }
+
+  function finishRestoredRun(L, U, LV) {
+    var score = run.answers.filter(function (answer) { return answer === true; }).length;
+    var previous = Core.lessonState(L.id);
+    var res = previous && previous.ts >= (LearningJourney.resumeFor(L.id, session.total) || {}).updatedAt &&
+      previous.total === session.total && previous.score === score
+      ? previous : Core.recordLesson(L.id, score, session.total, (Date.now() - session.started) / 1000);
+    session.score = score; session.answered = session.total;
+    LearningJourney.recordLessonCompletion(L.id, LV.code);
+    LearningJourney.clearResume(L.id);
+    renderLessonEnd(res, L, U, LV);
+    App.refreshRail();
   }
 
   function renderLessonEnd(res, L, U, LV) {
@@ -337,13 +405,30 @@
       : t("lesson.end.fail");
 
     var next = Core.nextLesson(LV);
+    var levelProgress = Core.levelProgress(LV);
+    var levelComplete = levelProgress.total > 0 && levelProgress.done === levelProgress.total;
+    var registryLevels = Core.registry.levels;
+    var levelIndex = registryLevels.findIndex(function (level) { return level.code === LV.code; });
+    var hasLaterLevel = levelIndex >= 0 && levelIndex + 1 < registryLevels.length;
+    var descriptionIsArabic = /[\u0600-\u06ff]/.test(LV.desc || "");
+    var outcome = levelComplete && LV.desc
+      ? '<section class="journey-level-complete" aria-labelledby="journeyLevelCompleteTitle">' +
+        '<h3 id="journeyLevelCompleteTitle">' + esc(t("lesson.levelComplete", { level: LV.code })) +
+        "</h3><p><b>" + esc(t("lesson.levelOutcome")) +
+        '</b></p><p lang="' + (descriptionIsArabic ? "ar" : "en") + '" dir="' + (descriptionIsArabic ? "rtl" : "ltr") + '">' +
+        esc(LV.desc) + "</p></section>" : "";
+    var nextMarkup = next
+      ? '<button type="button" class="btn btn--primary js-next">' + t("lesson.next", { title: esc(next.lesson.titleIt) }) + "</button>"
+      : levelComplete && hasLaterLevel
+        ? '<button type="button" class="btn btn--primary js-next-loading" disabled>' + esc(t("lesson.nextLevelLoading")) + "</button>" : "";
     var box = document.getElementById("lessonEnd");
     box.innerHTML = '<div class="summary">' +
       '<div class="summary__score">' + pct(p) + "%</div>" +
       '<p class="summary__msg">' + esc(msg) + " (" + res.score + "/" + res.total + ")</p>" +
+      outcome +
       '<div class="summary__acts">' +
       '<button class="btn btn--ghost js-again">' + t("lesson.again") + "</button>" +
-      (next ? '<button class="btn btn--primary js-next">' + t("lesson.next", { title: esc(next.lesson.titleIt) }) + "</button>" : "") +
+      nextMarkup +
       '<button class="btn btn--ghost js-path">' + t("nav.path") + "</button>" +
       "</div>" + recap(L) + "</div>";
 
@@ -351,6 +436,14 @@
     box.querySelector(".js-path").addEventListener("click", function () { App.go("percorso"); });
     var nb = box.querySelector(".js-next");
     if (nb) nb.addEventListener("click", function () { App.go("lezione", { id: next.lesson.id }); });
+    else if (levelComplete && hasLaterLevel) Core.findNextLesson(function (found) {
+      var loading = box.querySelector(".js-next-loading");
+      if (!loading || !loading.isConnected) return;
+      if (!found) { loading.remove(); return; }
+      loading.outerHTML = '<button type="button" class="btn btn--primary js-next">' +
+        t("lesson.next", { title: esc(found.lesson.titleIt) }) + "</button>";
+      box.querySelector(".js-next").addEventListener("click", function () { App.go("lezione", { id: found.lesson.id }); });
+    }, levelIndex + 1);
     box.querySelectorAll(".lesson-recap [data-go]").forEach(function (b) {
       b.addEventListener("click", function () { showEx(+b.getAttribute("data-go")); });
     });

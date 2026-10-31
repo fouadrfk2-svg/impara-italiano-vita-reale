@@ -13,11 +13,11 @@ module.exports=[
   {
     "file": "data/i18n/ui-ar.js",
     "before": "61b12a80fba4c84f8238abfee25c2001ac0f41c5fa7b0cccf978d3bb65f63484",
-    "after": "7cbb4d8d3ac87d4bc3c27832f1e5ad601db35f4379cd27dba10f1f091a1eed69"
+    "after": "de177fdbff5fed5f50c2322deea0279485a003065ff730cb0761146cbf58b9a4"
   },
   {
     "file": "data/i18n/ui-en.js",
     "before": "805b43a2e8fd3a48b4c2cf83ebb2ae3a4fc374e160dd87b6793ff56535f1fdd8",
-    "after": "c40c721633b1e7318430c62dd9c207b1298d5486911b4e227212ade2f1f82862"
+    "after": "26f1c5f79fe327dd9b34b8e7237a180f7127466e5b452d30df63c89e56007bc0"
   }
 ];

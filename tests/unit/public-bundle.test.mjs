@@ -14,7 +14,7 @@ test("public production bundles preserve exact classic script order and private 
   try {
     for(const name of ["index.html","sw.js"])copyFileSync(join(ROOT,name),join(tmp,name));
     const out=bundlePublic(ROOT,tmp);
-    assert.equal(out.shell,22);
+    assert.equal(out.shell,24);
     assert.ok(out.courseBundles>=15&&out.courseBundles<=45);
     assert.ok(out.privateModules>=10);
     assert.equal(out.bundledPublic+out.privateModules,out.courses);

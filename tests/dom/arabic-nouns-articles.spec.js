@@ -1,4 +1,5 @@
 const { test, expect, expectAudioResponse } = require("../helpers/learner-fixture.cjs");
+const { assertSavedWrongIsReadOnly, waitForSavedWrongAnswer } = require("../helpers/lesson-resume.cjs");
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
@@ -78,20 +79,24 @@ for (const width of [1440,390]) for (const lesson of lessons) {
       expect(errors).toEqual([]);expect(failed).toEqual([]);
     });
 
-    test("wrong feedback and all nine unchanged-answer exercises complete, persist, and use Arabic instructions", async ({page},info) => {
+    test("wrong feedback, saved-answer review, remaining exercises, completion and Arabic instructions", async ({page},info) => {
       const errors=[];page.on("pageerror",e=>errors.push(e.message));
       await page.goto("/index.html#/lezione?id="+lesson.id);await ready(page);
       await page.locator(active+' [data-orig="0"]').click();await page.locator(active+" .js-check").click();
       await expect(page.locator(active)).toHaveClass(/exq--ko/);
       await expect(page.locator(active+" .fb__why")).toContainText(lesson.id.endsWith("l2")?"الجواب":"الاسم");
+      await waitForSavedWrongAnswer(page, lesson.id, 0);
       await page.reload();await ready(page);
       await page.evaluate(id=>{
         const original=window.I18n.t;window.__lessonUIKeys=[];
         window.I18n.t=function(key,vars){if(/^(lesson\.|ex\.|tense\.|stt\.)/.test(key)||key==="talk.checking")window.__lessonUIKeys.push(key);return original(key,vars);};
         window.App.go("lezione",{id});
       },lesson.id);
+      const expectedScore=8/9;
+      await assertSavedWrongIsReadOnly(page,lesson.id,0,active);
       for(let i=0;i<9;i++){
         await page.locator('.ex-chip[data-go="'+i+'"]').click();const current=page.locator(active);
+        if(i===0){await expect(current.locator(".journey-answer")).toBeVisible();continue;}
         if(lesson.id.endsWith("l2")){
           if(i===0||i===4)await current.locator('[data-orig="1"]').click();
           if(i===1)await current.locator(".js-in").fill("le");
@@ -118,16 +123,16 @@ for (const width of [1440,390]) for (const lesson of lessons) {
         if(!(lesson.id.endsWith("l3")&&i===6))await current.locator(".js-check").click();
         await expect(current).toHaveClass(/exq--ok/);await expect(current.locator(".fb")).toContainText("أحسنت");await audit(page);
       }
-      await expect(page.locator(".summary__score")).toHaveText("100%");
-      await expect(page.locator(".summary__msg")).toContainText("9/9");
+      await expect(page.locator(".summary__score")).toHaveText(Math.round(expectedScore*100)+"%");
+      await expect(page.locator(".summary__msg")).toContainText("8/9");
       const used=await page.evaluate(()=>[...new Set(window.__lessonUIKeys)]);expect(used.length).toBeGreaterThan(40);
       for(const key of used){expect(arabicUI[key],key).toBeDefined();const values=typeof arabicUI[key]==="object"?Object.values(arabicUI[key]):[arabicUI[key]];for(const text of values)expect(text,key).toMatch(/[\u0600-\u06ff]/);}
       await screenshot(page,info,lesson.id+"-complete-"+width+".png");
       const snapshot=()=>page.evaluate(()=>{const s=JSON.parse(JSON.stringify(window.Core.state));delete s.settings.lang;return s;});
-      const progress=await snapshot();expect(progress.lessons[lesson.id].best).toBe(1);expect(progress.lessons[lesson.id].done).toBe(true);
+      const progress=await snapshot();expect(progress.lessons[lesson.id].best).toBe(expectedScore);expect(progress.lessons[lesson.id].done).toBe(true);
       for(const lang of ["en","ar"]){await language(page,lang);expect(await snapshot()).toEqual(progress);}
-      await page.waitForFunction(id=>JSON.parse(localStorage.getItem("linguai.italiano.v2")).lessons[id].best===1,lesson.id);
-      await page.reload();await ready(page);expect((await snapshot()).lessons[lesson.id].best).toBe(1);
+      await page.waitForFunction(({id,score})=>JSON.parse(localStorage.getItem("linguai.italiano.v2")).lessons[id].best===score,{id:lesson.id,score:expectedScore});
+      await page.reload();await ready(page);expect((await snapshot()).lessons[lesson.id].best).toBe(expectedScore);
       await expect(page.locator(".view-head > p")).toHaveText(lesson.title);expect(errors).toEqual([]);
     });
   });

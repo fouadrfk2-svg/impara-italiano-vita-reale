@@ -20,6 +20,14 @@ describe("one exercise at a time", () => {
     assert.equal(R().isDone(s), false);
   });
 
+  test("a saved run restores only correctness results and a validated exercise position", () => {
+    const L = R();
+    const saved = L.restore(4, [true, false, null, null], 2);
+    assert.deepEqual(JSON.parse(JSON.stringify(saved)), { answers: [true, false, null, null], current: 2 });
+    const malformed = L.restore(4, [true, "typed answer", 1, null], 99);
+    assert.deepEqual(JSON.parse(JSON.stringify(malformed)), { answers: [true, null, null, null], current: 0 });
+  });
+
   test("an answer is recorded once: a second report changes nothing", () => {
     const L = R();
     let s = L.answer(L.create(3), 1, false);

@@ -73,6 +73,4 @@ module.exports = {
   "data/i18n/en/phonetics.js": "114a6ba79608503def28cdcc3f767cff3e9906b0072263401792bf7f01c95806",
   "data/i18n/en/readings.js": "97ff7965cccf7dc9234b60c05c36a2a2be78c8dbc76a4adf93a5ffaa2c2716e3",
   "data/i18n/en/writing.js": "0bb3d5a6f9756bba6c05795cbf7cadc24d5dd6c3d499c26ba2fef2cdb7051423",
-  "data/i18n/ui-ar.js": "7cbb4d8d3ac87d4bc3c27832f1e5ad601db35f4379cd27dba10f1f091a1eed69",
-  "data/i18n/ui-en.js": "c40c721633b1e7318430c62dd9c207b1298d5486911b4e227212ade2f1f82862"
 };

@@ -1,17 +1,9 @@
 /* ============================================================
-   views-today.js — the daily session.
+   views-today.js — a learner-specific next step and optional daily review.
 
-   One button instead of three decisions. Until now a student with ten
-   minutes had to choose for themselves: flashcards, mistakes, or the next
-   lesson? That decision, taken every day, is where the streak gets lost —
-   not a lack of time, but the lack of an obvious next step.
-
-   The composition of the session (C2 in § 7.6 of the plan, to be confirmed
-   at review): 6 mistake cards, 3 generated tasks, 8 flashcards, and at the
-   end a pointer to the next lesson. The order is not accidental: first what
-   the student got wrong, because that is where there is most to recover,
-   and the flashcards at the end, because they are the lightest and close
-   the session without effort.
+   Recommendations use saved lesson progress, unfinished exercise state,
+   due review cards, repeated errors, the learner's goal, and time preference.
+   The review remains optional; exploration is never locked.
 
    Classic script. Requires core.js, errors.js, drills.js, views.js.
    ============================================================ */
@@ -23,29 +15,52 @@
   var set = Views.shell.set;
   var pageHead = Views.shell.head;
   var runCards = Views.shell.runCards;
-  var icon = Views.shell.icon;
 
-  /* The composition of the session. The numbers are a product decision, not a measurement. */
-  var PLAN = { errors: 6, drills: 3, cards: 8 };
+  /* Existing review mechanics scale to a learner's chosen session length. */
+  function planFor(minutes) {
+    return minutes === 10 ? { errors: 3, drills: 1, cards: 4 }
+      : minutes === 30 ? { errors: 9, drills: 4, cards: 12 }
+      : { errors: 6, drills: 3, cards: 8 };
+  }
+
+  function startingLevelIndex(profile) {
+    var levels = Core.registry.levels, selected = profile && profile.startingLevel;
+    var index = levels.findIndex(function (level) { return level.code === selected; });
+    return index < 0 ? 0 : index;
+  }
+  function nextFromStartingLevel(profile) {
+    var levels = Core.registry.levels;
+    for (var i = startingLevelIndex(profile); i < levels.length; i++) {
+      if (Core.registry.loaded[levels[i].code] !== true) continue;
+      var next = Core.nextLesson(levels[i]);
+      if (next) return { level: levels[i], unit: next.unit, lesson: next.lesson };
+    }
+    return null;
+  }
+  function findNextFromStartingLevel(profile, callback) {
+    Core.findNextLesson(callback, startingLevelIndex(profile));
+  }
 
   /** Today's date in the same format Core uses. */
   function dzis() { return Core.today(); }
 
   /** How many parts of the session have real content today. */
-  function zbierz() {
-    var bledy = Errors.due(PLAN.errors);
-    var fiszki = Core.dueCards(PLAN.cards);
+  function zbierz(plan) {
+    var bledy = Errors.due(plan.errors);
+    var fiszki = Core.dueCards(plan.cards);
     /* The drill topic is chosen where the student has the most open cards:
        training is meant to hammer at a weak spot, not to draw at random.
        Without one, it comes from a lesson already passed (Drills.pickTopic). */
-    var wg = Errors.byTag();
-    var najslabszy = Object.keys(wg).sort(function (a, b) { return wg[b].length - wg[a].length; })[0];
+    var wg = Errors.byTag(), goalTags = LearningJourney.goalTags(LearningJourney.profile().goal);
+    var availableGoals = goalTags.filter(function (tag) { return wg[tag] && wg[tag].length; })
+      .sort(function (a, b) { return wg[b].length - wg[a].length; });
+    var najslabszy = availableGoals[0] || Object.keys(wg).sort(function (a, b) { return wg[b].length - wg[a].length; })[0];
     var wybor = Drills.pickTopic({
       weakTag: najslabszy || null,
       isDone: Core.isLessonDone,
       day: Math.floor(Date.now() / 86400000)
     });
-    var drille = Drills.session(wybor.topic.id, PLAN.drills, "oggi-" + dzis());
+    var drille = Drills.session(wybor.topic.id, plan.drills, "oggi-" + dzis());
     return { bledy: bledy, fiszki: fiszki, drille: drille, topic: wybor.topic, why: wybor.why };
   }
 
@@ -55,64 +70,95 @@
       '<span class="chip' + (n ? " chip--green" : "") + '">' + n + "</span></div>";
   }
 
-  /* Today used to only revise, with the new lesson as a pointer at the END:
-     whoever used only this screen stopped learning anything new. */
-  function kartaLekcji(next) {
-    if (!next) return "";
-    var L = next.lesson;
-    var opis = [next.unit && next.unit.title, L.title].filter(Boolean).join(" · ");
-    var progress = Core.levelProgress(next.level);
-    return '<div class="card today-next"><div class="today-next__txt">' +
-      '<p class="card-eyebrow">' + icon("hand-pointing") + esc(t("today.nextEyebrow")) + "</p>" +
-      "<h3>" + esc(L.titleIt || L.title) + "</h3>" +
-      (opis ? '<p class="exq__sub">' + esc(opis) + "</p>" : "") +
-      '<div class="today-next__progress" role="group" aria-label="' + esc(t("nav.progress")) + '"><span><b>' + progress.done + "/" + progress.total + '</b> <span>' + esc(t("stats.lessons", { n: progress.total })) + '</span></span><span class="today-next__track" role="progressbar" aria-label="' + esc(t("nav.progress")) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(progress.pct * 100) + '"><i style="width:' + Math.round(progress.pct * 100) + '%"></i></span></div></div>' +
-      '<button class="btn btn--primary js-next-lesson">' + esc(t("today.continue")) + "</button></div>";
-  }
-
-  function pasekSerii() {
-    var st = Core.state.streak;
-    if (!st || !st.count) return "";
-    return '<p class="today-streak">' + esc(t("today.streak", { n: st.count, best: Math.max(st.best || 0, st.count) })) + "</p>";
-  }
-
   Views.oggi = function () {
-    var s = zbierz();
-    var razem = s.bledy.length + s.drille.length + s.fiszki.length;
-    var zrobione = (Core.state.session || {}).date === dzis();
-
-    var next = Core.nextOpenLesson();
+    var profile = LearningJourney.profile(), plan = planFor(profile.dailyMinutes);
+    var s = zbierz(plan), next = nextFromStartingLevel(profile), resume = LearningJourney.activeResume();
+    var resumedEntry = resume && Core.getLesson(resume.lessonId);
+    var resumed = resumedEntry && !Core.isLessonDone(resume.lessonId)
+      ? LearningJourney.resumeFor(resume.lessonId, (resumedEntry.lesson.exercises || []).length) : null;
+    var completed = LearningJourney.completedCount(Core.state), absence = LearningJourney.daysSinceInteraction(Date.now());
+    var dueReview = s.bledy.length + s.fiszki.length > 0;
+    var repeated = Object.keys(Core.state.errors || {}).filter(function (key) {
+      return Number(Core.state.errors[key].lapses || 0) >= 2;
+    }).length;
+    var returning = absence !== null && absence >= 3 && dueReview;
+    var mode = returning ? "review" : resumed ? "resume" : repeated >= 3 && dueReview ? "review" : next ? "lesson" : "review";
+    var current = resumed && Core.getLesson(resumed.lessonId);
+    var actionTitle = mode === "resume" ? t("journey.resume")
+      : mode === "review" ? t(returning ? "journey.returnReview" : repeated >= 3 ? "journey.repeated" : "journey.review")
+      : t(completed ? "journey.continue" : "journey.firstLesson");
+    var actionWhy = mode === "resume" ? t("journey.resumeWhy", {
+      i: resumed.exerciseIndex + 1, n: resumed.answers.length
+    }) : mode === "review" ? t(returning ? "journey.returnWhy" : repeated >= 3 ? "journey.repeatedWhy" : "journey.reviewWhy")
+      : t(completed ? "journey.nextWhy" : "journey.firstWhy", {
+        lesson: next && (next.lesson.titleIt || next.lesson.title)
+      });
+    var coachKey = profile.meaningfulSessions === 0 ? "journey.coachFirst"
+      : profile.meaningfulSessions < 3 ? "journey.coachEarly"
+      : profile.meaningfulSessions < 5 ? "journey.coachReview"
+      : profile.meaningfulSessions < 7 ? "journey.coachIndependent" : null;
+    var totalTasks = s.bledy.length + s.drille.length + s.fiszki.length;
     var DRILL_SUB = { weak: "today.drillWeak", studied: "today.drillStudied", preview: "today.drillPreview" };
+    var progressLevel = current ? current.level : next && next.level;
+    var levelProgress = progressLevel ? Core.levelProgress(progressLevel) : { done: completed, total: 0, pct: 0 };
+    var levelDone = Math.min(levelProgress.done || 0, levelProgress.total || 0);
+    var levelPct = Math.round((levelProgress.pct || 0) * 100);
+    var unitName = current ? current.unit.title : next && next.unit && next.unit.title;
+    var lessonName = current ? current.lesson.titleIt || current.lesson.title : next && (next.lesson.titleIt || next.lesson.title);
+    var primary = mode === "resume" ? '<button class="btn btn--primary js-resume">' + esc(t("journey.resumeCta")) + "</button>"
+      : mode === "lesson" ? '<button class="btn btn--primary js-next-lesson">' + esc(t(completed ? "journey.continueCta" : "journey.firstCta")) + "</button>"
+      : '<button class="btn btn--primary js-start">' + esc(t("journey.reviewCta", { n: totalTasks })) + "</button>";
+    var secondary = mode === "resume" || mode === "lesson"
+      ? '<button class="btn btn--ghost btn--sm js-start">' + esc(t("journey.optionalReview", { n: totalTasks })) + "</button>"
+      : resumed ? '<button class="btn btn--ghost btn--sm js-resume">' + esc(t("journey.resumeSecondary", { i: resumed.exerciseIndex + 1, n: resumed.answers.length })) + "</button>"
+        : next ? '<button class="btn btn--ghost btn--sm js-next-lesson">' + esc(t("journey.nextSecondary")) + "</button>" : "";
+    var minutes = LearningJourney.MINUTES.map(function (n) {
+      return '<button type="button" class="journey-minutes' + (n === profile.dailyMinutes ? " is-selected" : "") +
+        '" data-minutes="' + n + '" aria-pressed="' + (n === profile.dailyMinutes) + '">' + n + " " + esc(t("welcome.minutesLabel")) + "</button>";
+    }).join("");
 
-    /* The intro promises "your weakest point" only when there are mistakes to
-       draw it from; otherwise it says what the session really is. */
-    set(pageHead(t("today.kicker"), t("today.title"), t(s.bledy.length ? "today.intro" : "today.introQuiet")) +
-      Views.shell.guideLink("oggi") +
-      pasekSerii() +
-      kartaLekcji(next) +
-      (zrobione ? '<div class="card today-done" style="margin-bottom:18px"><p>' + esc(t("today.alreadyDone")) + "</p></div>" : "") +
-      /* A part with nothing in it is not a row with a zero. */
-      '<div class="stack" style="margin-bottom:12px">' +
+    set(pageHead(t("today.kicker"), t("journey.title"), t("journey.intro")) +
+      '<section class="journey-today" aria-labelledby="journeyTodayTitle">' +
+      '<p class="journey-eyebrow">' + esc(t("journey.eyebrow")) + "</p>" +
+      '<div class="journey-progress"><b>' + completed + "</b><span>" + esc(t("journey.completed")) +
+      '</span><span class="journey-level">' + esc(progressLevel ? progressLevel.code : "") + "</span></div>" +
+      (levelProgress.total ? '<div class="journey-level-progress"><span>' + esc(t("journey.levelProgress")) +
+        '</span><b>' + levelDone + "/" + levelProgress.total + '</b><progress max="' + levelProgress.total + '" value="' + levelDone +
+        '" aria-label="' + esc(t("journey.levelProgress")) + '" aria-valuetext="' + levelDone + '/' + levelProgress.total + ' (' + levelPct + '%)"></progress></div>' : "") +
+      '<div class="journey-location"><b>' + esc(unitName || t("journey.pathReady")) + "</b>" +
+      '<span class="journey-lesson-title" lang="it" dir="ltr">' + esc(lessonName || t("journey.noOpenLesson")) + "</span>" +
+      (resumed ? '<small>' + esc(t("journey.exercisePosition", { i: resumed.exerciseIndex + 1, n: resumed.answers.length })) + "</small>" : "") +
+      "</div><h2 id=\"journeyTodayTitle\">" + esc(actionTitle) + "</h2><p>" + esc(actionWhy) + "</p>" +
+      primary + secondary +
+      (coachKey ? '<p class="journey-coach">' + esc(t(coachKey, { n: profile.meaningfulSessions + 1 })) + "</p>" : "") +
+      '<p class="journey-focus">' + esc(t("journey.goalFocus", { goal: t("welcome.goal." + profile.goal) })) + "</p>" +
+      '<div class="journey-minutes" role="group" aria-label="' + esc(t("journey.sessionLength")) + '">' + minutes + "</div>" +
+      "</section>" +
+      (Core.state.session && Core.state.session.date === dzis() ? '<div class="card today-done"><p>' + esc(t("today.alreadyDone")) + "</p></div>" : "") +
+      '<details class="journey-plan"><summary>' + esc(t("journey.planSummary", { n: totalTasks })) + "</summary>" +
+      '<div class="stack" style="margin-top:12px">' +
       (s.bledy.length ? wiersz(t("today.partErrors"), s.bledy.length) : "") +
       wiersz(t("today.partDrills", { topic: Train.topicLabel(s.topic.id) }), s.drille.length, t(DRILL_SUB[s.why])) +
       (s.fiszki.length ? wiersz(t("today.partCards"), s.fiszki.length) : "") +
-      "</div>" +
-      (s.bledy.length || s.fiszki.length ? "" : '<p class="exq__sub today-quiet">' + esc(t("today.quietBoth")) + "</p>") +
-      /* There is no empty state here and there cannot be one: generated
-         tasks are always available, so the session always has something to
-         fill ten minutes with. That is its whole reason to exist — "nothing
-         today" would send the student back to the choice this view is meant
-         to spare them. */
-      '<button class="btn btn--primary js-start">' + esc(t("today.start", { n: razem })) + "</button>" +
-      '<div id="todayBox" style="margin-top:20px"></div>');
+      "</div></details><div id=\"todayBox\" style=\"margin-top:20px\"></div>");
 
-    document.querySelector(".js-start").addEventListener("click", function () { przebieg(s); });
-    var nb = document.querySelector(".js-next-lesson");
-    if (nb) nb.addEventListener("click", function () { App.go("lezione", { id: next.lesson.id }); });
-    /* No next lesson among the loaded levels: it may sit in one not loaded
-       yet. Redraw once it is found, if the student is still here. */
-    if (!next) Core.findNextLesson(function (n) {
-      if (n && Router.current.route === "oggi" && !document.querySelector(".js-next-lesson")) Views.oggi();
+    document.querySelectorAll(".js-start").forEach(function (button) {
+      button.addEventListener("click", function () { przebieg(s); });
+    });
+    document.querySelectorAll(".js-resume").forEach(function (button) {
+      button.addEventListener("click", function () { App.go("lezione", { id: resumed.lessonId }); });
+    });
+    document.querySelectorAll(".js-next-lesson").forEach(function (button) {
+      button.addEventListener("click", function () { if (next) App.go("lezione", { id: next.lesson.id }); });
+    });
+    document.querySelectorAll(".journey-minutes").forEach(function (button) {
+      button.addEventListener("click", function () {
+        LearningJourney.updateProfile({ dailyMinutes: Number(button.getAttribute("data-minutes")) });
+        Views.oggi();
+      });
+    });
+    if (!next) findNextFromStartingLevel(profile, function (found) {
+      if (found && Router.current.route === "oggi" && !document.querySelector(".js-next-lesson")) Views.oggi();
     });
   };
 
@@ -192,7 +238,8 @@
     function koniec() {
       Core.state.session = { date: dzis(), score: dobre, total: wszystkie };
       Core.save();
-      Core.findNextLesson(function (next) { podsumowanie(next); });
+      if (wszystkie > 0) LearningJourney.recordInteraction(true);
+      findNextFromStartingLevel(LearningJourney.profile(), function (next) { podsumowanie(next); });
       App.refreshRail();
     }
 
@@ -212,7 +259,5 @@
 
     zadanie();
   }
-
-  Views.oggi.PLAN = PLAN;
 
 })(window);

@@ -271,21 +271,37 @@ for (const theme of ["light", "dark"]) {
    measured as text and not as a control.
    ============================================================ */
 for (const theme of ["light", "dark"]) {
-  test(`the welcome: contrast of the three roads in the ${theme} theme`, async ({ page }) => {
+  test(`the first-run welcome: contrast of the real onboarding controls in the ${theme} theme`, async ({ page }) => {
     await page.addInitScript(MIERNIK);
     await page.goto("/index.html#/benvenuto");
-    await page.waitForSelector(".js-zero");
+    await page.waitForSelector(".js-step-next");
     await page.evaluate(t => document.documentElement.setAttribute("data-theme", t), theme);
     await page.waitForTimeout(600); /* the palette transition */
 
-    for (const [sel, opis] of [[".js-zero", "przycisk podstawowy"],
-                               [".js-test", "przycisk ghost"],
-                               [".js-look", "przycisk quiet"],
-                               [".list-row--stack .list-row__main span", "the explaining sentence"]]) {
+    for (const [sel, opis] of [[".journey-head h1", "welcome heading"],
+                               [".journey-head > p:last-of-type", "welcome explanation"],
+                               [".journey-card p", "welcome approach"],
+                               [".js-step-next", "continue button"]]) {
       const m = await page.evaluate(s => window.__kontrast(s), sel);
       expect(m, `${opis} (${sel}) nie istnieje`).not.toBeNull();
       expect(m.tekst, `${opis}: ${m.tekst.toFixed(2)}:1, threshold ${TEKST}`)
         .toBeGreaterThanOrEqual(TEKST);
+    }
+
+    await page.locator(".js-step-next").click();
+    await page.locator('[name="journey-start"][value="zero"]').check();
+    const choices = await page.locator(".journey-choice").count();
+    expect(choices).toBe(3);
+    for (let i = 1; i <= choices; i++) {
+      for (const part of ["b", "small"]) {
+        const sel = `.journey-options .journey-choice:nth-of-type(${i}) ${part}`;
+        const m = await page.evaluate(s => window.__kontrast(s), sel);
+        expect(m, `start option ${i} ${part} (${sel}) nie istnieje`).not.toBeNull();
+        expect(m.tekst, `start option ${i} ${part}: ${m.tekst.toFixed(2)}:1, threshold ${TEKST}`)
+          .toBeGreaterThanOrEqual(TEKST);
+      }
+      const border = await page.evaluate(i => window.__kontrast(`.journey-options .journey-choice:nth-of-type(${i})`).obramowanie, i);
+      expect(border, `start option ${i} border contrast`).toBeGreaterThanOrEqual(UI);
     }
   });
 }

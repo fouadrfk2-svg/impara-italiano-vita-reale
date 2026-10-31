@@ -13,7 +13,7 @@ rawTest('premium public homepage stays readable at mobile and desktop widths',as
 
 test('premium learner surfaces use local icons and remain responsive',async({page})=>{
 
- await page.goto('/index.html#/oggi');await expect(page.locator('.today-next')).toBeVisible();
+ await page.goto('/index.html#/oggi');await expect(page.locator('.journey-today')).toBeVisible();
  for(const width of [360,390,768,1440]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'today overflow '+width).toBe(true);if(width===360||width===768)await capture(page,'today-'+width+'-light');}
  const nav=page.locator('.rail__item[data-route="oggi"] .vr-icon');await expect(nav).toHaveAttribute('aria-hidden','true');
  expect(await nav.evaluate(n=>getComputedStyle(n).maskImage)).toContain('sun.svg');

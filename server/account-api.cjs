@@ -49,9 +49,32 @@ function validateState(state){
   if(v.done!==undefined&&typeof v.done!=='boolean')throw new ApiError(400);
   if(v.attempts!==undefined&&(!Number.isSafeInteger(v.attempts)||v.attempts<0))throw new ApiError(400);
  }}
- for(const k of ['srs','saved','errors','drills','session','writing','settings','stats','retention','library','cils','streak','backup'])if(state[k]!==undefined&&(!state[k]||typeof state[k]!=='object'||Array.isArray(state[k])))throw new ApiError(400);
+ for(const k of ['srs','saved','errors','drills','session','writing','settings','stats','retention','library','cils','streak','backup','learningProfile','resume'])if(state[k]!==undefined&&(!state[k]||typeof state[k]!=='object'||Array.isArray(state[k])))throw new ApiError(400);
  for(const k of ['createdAt','xp','minutes'])if(state[k]!==undefined&&typeof state[k]!=='number')throw new ApiError(400);
  if(state.onboarded!==undefined&&typeof state.onboarded!=='boolean')throw new ApiError(400);
+ if(state.learningProfile!==undefined){
+  const p=state.learningProfile,goals=['everyday','work','a2-exam','b1-exam','general'],starts=['zero','known','placement'],levels=['A1','A2','B1','B2','C1','C2'];
+  if(!p||typeof p!=='object'||Array.isArray(p))throw new ApiError(400);
+  if(p.goal!==undefined&&!goals.includes(p.goal))throw new ApiError(400);
+  if(p.startMode!==undefined&&p.startMode!==null&&!starts.includes(p.startMode))throw new ApiError(400);
+  if(p.startingLevel!==undefined&&p.startingLevel!==null&&!levels.includes(p.startingLevel))throw new ApiError(400);
+  if(p.dailyMinutes!==undefined&&![10,20,30].includes(p.dailyMinutes))throw new ApiError(400);
+  if(p.onboardingStep!==undefined&&(!Number.isInteger(p.onboardingStep)||p.onboardingStep<1||p.onboardingStep>5))throw new ApiError(400);
+  if(p.meaningfulSessions!==undefined&&(!Number.isSafeInteger(p.meaningfulSessions)||p.meaningfulSessions<0))throw new ApiError(400);
+  if(p.lastMeaningfulInteractionAt!==undefined&&(!Number.isFinite(p.lastMeaningfulInteractionAt)||p.lastMeaningfulInteractionAt<0))throw new ApiError(400);
+  if(p.lastCompletedLessonId!==undefined&&p.lastCompletedLessonId!==null&&(typeof p.lastCompletedLessonId!=='string'||!Object.hasOwn(inventory,p.lastCompletedLessonId)))throw new ApiError(400);
+  if(p.lastCompletedLevel!==undefined&&p.lastCompletedLevel!==null&&!levels.includes(p.lastCompletedLevel))throw new ApiError(400);
+  if(p.activitySession!==undefined&&p.activitySession!==null){
+   const a=p.activitySession;if(!a||typeof a!=='object'||Array.isArray(a)||!Number.isFinite(a.startedAt)||!Number.isFinite(a.lastAt)||!Number.isSafeInteger(a.interactions)||a.interactions<0||typeof a.counted!=='boolean')throw new ApiError(400);
+  }
+ }
+ if(state.resume!==undefined){
+  const r=state.resume;if(!r||typeof r!=='object'||Array.isArray(r)||!r.lessons||typeof r.lessons!=='object'||Array.isArray(r.lessons)||Object.keys(r.lessons).length>200)throw new ApiError(400);
+  if(r.activeLessonId!==undefined&&r.activeLessonId!==null&&(typeof r.activeLessonId!=='string'||!Object.hasOwn(r.lessons,r.activeLessonId)))throw new ApiError(400);
+  for(const [id,e] of Object.entries(r.lessons)){
+   const total=inventory[id];if(typeof total!=='number'||total<1||total>1000||!e||typeof e!=='object'||Array.isArray(e)||!Array.isArray(e.answers)||e.answers.length!==total||!Number.isInteger(e.exerciseIndex)||e.exerciseIndex<0||e.exerciseIndex>=total||!Number.isFinite(e.startedAt)||e.startedAt<0||!Number.isFinite(e.updatedAt)||e.updatedAt<0||e.answers.some(v=>v!==null&&typeof v!=='boolean'))throw new ApiError(400);
+  }
+ }
  if(state.placement!==undefined&&state.placement!==null&&(typeof state.placement!=='object'||Array.isArray(state.placement)))throw new ApiError(400);
  if(state.reviews!==undefined&&!Array.isArray(state.reviews))throw new ApiError(400);
  return state;

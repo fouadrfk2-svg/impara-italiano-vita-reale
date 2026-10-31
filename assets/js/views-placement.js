@@ -17,7 +17,7 @@
   var pageHead = Views.shell.head;
 
   Views.piazzamento = function (params) {
-    if (params && params.go === "1") return start();
+    if (params && params.go === "1") return start(params.onboarding === "1");
 
     var poprzedni = Core.state.placement;
     set(pageHead(t("place.kicker"), t("place.title"), t("place.intro")) +
@@ -37,7 +37,7 @@
 
   /* ---------------- The run ---------------- */
 
-  function start() {
+  function start(onboarding) {
     set(pageHead(t("place.kicker"), t("place.title"), t("place.running")) +
       '<div id="placeBox"></div>');
     var box = document.getElementById("placeBox");
@@ -58,13 +58,13 @@
         if (!got) nieudane.push(k);
         if (--zostalo === 0) {
           if (nieudane.length) Core.toast(t("place.loadFailed", { levels: nieudane.join(", ") }));
-          przebieg(box);
+          przebieg(box, onboarding);
         }
       });
     });
   }
 
-  function przebieg(box) {
+  function przebieg(box, onboarding) {
     var seed = "place-" + Date.now();
     var p = Placement.nowyPrzebieg(seed);
 
@@ -123,10 +123,25 @@
         var r = Placement.zastosuj(p);
         Core.toast(t("place.applied", { n: r.marked }), "ok");
         App.refreshRail();
-        App.go("percorso", { level: w.code });
+        if (onboarding) {
+          LearningJourney.updateProfile({ startMode: "placement", startingLevel: w.code });
+          LearningJourney.markOnboarded();
+          var from = Math.max(0, Core.registry.levels.findIndex(function (level) { return level.code === w.code; }));
+          Core.findNextLesson(function (next) {
+            if (next) App.go("lezione", { id: next.lesson.id });
+            else App.go("percorso", { level: w.code });
+          }, from);
+        } else App.go("percorso", { level: w.code });
       });
       box.querySelector(".js-scratch").addEventListener("click", function () {
-        App.go("percorso");
+        if (onboarding) {
+          LearningJourney.updateProfile({ startMode: "zero", startingLevel: "A1" });
+          LearningJourney.markOnboarded();
+          Core.findNextLesson(function (next) {
+            if (next) App.go("lezione", { id: next.lesson.id });
+            else App.go("percorso");
+          }, 0);
+        } else App.go("percorso");
       });
     }
 

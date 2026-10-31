@@ -6,6 +6,10 @@ const base=require('@playwright/test');
 const installed=new WeakSet();
 async function prepare(context){
  if(installed.has(context))return;installed.add(context);let cloud=null,revision=0,offline=false;
+ // Default browser storage models a returning learner. Set that before any
+ // app/API startup so the session and progress mocks cannot race each other.
+ // First-visit specs write an explicit onboarded:false value and stay fresh.
+ await context.addInitScript(()=>{const key='linguai.italiano.v2',raw=localStorage.getItem(key);if(!raw)return;try{const state=JSON.parse(raw);if(!Object.prototype.hasOwnProperty.call(state,'onboarded')){state.onboarded=true;localStorage.setItem(key,JSON.stringify(state));}}catch{/* Leave corrupt fixture storage untouched so the app's recovery path handles it. */}});
  await context.addCookies([{name:'__Host-vita_pilot',value:'A'.repeat(43),url:'https://localhost:8123/',httpOnly:true,secure:true,sameSite:'Strict'}]);
  const setOffline=context.setOffline.bind(context);context.setOffline=async v=>{offline=v;return setOffline(v);};
  await context.route('**/api/**',async route=>{
@@ -21,6 +25,11 @@ async function prepare(context){
     const id='10000000-0000-4000-8000-000000000001';
     if(!localStorage.getItem('vita.pilot.profile')){
      const state=JSON.parse(JSON.stringify(window.Core.state));
+     // Default fixture journeys model a returning learner; specs that seed
+     // linguai.italiano.v2 before startup remain explicit first-visit cases.
+      const stored=localStorage.getItem('linguai.italiano.v2');
+      const hasExplicitOnboarding=stored&&Object.prototype.hasOwnProperty.call(JSON.parse(stored),'onboarded');
+      if(!hasExplicitOnboarding){state.onboarded=true;window.Core.state.onboarded=true;localStorage.setItem(window.Core.STORE_KEY,JSON.stringify(window.Core.state));}
      localStorage.setItem('vita.pilot.account.'+id,JSON.stringify({id,state,base:state,revision:0,pending:false,deviceSettings:state.settings}));
      localStorage.setItem('vita.pilot.profile',JSON.stringify({id}));
     }
@@ -40,7 +49,7 @@ async function prepare(context){
   }
  });
  function wrapPage(page){
-  const go=page.goto.bind(page);page.goto=async(url,options)=>{const target=new URL(url,'http://localhost:8123'),requestedPath=target.pathname;const response=await go(url,options);if(/\/(?:index\.html)?$/.test(requestedPath)&&((!options||!['commit','domcontentloaded'].includes(options.waitUntil))&&await page.locator('#rail').count())){const requested=decodeURIComponent((target.hash||'').slice(1));const expected=(requested.split('?')[0].split('/')[1]||'oggi');await page.waitForFunction(route=>{const current=window.Router&&window.Router.current;return window.Account&&window.Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner'&&current&&current.route===route&&!document.getElementById('main').hasAttribute('aria-busy')&&!document.querySelector('[data-course-opening]')&&(!['oggi','percorso','allenamento','benvenuto','lettura','lezione'].includes(route)||window.Core.registry.levels.length>0)&&Object.values(window.Core.registry.loaded).every(v=>v!=='loading');},expected);}return response;};
+  const go=page.goto.bind(page);page.goto=async(url,options)=>{const target=new URL(url,'http://localhost:8123'),requestedPath=target.pathname;const response=await go(url,options);if(/\/(?:index\.html)?$/.test(requestedPath)&&((!options||!['commit','domcontentloaded'].includes(options.waitUntil))&&await page.locator('#rail').count())){const requested=decodeURIComponent((target.hash||'').slice(1));const expected=(requested.split('?')[0].split('/')[1]||'oggi');await page.waitForFunction(route=>{const current=window.Router&&window.Router.current;const firstVisit=window.LearningJourney&&window.Core&&window.LearningJourney.shouldOnboard(window.Core.state);const atRequestedRoute=current&&current.route===route;const atFirstVisit=current&&current.route==='benvenuto'&&firstVisit;return window.Account&&window.Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner'&&(atRequestedRoute||atFirstVisit)&&!document.getElementById('main').hasAttribute('aria-busy')&&!document.querySelector('[data-course-opening]')&&(!['oggi','percorso','allenamento','benvenuto','lettura','lezione'].includes(current.route)||window.Core.registry.levels.length>0)&&Object.values(window.Core.registry.loaded).every(v=>v!=='loading');},expected);}return response;};
  }
  context.on('page',wrapPage);for(const p of context.pages())wrapPage(p);
 }

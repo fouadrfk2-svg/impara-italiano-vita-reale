@@ -16,6 +16,18 @@ async function context(browser,width,options={}){const c=await browser.newContex
 async function guest(page,hash=''){await page.goto(base+'/index.html'+hash);await expect(page.locator('.guest-page')).toBeVisible();await page.waitForFunction(()=>window.Account&&Account.snapshot().checked);}
 async function code(){const admin=helper.client(db);expect((await admin.request('admin/login',{key:helper.ADMIN_KEY})).statusCode).toBe(200);return (await helper.issue(admin)).code;}
 async function signIn(page,value){await page.evaluate(()=>App.go('account'));await page.locator('#pilot-code').fill(value);await page.locator('.js-login').click();await page.waitForFunction(()=>Account.snapshot().authenticated&&document.documentElement.dataset.access==='learner');}
+async function completeBeginnerOnboarding(page){
+ await expect(page.locator('.journey-wizard')).toBeVisible();
+ await page.locator('.js-step-next').click();
+ await page.locator('[name="journey-start"][value="zero"]').check();
+ await page.locator('.js-step-next').click();
+ await page.locator('[name="journey-goal"][value="everyday"]').check();
+ await page.locator('.js-step-next').click();
+ await page.locator('.js-step-next').click();
+ await page.locator('.js-start-direct').click();
+ await expect(page).toHaveURL(/#\/lezione\?id=a1-u01-l1$/);
+ await page.waitForFunction(()=>window.Core.state.onboarded&&window.Core.state.learningProfile.startMode==='zero');
+}
 async function audit(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);expect(await page.evaluate(async()=>(await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})))).toEqual([]);}
 for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
  test('fresh guest, stored progress, direct routes, Arabic-only locale normalization and no pre-auth content requests',async({browser})=>{
@@ -34,7 +46,7 @@ for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
   let failTranslation=true,translationAttempts=0;await p.route('**/data/i18n/ar/conversations.js',route=>{translationAttempts++;return failTranslation?route.abort('failed'):route.continue();});
   try{
    await guest(p,'#/lezione?id=a1-u01-l1');await p.locator('.guest-cta').click();await p.locator('#pilot-code').fill('INVALID');await p.locator('.js-login').click();await expect(p.locator('[data-account-error]')).toBeVisible();expect(await p.evaluate(()=>Account.snapshot().authenticated)).toBe(false);
-   const activation=await code();await signIn(p,activation);await expect(p.locator('.exq').first()).toBeVisible();await expect(p.locator('#main h1')).toBeVisible();
+   const activation=await code();await signIn(p,activation);await completeBeginnerOnboarding(p);await expect(p.locator('.exq').first()).toBeVisible();await expect(p.locator('#main h1')).toBeVisible();
    await p.evaluate(()=>App.go('conversazione',{id:'bar-mattina'}));await expect(p.locator('.dlg__line').first()).toBeVisible();expect(translationAttempts).toBe(1);expect(await p.evaluate(()=>LINGUAI.entryLanguage('ar','conv:bar-mattina'))).toBe('en');await expect(p.locator('.view-head__intro')).toContainText('Monday');failTranslation=false;await p.evaluate(()=>App.applyLang('ar'));await expect.poll(()=>p.evaluate(()=>LINGUAI.entryLanguage('ar','conv:bar-mattina'))).toBe('ar');expect(translationAttempts).toBe(2);await expect(p.locator('.view-head__intro')).toContainText(/[\u0600-\u06ff]/);await p.evaluate(()=>App.go('lezione',{id:'a1-u01-l1'}));await expect(p.locator('.exq').first()).toBeVisible();
    const privateResponse=await c.request.get(base+'/data/core/a1-01.js');expect(privateResponse.status()).toBe(200);expect(privateResponse.headers()['cache-control']).toContain('no-store');
    await p.evaluate(()=>{Core.recordLesson('a1-u01-l1',9,9,30);Core.state.writing.synthetic={text:'Bozza privata sintetica.'};Core.save();});await p.waitForFunction(()=>Account.snapshot().status==='saved'&&!Account.snapshot().active.pending);

@@ -193,7 +193,9 @@
 
   /** The first render: the level the student is coming back to. */
   function startRouting() {
-    var d = intended || { route: "oggi", params: {} }; intended = null;
+    var firstVisit = global.LearningJourney && global.LearningJourney.shouldOnboard(Core.state);
+    var d = firstVisit ? { route: "benvenuto", params: {} } : (intended || { route: "oggi", params: {} });
+    intended = null;
     if (!publicRoute(d.route) && !Object.prototype.hasOwnProperty.call(ROUTE_FEATURES, d.route)) d = { route: "oggi", params: {} };
     if (d.route === "lezione" && !/^[a-c][12]-u\d{2}-(?:l\d|test)$/.test(d.params.id || "")) d = { route: "oggi", params: {} };
     Router.go(d.route, d.params || {});
@@ -201,6 +203,15 @@
 
   /** Which level to load at startup: the one with unfinished progress. */
   function guessLevel(d) {
+    if (d.route === "oggi" && global.LearningJourney) {
+      var resume = global.LearningJourney.activeResume();
+      if (resume && resume.lessonId && !Core.isLessonDone(resume.lessonId)) {
+        var resumeCode = /^([a-c]\d)/i.exec(resume.lessonId);
+        if (resumeCode && Core.registry.byCode[resumeCode[1].toUpperCase()]) return resumeCode[1].toUpperCase();
+      }
+      var chosen = global.LearningJourney.profile().startingLevel;
+      if (chosen && Core.registry.byCode[chosen]) return chosen;
+    }
     if (d.route === "lezione" && d.params.id) {
       var m = /^([a-z]\d)/i.exec(d.params.id);
       if (m) return m[1].toUpperCase();

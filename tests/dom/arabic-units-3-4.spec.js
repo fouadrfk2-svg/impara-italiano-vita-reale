@@ -1,4 +1,5 @@
 const { test, expect, expectAudioResponse }=require('../helpers/learner-fixture.cjs');
+const { assertSavedWrongIsReadOnly, waitForSavedWrongAnswer }=require('../helpers/lesson-resume.cjs');
 const {readFileSync}=require('node:fs');
 const path=require('node:path'),vm=require('node:vm');
 const AXE=readFileSync(require.resolve('axe-core/axe.min.js'),'utf8');
@@ -323,24 +324,25 @@ for(const width of [1440,390])test.describe('Arabic units three and four at '+wi
    for(const lang of ['ar','en','ar']){await language(page,lang);expect(await snapshot()).toBe(arabic);}
    expect(errors).toEqual([]);expect(failed).toEqual([]);
   });
-  test(lesson.id+' wrong response, fresh retry, all exercises, completion and saved progress',async({page},info)=>{
+  test(lesson.id+' saved wrong answer stays read-only while remaining exercises and progress resume',async({page},info)=>{
    const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/index.html#/lezione?id='+lesson.id);await ready(page);
-   const types=await page.evaluate(id=>window.Core.getLesson(id).lesson.exercises.map(e=>e.t),lesson.id);
+   const types=await page.evaluate(id=>window.Core.getLesson(id).lesson.exercises.map(e=>e.t),lesson.id),wrong=0;
    const first=page.locator(active);
    if(types[0]==='mcq')await first.locator('[data-orig="0"]').click();else if(types[0]==='conj')for(const input of await first.locator('.js-cell').all())await input.fill('sbagliato');else await first.locator('.js-in').fill('sbagliato');
-   await first.locator('.js-check').click();await expect(first).toHaveClass(/exq--ko/);await expect(first.locator('.fb')).toContainText(types[0]==='conj'?'ليست صحيحة بعد.':'الإجابة الصحيحة');
+   await first.locator('.js-check').click();await expect(first).toHaveClass(/exq--ko/);await expect(first.locator('.fb')).toContainText(types[0]==='conj'?'ليست صحيحة بعد.':'الإجابة الصحيحة');await waitForSavedWrongAnswer(page,lesson.id,wrong);
    await page.reload();await ready(page);
    await page.evaluate(id=>{const original=window.I18n.t;window.__usedArabicLessonKeys=[];window.I18n.t=function(key,vars){if(/^(lesson\.|ex\.|tense\.|stt\.)/.test(key)||key==='talk.checking')window.__usedArabicLessonKeys.push(key);return original(key,vars);};window.App.go('lezione',{id});},lesson.id);
+   const expectedScore=(types.length-1)/types.length;await assertSavedWrongIsReadOnly(page,lesson.id,wrong,active);
    for(let i=0;i<types.length;i++){
-    await page.locator('.ex-chip[data-go="'+i+'"]').click();await answer(page,types[i],lesson.answers[i]);await expect(page.locator(active)).toHaveClass(/exq--ok/);await expect(page.locator(active+' .fb')).toContainText('أحسنت');
+    await page.locator('.ex-chip[data-go="'+i+'"]').click();if(i===wrong){await expect(page.locator(active+' .journey-answer')).toBeVisible();continue;}await answer(page,types[i],lesson.answers[i]);await expect(page.locator(active)).toHaveClass(/exq--ok/);await expect(page.locator(active+' .fb')).toContainText('أحسنت');
    }
-   await expect(page.locator('.summary__score')).toHaveText('100%');await expect(page.locator('.summary__msg')).toContainText(types.length+'/'+types.length);await audit(page);
+   await expect(page.locator('.summary__score')).toHaveText(Math.round(expectedScore*100)+'%');await expect(page.locator('.summary__msg')).toContainText((types.length-1)+'/'+types.length);await audit(page);
    const used=await page.evaluate(()=>[...new Set(window.__usedArabicLessonKeys)]);expect(used.length).toBeGreaterThan(25);
    for(const key of used){expect(arabicUI[key],key).toBeDefined();for(const text of typeof arabicUI[key]==='object'?Object.values(arabicUI[key]):[arabicUI[key]])expect(text,key).toMatch(/[\u0600-\u06ff]/);}
    await shot(page,info,lesson.id+'-complete-'+width+'.png');
-   const state=()=>page.evaluate(()=>{const s=JSON.parse(JSON.stringify(window.Core.state));delete s.settings.lang;return s;});const before=await state();expect(before.lessons[lesson.id].done).toBe(true);expect(before.lessons[lesson.id].best).toBe(1);
+   const state=()=>page.evaluate(()=>{const s=JSON.parse(JSON.stringify(window.Core.state));delete s.settings.lang;return s;});const before=await state();expect(before.lessons[lesson.id].done).toBe(true);expect(before.lessons[lesson.id].best).toBe(expectedScore);
    for(const lang of ['en','ar']){await language(page,lang);expect(await state()).toEqual(before);}
-   await page.waitForFunction(id=>JSON.parse(localStorage.getItem('linguai.italiano.v2')).lessons[id].best===1,lesson.id);await page.reload();await ready(page);expect((await state()).lessons[lesson.id]).toEqual(before.lessons[lesson.id]);expect(errors).toEqual([]);
+   await page.waitForFunction(({id,score})=>JSON.parse(localStorage.getItem('linguai.italiano.v2')).lessons[id].best===score,{id:lesson.id,score:expectedScore});await page.reload();await ready(page);expect((await state()).lessons[lesson.id]).toEqual(before.lessons[lesson.id]);expect(errors).toEqual([]);
   });
  }
  test('both new Arabic unit summaries restore across English and untranslated C2 Unit 1 stays English',async({page})=>{

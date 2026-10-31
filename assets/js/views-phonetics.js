@@ -34,7 +34,7 @@
 
   Views.suoni = function (params) {
     var id = params && params.set;
-    if (id && zbior(id)) return przebieg(zbior(id));
+    if (id && zbior(id)) return przebieg(zbior(id), params && params.onboarding === "1");
 
     set(pageHead(t("sound.kicker"), t("sound.title"), t("sound.intro")) +
       '<div class="stack">' + zbiory().map(function (z) {
@@ -53,7 +53,7 @@
 
   /* ---------------- The run ---------------- */
 
-  function przebieg(z) {
+  function przebieg(z, onboarding) {
     var pary = (z.pairs || []).filter(maNagrania);
     if (!pary.length) { App.go("suoni"); return; }
 
@@ -113,6 +113,22 @@
     }
 
     function koniec() {
+      if (onboarding) {
+        LearningJourney.recordInteraction(true);
+        box.innerHTML = '<div class="summary"><div class="summary__score">' + dobre + "/" + kolejka.length + "</div>" +
+          '<p class="summary__msg">' + esc(t(dobre >= kolejka.length - 1 ? "sound.doneGood" : "sound.done")) + "</p>" +
+          '<div class="summary__acts"><button class="btn btn--primary js-start-first">' + esc(t("sound.startFirstLesson")) + "</button>" +
+          '<button class="btn btn--ghost js-more">' + esc(t("sound.again")) + "</button></div></div>";
+        box.querySelector(".js-start-first").addEventListener("click", function () {
+          Core.findNextLesson(function (next) {
+            if (!next) { Core.toast(t("welcome.startLoadError")); return; }
+            LearningJourney.markOnboarded();
+            App.go("lezione", { id: next.lesson.id });
+          }, 0);
+        });
+        box.querySelector(".js-more").addEventListener("click", function () { przebieg(z, true); });
+        return;
+      }
       box.innerHTML = '<div class="summary"><div class="summary__score">' + dobre + "/" + kolejka.length + "</div>" +
         '<p class="summary__msg">' + esc(t(dobre >= kolejka.length - 1 ? "sound.doneGood" : "sound.done")) + "</p>" +
         '<div class="summary__acts"><button class="btn btn--primary js-more">' + esc(t("sound.again")) + "</button>" +

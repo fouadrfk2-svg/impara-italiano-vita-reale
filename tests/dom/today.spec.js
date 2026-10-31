@@ -5,25 +5,45 @@ const { test, expect } = require("../helpers/learner-fixture.cjs");
 
 async function oggi(page) {
   await page.goto("/index.html#/oggi");
-  await page.waitForFunction(() => window.Views && window.Views.oggi && window.Core.getLesson("a1-u01-l2"));
-  await page.waitForSelector(".list-row");
+  await page.waitForFunction(() => window.Views && window.Views.oggi &&
+    (window.Core.getLesson("a1-u01-l2") || window.Core.registry.loaded[window.Core.state.learningProfile.startingLevel] === true));
+  await page.waitForSelector(".journey-today");
 }
 
-test("the next lesson card shows real progress and stays usable on narrow screens", async ({ page }) => {
+test("the primary journey action opens the real next lesson and fits narrow screens", async ({ page }) => {
   await oggi(page);
   const expected = await page.evaluate(() => {
-    const p = Core.levelProgress(Core.nextOpenLesson().level);
-    return { done: p.done, total: p.total, pct: Math.round(p.pct * 100) };
+    const next = Core.nextOpenLesson(), progress = Core.levelProgress(next.level);
+    return { id: next.lesson.id, title: next.lesson.titleIt, done: progress.done, total: progress.total };
   });
-  await expect(page.locator(".today-next__progress")).toContainText(expected.done + "/" + expected.total);
-  await expect(page.locator(".today-next__track")).toHaveAttribute("aria-valuenow", String(expected.pct));
+  await expect(page.locator(".journey-today")).toContainText(expected.title);
+  await expect(page.locator(".journey-progress")).toContainText("0");
+  await expect(page.locator(".journey-level-progress")).toContainText(expected.done + "/" + expected.total);
+  await expect(page.locator(".journey-level-progress progress")).toHaveAttribute("max", String(expected.total));
+  await expect(page.locator(".journey-level-progress progress")).toHaveAttribute("value", String(expected.done));
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "horizontal overflow at " + width).toBe(true);
     await expect(page.locator(".js-next-lesson")).toBeVisible();
   }
-  const mask = await page.locator(".today-next .card-eyebrow .vr-icon").evaluate(n => getComputedStyle(n).maskImage);
-  expect(mask).toContain("hand-pointing.svg");
+  await page.locator(".js-next-lesson").click();
+  await expect(page).toHaveURL(new RegExp("#/lezione\\?id=" + expected.id));
+});
+
+test("a returning learner keeps their selected starting level as the next-step floor", async ({ page }) => {
+  await profil(page, zdane([], { learningProfile: { startMode: "known", startingLevel: "B1", dailyMinutes: 20,
+    goal: "general", onboardingStep: 5, meaningfulSessions: 0, lastMeaningfulInteractionAt: 0,
+    lastCompletedLessonId: null, lastCompletedLevel: null, activitySession: null } }));
+  await oggi(page);
+  const result = await page.evaluate(() => ({
+    id: window.Core.nextLesson(window.Core.registry.byCode.B1).lesson.id,
+    displayedLevel: document.querySelector(".journey-progress .journey-level").textContent
+  }));
+  expect(result.displayedLevel).toBe("B1");
+  await expect(page.locator(".journey-location .journey-lesson-title")).toContainText(
+    await page.evaluate(id => window.Core.getLesson(id).lesson.titleIt, result.id));
+  await page.locator(".journey-today .js-next-lesson").click();
+  await expect(page).toHaveURL(new RegExp("#/lezione\\?id=" + result.id));
 });
 
 /** Creates n mistake cards with a due date in the past. */
@@ -57,19 +77,98 @@ test("the session has something to offer even when nothing is due", async ({ pag
 
 /* A part with nothing in it is a sentence, not a row with a zero: two of
    three rows used to say "0". */
-test("the session lists only the parts that hold something, and counts them", async ({ page }) => {
+test("the optional review plan lists only activities that contain something", async ({ page }) => {
   await oggi(page);
-  await expect(page.locator(".stack .list-row")).toHaveCount(1);
-  await expect(page.locator(".today-quiet")).toBeVisible();
+  await page.locator(".journey-plan summary").click();
+  await expect(page.locator(".journey-plan .list-row")).toHaveCount(1);
 
   await zalegleBledy(page, 3);
   await page.reload();
-  await page.waitForSelector(".js-start");
-  await expect(page.locator(".stack .list-row")).toHaveCount(2);
-  await expect(page.locator(".today-quiet")).toHaveCount(0);
+  await page.locator(".journey-plan summary").click();
+  await expect(page.locator(".journey-plan .list-row")).toHaveCount(2);
 
   const etykieta = await page.locator(".js-start").innerText();
   expect(etykieta, "the button carries the number of tasks").toMatch(/\d/);
+});
+
+test("session-length preference changes the real review plan and persists", async ({ page }) => {
+  await oggi(page);
+  await expect(page.locator('.journey-minutes[data-minutes="20"]')).toHaveAttribute("aria-pressed", "true");
+  await page.locator('.journey-minutes[data-minutes="10"]').click();
+  await expect(page.locator('.journey-minutes[data-minutes="10"]')).toHaveAttribute("aria-pressed", "true");
+  const ten = await page.locator(".journey-plan summary").innerText();
+  await page.locator('.journey-minutes[data-minutes="30"]').click();
+  await expect(page.locator('.journey-minutes[data-minutes="30"]')).toHaveAttribute("aria-pressed", "true");
+  const thirty = await page.locator(".journey-plan summary").innerText();
+  expect(Number((thirty.match(/\d+/g) || []).pop())).toBeGreaterThan(Number((ten.match(/\d+/g) || []).pop()));
+  expect(await page.evaluate(() => Core.state.learningProfile.dailyMinutes)).toBe(30);
+});
+
+test("a lesson resumes at its exact saved exercise without restoring typed text or awarding completion", async ({ page }) => {
+  const privateAnswer = "journey-private-answer-should-not-persist";
+  await page.goto("/index.html#/lezione?id=a1-u01-l1");
+  await expect(page.locator('.ex-chip[data-go="0"]')).toHaveAttribute("aria-current", "step");
+  expect(await page.evaluate(() => ({
+    index: Core.state.resume.lessons["a1-u01-l1"].exerciseIndex,
+    answers: Core.state.resume.lessons["a1-u01-l1"].answers,
+    done: Core.isLessonDone("a1-u01-l1")
+  }))).toEqual({ index: 0, answers: Array(9).fill(null), done: false });
+
+  const first = page.locator('#exWrap .exq:not([hidden])');
+  await first.locator('.opt[data-orig="0"]').click();
+  await first.locator(".js-check").click();
+  await expect(first).toHaveClass(/exq--(?:ok|ko)/);
+
+  const textExercise = page.locator('#exWrap .exq[data-idx="3"]');
+  await page.locator('.ex-chip[data-go="3"]').click();
+  await textExercise.locator(".js-in").fill(privateAnswer);
+  await textExercise.locator(".js-check").click();
+  await expect(textExercise).toHaveClass(/exq--ko/);
+  await page.locator(".js-ex-next").click();
+  await expect(page.locator('.ex-chip[data-go="4"]')).toHaveAttribute("aria-current", "step");
+
+  const saved = await page.evaluate(() => {
+    const entry = Core.state.resume.lessons["a1-u01-l1"];
+    return { entry: JSON.parse(JSON.stringify(entry)), done: Core.isLessonDone("a1-u01-l1"), record: Core.lessonState("a1-u01-l1") };
+  });
+  expect(saved.entry.exerciseIndex).toBe(4);
+  expect(saved.entry.answers[0]).toEqual(expect.any(Boolean));
+  expect(saved.entry.answers[3]).toEqual(expect.any(Boolean));
+  expect(saved.entry.answers.every(v => v === null || typeof v === "boolean")).toBe(true);
+  expect(saved.done).toBe(false);
+  expect(saved.record).toBeFalsy();
+
+  await page.evaluate(() => window.App.go("oggi"));
+  await expect(page.locator(".js-resume").first()).toBeVisible();
+  await expect(page.locator(".journey-today")).toContainText(await page.evaluate(() => I18n.t("journey.exercisePosition", { i: 5, n: 9 })));
+  const storage = await page.evaluate(() => Object.keys(localStorage).map(k => localStorage.getItem(k) || "").join("\\n"));
+  expect(storage).not.toContain(privateAnswer);
+
+  /* A reload must recover the resume through the account-backed progress path. */
+  await page.waitForTimeout(300);
+  await page.reload();
+  await expect(page.locator(".js-resume").first()).toBeVisible();
+  await expect(page.locator(".journey-today")).toContainText(await page.evaluate(() => I18n.t("journey.exercisePosition", { i: 5, n: 9 })));
+
+  await page.locator(".js-resume").first().click();
+  await expect(page).toHaveURL(/#\/lezione\?id=a1-u01-l1/);
+  await expect(page.locator('.ex-chip[data-go="4"]')).toHaveAttribute("aria-current", "step");
+  await expect(page.locator('#exWrap .exq:not([hidden])')).toBeInViewport();
+  const savedCorrectText = index => page.evaluate(i => I18n.t(Core.state.resume.lessons["a1-u01-l1"].answers[i] ? "journey.savedCorrect" : "journey.savedReview"), index);
+  const firstSaved = page.locator('#exWrap .exq[data-idx="0"] .journey-answer');
+  await expect(firstSaved).toHaveCount(1);
+  await page.locator('.ex-chip[data-go="0"]').click();
+  await expect(firstSaved).toBeVisible();
+  await expect(firstSaved).toContainText(await savedCorrectText(0));
+  await expect(page.locator('#exWrap .exq[data-idx="0"] .js-check')).toHaveCount(0);
+  const textSaved = page.locator('#exWrap .exq[data-idx="3"] .journey-answer');
+  await page.locator('.ex-chip[data-go="3"]').click();
+  await expect(textSaved).toBeVisible();
+  await expect(textSaved).toContainText(await savedCorrectText(3));
+  await expect(page.locator('#exWrap .exq[data-idx="3"] .js-in')).toHaveCount(0);
+  await page.locator('.ex-chip[data-go="4"]').click();
+  await expect(page.locator('.ex-chip[data-go="4"]')).toHaveAttribute("aria-current", "step");
+  await expect(page.locator("#lessonEnd .summary")).toHaveCount(0);
 });
 
 test("the run shows the tasks and ends with a summary", async ({ page }) => {
@@ -140,7 +239,7 @@ test("a closed session is recorded under today's date", async ({ page }) => {
   expect(zapis).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 
   await page.reload();
-  await page.waitForSelector(".list-row");
+  await page.waitForSelector(".journey-today");
   await expect(page.locator(".today-done"), "the notice about a closed session").toBeVisible();
 });
 
@@ -161,7 +260,7 @@ test("Arabic daily session strings exist", async ({ page }) => {
       await new Promise(r => window.Core.setLanguage(lang, r));
       window.I18n.set(lang);
       window.App.go("oggi");
-      const puste = window.I18n.missing().filter(k => /^today\.|^nav\.today/.test(k));
+      const puste = window.I18n.missing().filter(k => /^today\.|^journey\.|^welcome\.|^nav\.today/.test(k));
       if (puste.length) out[lang] = puste;
     }
     return out;
@@ -187,17 +286,16 @@ function zdane(ids, extra) {
 
 /* Today used to only revise: the next lesson showed up as a pointer at the
    END of the session, so whoever used only Today stopped learning new things. */
-test("the next lesson leads the screen", async ({ page }) => {
+test("the next lesson is the primary guided action and opens directly", async ({ page }) => {
   await profil(page, zdane(["a1-u01-l1", "a1-u01-l2"]));
   await oggi(page);
-  const karta = page.locator(".today-next");
-  await expect(karta).toBeVisible();
+  const journey = page.locator(".journey-today");
+  await expect(journey).toBeVisible();
   const nastepna = await page.evaluate(() => window.Core.nextOpenLesson().lesson);
-  await expect(karta).toContainText(nastepna.titleIt);
-  const yKarta = (await karta.boundingBox()).y;
-  const yStart = (await page.locator(".js-start").boundingBox()).y;
-  expect(yKarta).toBeLessThan(yStart);
-  await karta.locator(".js-next-lesson").click();
+  await expect(journey).toContainText(nastepna.titleIt);
+  await expect(journey.locator(".js-next-lesson")).toBeVisible();
+  expect((await journey.boundingBox()).y).toBeLessThan((await page.locator(".journey-plan").boundingBox()).y);
+  await journey.locator(".js-next-lesson").click();
   await expect(page).toHaveURL(new RegExp("#/lezione\\?id=" + nastepna.id));
 });
 
@@ -206,7 +304,8 @@ test("the next lesson leads the screen", async ({ page }) => {
 test("without mistakes the drill comes from a lesson already passed", async ({ page }) => {
   await profil(page, zdane(["a1-u01-l1", "a1-u01-l2", "a1-u01-l3", "a1-u01-l4", "a1-u02-l1", "a1-u02-l2"]));
   await oggi(page);
-  const wiersz = page.locator(".stack .list-row").first();
+  await page.locator(".journey-plan summary").click();
+  const wiersz = page.locator(".journey-plan .list-row").first();
   const etykiety = await page.evaluate(() => ["numeri", "date"].map(id => window.Train.topicLabel(id)));
   const tekst = await wiersz.innerText();
   expect(etykiety.some(e => tekst.indexOf(e) >= 0), tekst).toBe(true);
@@ -215,38 +314,80 @@ test("without mistakes the drill comes from a lesson already passed", async ({ p
 test("a student who passed nothing yet gets the drill as a declared preview", async ({ page }) => {
   await profil(page, zdane([]));
   await oggi(page);
-  await expect(page.locator(".stack .list-row").first()).toContainText(
+  await page.locator(".journey-plan summary").click();
+  await expect(page.locator(".journey-plan .list-row").first()).toContainText(
     await page.evaluate(() => window.I18n.t("today.drillPreview")));
 });
 
-/* The intro promised "your weakest point" also when there was none. */
-test("the intro only promises a weak point when there are mistakes", async ({ page }) => {
+/* Adaptive coaching uses measured repeated errors, never an unmeasured claim. */
+test("repeated-error guidance appears only after repeated recorded mistakes", async ({ page }) => {
   await oggi(page);
-  const [cichy, zwykly] = await page.evaluate(() => [window.I18n.t("today.introQuiet"), window.I18n.t("today.intro")]);
-  await expect(page.locator(".view-head")).toContainText(cichy);
-  await zalegleBledy(page, 2);
+  await expect(page.locator(".journey-today h2")).not.toHaveText(await page.evaluate(() => window.I18n.t("journey.repeated")));
+  await page.evaluate(() => {
+    const lesson = window.Core.getLesson("a1-u01-l2").lesson;
+    for (let index = 0; index < 3; index++) {
+      window.Errors.record(lesson, index, false);
+      const card = window.Errors.record(lesson, index, false);
+      window.Core.state.errors[card.key].due = Date.now() - 1000;
+    }
+    window.Core.save();
+    return new Promise(resolve => setTimeout(resolve, 300));
+  });
   await page.reload();
-  await page.waitForSelector(".js-start");
-  await expect(page.locator(".view-head")).toContainText(zwykly);
+  await expect(page.locator(".journey-today h2")).toHaveText(await page.evaluate(() => window.I18n.t("journey.repeated")));
+  await expect(page.locator(".journey-today h2 + p")).toContainText(await page.evaluate(() => window.I18n.t("journey.repeatedWhy")));
 });
 
-test("the streak is named on Today, and only when there is one", async ({ page }) => {
+test("goal-focused drills choose the most repeated error within the learner's goal", async ({ page }) => {
+  await oggi(page);
+  const selectedTag = await page.evaluate(() => {
+    const lesson = window.Core.getLesson("a1-u01-l2").lesson;
+    for (let i = 0; i < 4; i++) {
+      const card = window.Errors.record(lesson, i, false);
+      window.Core.state.errors[card.key].tag = i === 0 ? "g-preposizioni" : "g-presente";
+    }
+    window.Core.state.learningProfile.goal = "everyday";
+    const pick = window.Drills.pickTopic;
+    window.Drills.pickTopic = options => { window.__journeyWeakTag = options.weakTag; return pick(options); };
+    window.Views.oggi();
+    return window.__journeyWeakTag;
+  });
+  expect(selectedTag).toBe("g-presente");
+});
+
+test("after an absence with due review, the dashboard offers review and keeps the exact resume available", async ({ page }) => {
+  const away = Date.now() - 4 * 86400000;
+  await profil(page, zdane([], { learningProfile: { lastMeaningfulInteractionAt: away } }));
+  await oggi(page);
+  await zalegleBledy(page, 1);
+  await page.evaluate(timestamp => {
+    window.LearningJourney.saveResume("a1-u01-l2", 2, [true, false, null, null, null, null, null, null, null]);
+    window.Core.state.learningProfile.lastMeaningfulInteractionAt = timestamp;
+    Object.values(window.Core.state.errors).forEach(card => { card.ts = timestamp; card.due = timestamp; });
+    window.Core.save();
+    return new Promise(resolve => setTimeout(resolve, 300));
+  }, away);
+  await page.reload();
+  await expect(page.locator(".journey-today h2")).toHaveText(await page.evaluate(() => window.I18n.t("journey.returnReview")));
+  await expect(page.locator(".journey-today h2 + p")).toContainText(await page.evaluate(() => window.I18n.t("journey.returnWhy")));
+  await expect(page.locator(".js-resume")).toContainText(await page.evaluate(() => window.I18n.t("journey.resumeSecondary", { i: 3, n: 9 })));
+});
+
+test("legacy streak data does not drive or pressure the learning recommendation", async ({ page }) => {
   await profil(page, zdane(["a1-u01-l1"], { streak: { count: 4, lastDay: "2000-01-01", best: 5 } }));
   await oggi(page);
-  const pasek = page.locator(".today-streak");
-  await expect(pasek).toBeVisible();
-  await expect(pasek).toContainText("5");
+  const title = await page.locator(".journey-today h2").innerText();
+  await expect(page.locator(".journey-today")).not.toContainText(/streak|serie/i);
+  await page.evaluate(() => { window.Core.state.streak.count = 0; window.App.go("percorso"); window.App.go("oggi"); });
+  await expect(page.locator(".journey-today h2")).toHaveText(title);
 });
 
-test("a profile with no streak shows no streak line", async ({ page }) => {
+test("a profile with no streak still shows real completion progress", async ({ page }) => {
   await profil(page, zdane([], { streak: { count: 0, lastDay: null, best: 0 } }));
-  await page.goto("/index.html#/oggi");
-  await page.waitForFunction(() => window.Views && window.Views.oggi);
-  await page.waitForSelector(".js-start");
-  /* touchDay() at start begins today's streak at one; reset it to see the empty case. */
-  await page.evaluate(() => { window.Core.state.streak.count = 0; window.App.go("percorso"); window.App.go("oggi"); });
-  await page.waitForSelector(".js-start");
-  await expect(page.locator(".today-streak")).toHaveCount(0);
+  await oggi(page);
+  await expect(page.locator(".journey-progress")).toContainText("0");
+  await expect(page.locator(".journey-level-progress progress")).toHaveAttribute("value", "0");
+  await expect(page.locator(".journey-today")).not.toContainText(/streak|serie/i);
 });
 
 /* The default route was the learning path, a page of about 6500 px: whoever
@@ -274,8 +415,9 @@ test("with a level finished, the next lesson comes from the next level", async (
   const A1 = ["a1-u04-l1","a1-u04-l2","a1-u04-l3","a1-u04-l4","a1-u04-test","a1-u05-l1","a1-u05-l2","a1-u05-l3","a1-u05-l4","a1-u05-test","a1-u06-l1","a1-u06-l2","a1-u06-l3","a1-u06-l4","a1-u06-test","a1-u07-l1","a1-u07-l2","a1-u07-l3","a1-u07-l4","a1-u07-test","a1-u01-l1","a1-u01-l2","a1-u01-l3","a1-u01-l4","a1-u01-test","a1-u02-l1","a1-u02-l2","a1-u02-l3","a1-u02-l4","a1-u02-test","a1-u03-l1","a1-u03-l2","a1-u03-l3","a1-u03-l4","a1-u03-test","a1-u08-l1","a1-u08-l2","a1-u08-l3","a1-u08-l4","a1-u08-test","a1-u09-l1","a1-u09-l2","a1-u09-l3","a1-u09-l4","a1-u09-test","a1-u10-l1","a1-u10-l2","a1-u10-l3","a1-u10-l4","a1-u10-test"];
   await profil(page, zdane(A1));
   await oggi(page);
-  const karta = page.locator(".today-next");
-  await expect(karta).toBeVisible();
-  const id = await karta.locator(".js-next-lesson").evaluate(() => window.Core.nextOpenLesson().lesson.id);
+  await expect(page.locator(".journey-progress .journey-level")).toHaveText("A2");
+  const id = await page.evaluate(() => window.Core.nextOpenLesson().lesson.id);
   expect(id).toMatch(/^a2-/);
+  await page.locator(".journey-today .js-next-lesson").click();
+  await expect(page).toHaveURL(new RegExp("#/lezione\\?id=" + id));
 });

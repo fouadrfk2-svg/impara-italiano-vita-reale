@@ -2,6 +2,7 @@ const { test, expect, expectAudioResponse } = require("../helpers/learner-fixtur
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { assertSavedWrongIsReadOnly, waitForSavedWrongAnswer } = require("../helpers/lesson-resume.cjs");
 let arabicUI;
 vm.runInNewContext(readFileSync(path.join(__dirname, "../../data/i18n/ui-ar.js"), "utf8"), { LINGUAI: { addUI(_lang, data) { arabicUI = data; } } });
 function courseOverlay(lang){let entries;vm.runInNewContext(readFileSync(path.join(__dirname,"../../data/i18n",lang,"a1-01.js"),"utf8"),{LINGUAI:{addStrings:(_l,map)=>entries=JSON.parse(JSON.stringify(map))}});return entries;}
@@ -104,7 +105,7 @@ for (const width of [1440, 390]) {
       await audit(page);
     });
 
-    test("wrong answer feedback, all nine real exercises, completion and reload", async ({ page }, info) => {
+    test("wrong feedback, saved-answer review, remaining exercises, completion and reload", async ({ page }, info) => {
       const errors = []; page.on("pageerror", e => errors.push(e.message));
       await page.goto("/index.html#/lezione?id=" + id); await ready(page);
       // A fresh attempt verifies wrong-answer feedback without changing grading.
@@ -113,6 +114,7 @@ for (const width of [1440, 390]) {
       await expect(page.locator(active)).toHaveClass(/exq--ko/);
       await expect(page.locator(active + " .fb__why")).toContainText("نقول");
       await audit(page);
+      await waitForSavedWrongAnswer(page, id, 0);
       await page.reload(); await ready(page);
       // Observe real lesson UI requests; a translated course must not silently
       // fall back to English instructions or feedback in its shared builders.
@@ -125,9 +127,15 @@ for (const width of [1440, 390]) {
         };
         window.App.go("lezione", { id: "a1-u01-l1" });
       });
+      const expectedScore = 8 / 9;
+      await assertSavedWrongIsReadOnly(page, id, 0, active);
       for (let i = 0; i < 9; i++) {
         await page.locator('.ex-chip[data-go="' + i + '"]').click();
         const current = page.locator(active);
+        if (i === 0) {
+          await expect(current.locator(".journey-answer")).toBeVisible();
+          continue;
+        }
         if (i < 2) await current.locator('[data-orig="1"]').click();
         if (i === 2) {
           const forms = ["sono", "sei", "è", "siamo", "siete", "sono"];
@@ -158,19 +166,19 @@ for (const width of [1440, 390]) {
         const values = typeof arabicUI[key] === "object" ? Object.values(arabicUI[key]) : [arabicUI[key]];
         for (const text of values) expect(text, key).toMatch(/[\u0600-\u06ff]/);
       }
-      await expect(page.locator(".summary__score")).toHaveText("100%");
-      await expect(page.locator(".summary__msg")).toContainText("9/9");
+      await expect(page.locator(".summary__score")).toHaveText(Math.round(expectedScore * 100) + "%");
+      await expect(page.locator(".summary__msg")).toContainText("8/9");
       await expect(page.locator(".lesson-vocab-in")).toContainText("14");
       await shot(page, info, "arabic-exercises-complete-" + width + ".png");
       const progress = await page.evaluate(() => ({ lesson: window.Core.state.lessons["a1-u01-l1"], card: window.Core.state.srs.grazie }));
-      expect(progress.lesson.best).toBe(1); expect(progress.lesson.done).toBe(true);
+      expect(progress.lesson.best).toBe(expectedScore); expect(progress.lesson.done).toBe(true);
       expect(progress.card.tr.ar).toBe("شكرًا");
       const englishGloss=englishCourse["lesson:a1-u01-l1"].vocab[6];expect(englishGloss).toBe("thank you");expect(progress.card.tr.ar).not.toBe(englishGloss);
       await language(page, "en"); expect(await page.evaluate(() => window.Core.cardTr(window.Core.state.srs.grazie))).toBe("شكرًا");
       await language(page, "ar"); expect(await page.evaluate(() => window.Core.cardTr(window.Core.state.srs.grazie))).toBe("شكرًا");
-      await page.waitForFunction(() => JSON.parse(localStorage.getItem("linguai.italiano.v2")).lessons["a1-u01-l1"].best === 1);
+      await page.waitForFunction(score => JSON.parse(localStorage.getItem("linguai.italiano.v2")).lessons["a1-u01-l1"].best === score, expectedScore);
       await page.reload(); await ready(page);
-      expect(await page.evaluate(() => window.Core.state.lessons["a1-u01-l1"].best)).toBe(1);
+      expect(await page.evaluate(() => window.Core.state.lessons["a1-u01-l1"].best)).toBe(expectedScore);
       await expect(page.locator(".view-head > p")).toHaveText("التحية وطلبك الأول في المقهى");
       expect(errors).toEqual([]);
     });

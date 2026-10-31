@@ -3,6 +3,7 @@
 const PILOT=Object.freeze({projectId:'crimson-cake-79153987',branchId:'br-old-shape-b9onuuiu',database:'vita_reale_test',role:'vita_pilot_app',owner:'vita_reale_test_owner',directHost:'ep-nameless-field-b9iui2w8.c-7.eu-central-1.aws.neon.tech',pooledHost:'ep-nameless-field-b9iui2w8-pooler.c-7.eu-central-1.aws.neon.tech',vercelProjectId:'prj_6iDrQCYqlDY9Hx0buZEMirMoJJYF',vercelProjectName:'vita-reale-arabic-demo',vercelTeamId:'team_1iIo3BfW8Vk8BduLPPTbgnpv'});
 const STRIPE_PREVIEW=Object.freeze({projectId:'crimson-cake-79153987',branchId:'br-morning-truth-b9gfj39x',branchName:'stripe-billing-preview',gitBranch:'codex/stripe-subscriptions',database:'vita_reale_test',role:'vita_pilot_app',directHost:'ep-morning-field-b9qrkyb2.c-7.eu-central-1.aws.neon.tech',pooledHost:'ep-morning-field-b9qrkyb2-pooler.c-7.eu-central-1.aws.neon.tech',vercelProjectId:PILOT.vercelProjectId,vercelProjectName:PILOT.vercelProjectName,vercelTeamId:PILOT.vercelTeamId});
 const PERFORMANCE_PREVIEW=Object.freeze({...STRIPE_PREVIEW,gitBranch:'codex/performance-refactor'});
+const GUIDED_PREVIEW=Object.freeze({...STRIPE_PREVIEW,gitBranch:'codex/guided-learning-journey'});
 // Fixed system-catalog query; never reads application rows or secrets.
 const RUNTIME_HEALTH_SQL=`WITH identity AS (
  SELECT r.oid,r.rolcanlogin,r.rolsuper,r.rolbypassrls,r.rolcreaterole,r.rolcreatedb,r.rolreplication,r.rolinherit
@@ -44,7 +45,7 @@ function bindingForEnvironment(env,role){
   return PILOT;
  }
  if(env.VERCEL_ENV==='preview'){
-  const binding=env.VERCEL_GIT_COMMIT_REF===STRIPE_PREVIEW.gitBranch?STRIPE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===PERFORMANCE_PREVIEW.gitBranch?PERFORMANCE_PREVIEW:null;
+   const binding=env.VERCEL_GIT_COMMIT_REF===STRIPE_PREVIEW.gitBranch?STRIPE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===PERFORMANCE_PREVIEW.gitBranch?PERFORMANCE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===GUIDED_PREVIEW.gitBranch?GUIDED_PREVIEW:null;
   if(!binding||env.VERCEL_PROJECT_ID!==binding.vercelProjectId)throw new Error('Database unavailable');
   return binding;
  }
@@ -57,4 +58,4 @@ function bindingForEnvironment(env,role){
 function parsePilotUrl(value,role=PILOT.role,env=process.env){
  try{const binding=bindingForEnvironment(env,role);if(typeof value!=='string'||!value.trim())throw Error();const u=new URL(value.trim());const allowedRole=role===binding.role||(binding===PILOT&&role===PILOT.owner);if(!['postgres:','postgresql:'].includes(u.protocol)||![binding.directHost,binding.pooledHost].includes(u.hostname)||u.username!==role||!allowedRole||!u.password||u.pathname!=='/'+binding.database||u.hash||(u.port&&u.port!=='5432'))throw Error();if(!['require','verify-ca','verify-full'].includes(u.searchParams.get('sslmode'))||u.searchParams.getAll('sslmode').length!==1)throw Error();for(const key of u.searchParams.keys())if(!['sslmode','channel_binding'].includes(key)||u.searchParams.getAll(key).length!==1)throw Error();if(u.searchParams.has('channel_binding')&&!['require','prefer'].includes(u.searchParams.get('channel_binding')))throw Error();return u;}catch{throw new Error('Database unavailable');}
 }
-module.exports={PILOT,STRIPE_PREVIEW,PERFORMANCE_PREVIEW,RUNTIME_HEALTH_SQL,parsePilotUrl};
+module.exports={PILOT,STRIPE_PREVIEW,PERFORMANCE_PREVIEW,GUIDED_PREVIEW,RUNTIME_HEALTH_SQL,parsePilotUrl};

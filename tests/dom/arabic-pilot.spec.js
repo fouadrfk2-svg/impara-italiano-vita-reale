@@ -35,14 +35,16 @@ for (const width of [1440, 390]) {
     test.use({ viewport: { width, height: 920 }, locale: "ar-MA" });
     test.beforeEach(async ({ page }) => { await page.addInitScript(AXE); });
 
-    test("onboarding has Arabic navigation, no language selector and RTL without overflow", async ({ page }, testInfo) => {
+    test("guided first-login flow stays Arabic, starts with foundations and reaches the learning path", async ({ page }, testInfo) => {
       const errors = []; page.on("pageerror", e => errors.push(e.message));
       const failed = []; page.on("response", r => { if (r.status() >= 400) failed.push(r.url()); });
       await page.goto("/index.html#/benvenuto"); await ready(page);
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
       await expect(page.locator(".welcome-lang, #langToggle, #langList")).toHaveCount(0);
-      await expect(page.locator(".js-zero")).toHaveText("لنبدأ ←");
+      await expect(page.locator(".journey-head h1")).toBeVisible();
+      await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuenow", "1");
+      await expect(page.locator(".js-step-next")).toBeVisible();
       await overflow(page); await a11y(page);
       await shot(page, testInfo, "welcome-" + width + ".png");
       if (width === 390) {
@@ -58,7 +60,24 @@ for (const width of [1440, 390]) {
         await expect(page.locator("#railToggle")).toHaveAttribute("aria-expanded", "false");
         await expect(page.locator("#rail")).not.toHaveClass(/is-open/);
       }
-      await page.locator(".js-look").click();
+      await page.locator(".js-step-next").click();
+      await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuenow", "2");
+      await page.locator('[name="journey-start"][value="zero"]').check();
+      await page.locator(".js-step-next").click();
+      await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuenow", "3");
+      await page.locator('[name="journey-goal"][value="everyday"]').check();
+      await page.locator(".js-step-next").click();
+      await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuenow", "4");
+      await page.locator('[name="journey-minutes"][value="20"]').check();
+      await page.locator(".js-step-next").click();
+      await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuenow", "5");
+      await expect(page.locator(".js-start-journey")).toBeVisible();
+      await page.locator(".js-start-journey").click();
+      await page.waitForFunction(() => window.Router.current.route === "suoni");
+      await expect(page.locator("#main h1")).toBeVisible();
+      if (width === 390) await page.locator("#railToggle").click();
+      await page.locator('#rail [data-route="percorso"]').click();
+      await page.waitForFunction(() => window.Router.current.route === "percorso");
       await expect(page.locator(".unit").first()).toBeVisible();
       await overflow(page); await a11y(page);
       await shot(page, testInfo, "path-" + width + ".png");

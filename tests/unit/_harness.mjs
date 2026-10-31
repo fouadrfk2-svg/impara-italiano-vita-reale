@@ -75,7 +75,9 @@ export const CORE = [
   "assets/js/store.js",
   "assets/js/registry.js",
   "assets/js/srs.js",
-  "assets/js/core.js"
+  "assets/js/core.js",
+  /* Reads Core at call time; the browser loads it just before app.js. */
+  "assets/js/learning-journey.js"
 ];
 
 /**

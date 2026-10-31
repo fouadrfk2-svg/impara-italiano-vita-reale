@@ -22,23 +22,55 @@ async function zProfilem(page, profil) {
   }, [KLUCZ, profil]);
 }
 
+async function nowyUczen(page) {
+  await zProfilem(page, { schema: 2, onboarded: false, settings: { lang: "ar" }, lessons: {}, srs: {}, saved: {}, writing: {},
+    errors: {}, drills: {}, reviews: [], stats: { lessonsDone: 0, correct: 0, wrong: 0, days: {} } });
+}
+
 async function gotowe(page) {
   await page.waitForFunction(() => window.App && window.Router);
   await page.waitForFunction(() => window.Router.current.route !== null);
 }
 
+async function finishBeginnerSoundRound(page) {
+  for (let i = 0; i < 10; i++) {
+    const current = page.locator("#soundBox .exq");
+    await expect(current).toBeVisible();
+    await current.locator(".js-play").click();
+    await current.locator(".opt").first().click();
+    await current.locator(".js-check").click();
+    await expect(page.locator("#soundBox .js-next")).toBeVisible();
+    await page.locator("#soundBox .js-next").click();
+  }
+  await expect(page.locator("#soundBox .summary")).toBeVisible();
+}
+
 test("an authenticated learner can open the original onboarding screen", async ({ page }) => {
+  await nowyUczen(page);
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  await expect(page.locator(".js-zero")).toBeVisible();
+  await expect(page.locator(".journey-wizard")).toBeVisible();
+  await expect(page.locator(".js-step-next")).toBeVisible();
+  await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuenow", "1");
+  await expect(page.locator(".journey-track")).toHaveAttribute("aria-valuemax", "5");
   await expect(page).toHaveURL(/#\/benvenuto/);
+});
+
+test("a fresh authenticated profile is routed to Arabic onboarding automatically", async ({ page }) => {
+  await zProfilem(page, { schema: 2, onboarded: false, settings: { lang: "ar" }, lessons: {}, srs: {}, saved: {}, writing: {},
+    errors: {}, drills: {}, reviews: [], stats: { lessonsDone: 0, correct: 0, wrong: 0, days: {} } });
+  await page.goto("/index.html");
+  await gotowe(page);
+  await expect(page).toHaveURL(/#\/benvenuto/);
+  await expect(page.locator(".journey-wizard")).toBeVisible();
+  expect(await page.evaluate(() => [window.I18n.lang, document.documentElement.lang, document.documentElement.dir])).toEqual(["ar", "ar", "rtl"]);
 });
 
 test("a student halfway through the course gets no welcome", async ({ page }) => {
   await zProfilem(page, { schema: 2, stats: { lessonsDone: 40, correct: 0, wrong: 0, days: {} } });
   await page.goto("/index.html");
   await gotowe(page);
-  await expect(page.locator(".js-zero")).toHaveCount(0);
+  await expect(page.locator(".journey-wizard")).toHaveCount(0);
   /* Not the path any more: a student with lessons behind them opens on Today. */
   expect(await page.evaluate(() => window.Router.current.route)).toBe("oggi");
 });
@@ -46,23 +78,31 @@ test("a student halfway through the course gets no welcome", async ({ page }) =>
 test("adres z linku wygrywa nad powitaniem", async ({ page }) => {
   await page.goto("/index.html#/grammatica");
   await gotowe(page);
-  await expect(page.locator(".js-zero")).toHaveCount(0);
+  await expect(page.locator(".journey-wizard")).toHaveCount(0);
   expect(await page.evaluate(() => window.Router.current.route)).toBe("grammatica");
 });
 
-test("the choice ends the welcome, merely looking at it does not", async ({ page }) => {
+test("the five-step welcome saves choices, teaches existing sounds, then starts the first A1 lesson", async ({ page }) => {
+  await nowyUczen(page);
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-
-  /* A refresh with no choice: the question has to come back. */
-  await page.goto("/index.html#/benvenuto");
-  await gotowe(page);
-  await expect(page.locator(".js-zero")).toBeVisible();
-
-  /* "From scratch" goes straight to the first lesson: the button's caption
-     promises a lesson, not a list of levels. */
-  await page.locator(".js-zero").click();
-  await expect(page).toHaveURL(/#\/lezione\?id=/);
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-start"][value="zero"]').check();
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-goal"][value="everyday"]').check();
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-minutes"][value="20"]').check();
+  await page.locator(".js-step-next").click();
+  await expect(page.locator(".js-start-journey")).toBeVisible();
+  await page.locator(".js-start-journey").click();
+  await expect(page).toHaveURL(/#\/suoni\?set=ph-doppie&onboarding=1/);
+  await expect(page.locator("#soundBox .exq")).toBeVisible();
+  expect(await page.evaluate(() => window.Core.state.onboarded)).toBe(false);
+  await finishBeginnerSoundRound(page);
+  await expect(page.locator(".js-start-first")).toBeVisible();
+  await page.locator(".js-start-first").click();
+  await expect(page).toHaveURL(/#\/lezione\?id=a1-u01-l1/);
+  await page.waitForFunction(() => window.Core.state.onboarded && window.Core.state.learningProfile.goal === "everyday");
   expect(await page.evaluate(() => window.Core.state.onboarded)).toBe(true);
 
   /* We wait for the SAVE, not for time to pass: save() is debounced by
@@ -76,47 +116,77 @@ test("the choice ends the welcome, merely looking at it does not", async ({ page
 
   await page.goto("/index.html");
   await gotowe(page);
-  await expect(page.locator(".js-zero")).toHaveCount(0);
+  await expect(page.locator(".journey-wizard")).toHaveCount(0);
   expect(await page.evaluate(() => window.Router.current.route)).toBe("oggi");
 });
 
-test("the road through the placement test leads to the test", async ({ page }) => {
+test("the personalized placement choice launches the existing placement test", async ({ page }) => {
+  await nowyUczen(page);
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  await page.locator(".js-test").click();
-  await expect(page).toHaveURL(/#\/piazzamento/);
-  await expect(page.locator(".js-go")).toBeVisible();
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-start"][value="placement"]').check();
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-goal"][value="general"]').check();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-start-journey").click();
+  await expect(page).toHaveURL(/#\/piazzamento\?go=1&onboarding=1/);
+  await expect(page.locator(".exq").first()).toBeVisible({ timeout: 20000 });
+  expect(await page.evaluate(() => window.Core.state.onboarded)).toBe(false);
 });
 
-test("after the choice the learning path has something to draw itself from", async ({ page }) => {
+test("a learner who knows some Italian can choose a starting level", async ({ page }) => {
+  await nowyUczen(page);
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  await page.locator(".js-look").click();
-  /* The level loads under the welcome screen, so the lessons have to be here
-     already: otherwise the screen stays on "loading material" and nobody
-     will refresh it. */
-  await expect(page.locator("[data-lesson]").first()).toBeVisible({ timeout: 15000 });
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-start"][value="known"]').check();
+  await expect(page.locator(".journey-level")).toBeVisible();
+  await page.locator("#journeyLevel").selectOption("B1");
+  await page.locator(".js-step-next").click();
+  await expect(page.locator('[name="journey-goal"]')).toHaveCount(5);
+  expect(await page.evaluate(() => window.Core.state.learningProfile.startingLevel)).toBe("B1");
 });
 
 /* The same dependency on loading, but sharper: "from scratch" has to KNOW
    the id of the first lesson at the moment of the click, otherwise it
    quietly falls back to the list of levels — that is, it does the very thing
    this button must not do. */
-test("from scratch lands on the first lesson of the course, not on the list", async ({ page }) => {
+test("the zero-level primary path starts with the existing A1 recorded sound foundation", async ({ page }) => {
+  await nowyUczen(page);
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  await page.locator(".js-zero").click();
-  await expect(page).toHaveURL(/#\/lezione\?id=/);
-  const pierwsza = await page.evaluate(() =>
-    window.Core.nextLesson(window.Core.registry.levels[0]).lesson.id);
-  expect(page.url()).toContain("id=" + pierwsza);
-  await expect(page.locator("#main h1")).toBeVisible();
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-start"][value="zero"]').check();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-start-journey").click();
+  await expect(page).toHaveURL(/#\/suoni\?set=ph-doppie&onboarding=1/);
+  await expect(page.locator("#soundBox .exq")).toBeVisible();
+  expect(await page.evaluate(() => window.Core.state.onboarded)).toBe(false);
+});
+
+test("a true beginner may skip the existing sound practice and start the actual first lesson", async ({ page }) => {
+  await nowyUczen(page);
+  await page.goto("/index.html#/benvenuto");
+  await gotowe(page);
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-start"][value="zero"]').check();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-step-next").click();
+  await page.locator(".js-start-direct").click();
+  await expect(page).toHaveURL(/#\/lezione\?id=a1-u01-l1/);
+  expect(await page.evaluate(() => window.Core.state.onboarded)).toBe(true);
+  await expect(page.locator("#main h1")).toHaveText(await page.evaluate(() => window.Core.getLesson("a1-u01-l1").lesson.titleIt));
 });
 
 test("the welcome renders Arabic UI strings without a language selector", async ({ page }) => {
   await page.goto("/index.html#/benvenuto");
   await gotowe(page);
-  await expect(page.locator(".js-zero")).toHaveText("لنبدأ ←");
+  await expect(page.locator(".journey-head")).toContainText("مرحباً بك");
   await expect(page.locator(".welcome-lang, #langToggle, #langList")).toHaveCount(0);
   expect(await page.evaluate(() => window.I18n.LANGS.map(l => l.code))).toEqual(["ar"]);
 });
@@ -126,9 +196,10 @@ test.describe("a first visit from a French browser", () => {
 
   /* Fresh visitors start Arabic independently of browser locale. */
   test("the welcome is Arabic regardless of the browser language", async ({ page }) => {
-    await page.goto("/index.html#/benvenuto");
+    await nowyUczen(page);
+    await page.goto("/index.html");
     await gotowe(page);
-    await expect(page.locator(".js-zero")).toBeVisible();
+    await expect(page.locator(".journey-wizard")).toBeVisible();
     expect(await page.evaluate(() => window.I18n.lang)).toBe("ar");
   });
 });

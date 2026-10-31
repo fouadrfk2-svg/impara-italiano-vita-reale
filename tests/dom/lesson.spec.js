@@ -135,6 +135,35 @@ test("the end lists what went wrong, and a failed run adds no words", async ({ p
   await expect(page.locator(".lesson-vocab-in")).toHaveCount(0);
 });
 
+test("finishing a level names its existing outcomes and opens the first lesson of the next level", async ({ page }) => {
+  await bezMowy(page);
+  await page.goto("/index.html#/percorso?level=A1");
+  await page.waitForFunction(() => window.Core.registry.loaded.A1 === true && window.Core.registry.byCode.A1.units.length > 0);
+  const lastLesson = await page.evaluate(() => {
+    const level = window.Core.registry.byCode.A1, lessons = [];
+    level.units.forEach(unit => { lessons.push(...unit.lessons); if (unit.test) lessons.push(unit.test); });
+    const last = lessons[lessons.length - 1];
+    lessons.slice(0, -1).forEach(item => {
+      const total = (item.exercises || []).length;
+      if (total) window.Core.recordLesson(item.id, total, total, 1);
+    });
+    const original = window.Core.recordLesson;
+    window.Core.recordLesson = (id, score, total, seconds) => original(id, total, total, seconds);
+    return last.id;
+  });
+  await page.evaluate(id => window.App.go("lezione", { id }), lastLesson);
+  await expect(page.locator(".step").first()).toBeVisible();
+  await odpowiedzNaWszystko(page);
+  const milestone = page.locator(".summary .journey-level-complete");
+  await expect(milestone).toBeVisible();
+  await expect(milestone).toContainText("A1");
+  await expect(milestone.locator("p").last()).toContainText(await page.evaluate(() => window.Core.registry.byCode.A1.desc));
+  const next = await page.evaluate(() => window.Core.nextLesson(window.Core.registry.byCode.A2).lesson);
+  await expect(page.locator(".summary .js-next")).toContainText(next.titleIt);
+  await page.locator(".summary .js-next").click();
+  await expect(page).toHaveURL(new RegExp("#/lezione\\?id=" + next.id));
+});
+
 /* A lesson passed for the first time puts its words in the reviews. Only
    then: adding them at every run brought back the words a student had
    deleted from the vocabulary, and a failed run will be taken again. The

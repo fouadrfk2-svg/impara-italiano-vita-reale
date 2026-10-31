@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {join} from 'node:path';
 import vm from 'node:vm';
 import {loadEngine,CORE,ROOT} from './_harness.mjs';
@@ -8,15 +9,19 @@ import original from '../fixtures/arabic-ui-baseline.cjs';
 import corrections from '../fixtures/arabic-ui-reviewed-corrections.cjs';
 
 function dictionary(lang){let bag;vm.runInNewContext(readFileSync(join(ROOT,'data/i18n/ui-'+lang+'.js'),'utf8'),{LINGUAI:{addUI(code,map){assert.equal(code,lang);bag=JSON.parse(JSON.stringify(map));}}});return bag;}
+function committedDictionary(lang){let bag;const source=execFileSync('git',['show',`HEAD:data/i18n/ui-${lang}.js`],{cwd:ROOT,encoding:'utf8'});vm.runInNewContext(source,{LINGUAI:{addUI(code,map){assert.equal(code,lang);bag=JSON.parse(JSON.stringify(map));}}});return bag;}
 const en=dictionary('en'),ar=dictionary('ar'),categories=['zero','one','two','few','many','other'];
 const vars=s=>[...s.matchAll(/\{(\w+)\}/g)].map(m=>m[1]).sort();
 const tags=s=>s.match(/<\/?[a-z][^>]*>/gi)||[];
 const plain=v=>JSON.parse(JSON.stringify(v));
 function engine(){const b=loadEngine({files:[...CORE,'assets/js/i18n.js','assets/js/i18n-merge.js',...['en','ar'].map(l=>'data/i18n/ui-'+l+'.js')]});b.Core.load();return b;}
 
-test('Arabic UI covers all 963 English keys with no missing, extra or duplicate declarations',()=>{
- assert.equal(Object.keys(en).length,963);assert.equal(Object.keys(ar).length,963);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
- const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,963);assert.equal(new Set(declared).size,963);
+test('Arabic UI covers all 1045 English keys with no missing, extra or duplicate declarations',()=>{
+ assert.equal(Object.keys(en).length,1045);assert.equal(Object.keys(ar).length,1045);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
+ const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,1045);assert.equal(new Set(declared).size,1045);
+});
+test('all previously committed Arabic and English UI values remain unchanged',()=>{
+ for(const lang of ['ar','en']){const before=committedDictionary(lang),after=lang==='ar'?ar:en;for(const[key,value]of Object.entries(before))assert.deepEqual(after[key],value,`${lang}.${key} changed`);assert.equal(Object.keys(after).length,Object.keys(before).length+82,`${lang} must add exactly the guided-journey interface keys`);}
 });
 test('all 230 original translations are preserved except explicitly reviewed copy corrections',()=>{assert.equal(Object.keys(original).length,230);for(const[k,v]of Object.entries(original))assert.deepEqual(ar[k],corrections[k]?.after??v,k);for(const[k,v]of Object.entries(corrections)){if(k in original)assert.deepEqual(v.before,original[k],k+' original snapshot');assert.deepEqual(ar[k],v.after,k+' exact reviewed correction');}});
 
