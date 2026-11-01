@@ -4,6 +4,10 @@ const PILOT=Object.freeze({projectId:'crimson-cake-79153987',branchId:'br-old-sh
 const STRIPE_PREVIEW=Object.freeze({projectId:'crimson-cake-79153987',branchId:'br-morning-truth-b9gfj39x',branchName:'stripe-billing-preview',gitBranch:'codex/stripe-subscriptions',database:'vita_reale_test',role:'vita_pilot_app',directHost:'ep-morning-field-b9qrkyb2.c-7.eu-central-1.aws.neon.tech',pooledHost:'ep-morning-field-b9qrkyb2-pooler.c-7.eu-central-1.aws.neon.tech',vercelProjectId:PILOT.vercelProjectId,vercelProjectName:PILOT.vercelProjectName,vercelTeamId:PILOT.vercelTeamId});
 const PERFORMANCE_PREVIEW=Object.freeze({...STRIPE_PREVIEW,gitBranch:'codex/performance-refactor'});
 const GUIDED_PREVIEW=Object.freeze({...STRIPE_PREVIEW,gitBranch:'codex/guided-learning-journey'});
+// Direct-deploy-only isolated project. VITA_PREVIEW_BINDING is a non-secret
+// project Preview setting; requiring it prevents another project/environment
+// from selecting this database. Production remains bound to PILOT above.
+const ISOLATED_GUIDED_PREVIEW=Object.freeze({projectId:'royal-king-05878364',branchId:'br-shy-river-ba5o9dow',database:'vita_reale_test',role:'vita_pilot_app',directHost:'ep-crimson-dream-bagrfmne.c-8.eu-central-1.aws.neon.tech',pooledHost:'ep-crimson-dream-bagrfmne-pooler.c-8.eu-central-1.aws.neon.tech',vercelProjectId:'prj_UXx68jhDKQfn5on0gnCCP2dNDQPk',vercelProjectName:'vita-reale-guided-learning-preview-20261101',vercelTeamId:PILOT.vercelTeamId,gitBranch:'codex/guided-learning-journey',bindingSetting:'guided-preview-2026-11-01'});
 // Fixed system-catalog query; never reads application rows or secrets.
 const RUNTIME_HEALTH_SQL=`WITH identity AS (
  SELECT r.oid,r.rolcanlogin,r.rolsuper,r.rolbypassrls,r.rolcreaterole,r.rolcreatedb,r.rolreplication,r.rolinherit
@@ -45,7 +49,13 @@ function bindingForEnvironment(env,role){
   return PILOT;
  }
  if(env.VERCEL_ENV==='preview'){
-   const binding=env.VERCEL_GIT_COMMIT_REF===STRIPE_PREVIEW.gitBranch?STRIPE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===PERFORMANCE_PREVIEW.gitBranch?PERFORMANCE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===GUIDED_PREVIEW.gitBranch?GUIDED_PREVIEW:null;
+  let binding=null;
+  if(env.VERCEL_PROJECT_ID===ISOLATED_GUIDED_PREVIEW.vercelProjectId){
+   const ref=env.VERCEL_GIT_COMMIT_REF;
+   if(env.VITA_PREVIEW_BINDING===ISOLATED_GUIDED_PREVIEW.bindingSetting&&(!ref||ref===ISOLATED_GUIDED_PREVIEW.gitBranch))binding=ISOLATED_GUIDED_PREVIEW;
+  }else{
+   binding=env.VERCEL_GIT_COMMIT_REF===STRIPE_PREVIEW.gitBranch?STRIPE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===PERFORMANCE_PREVIEW.gitBranch?PERFORMANCE_PREVIEW:env.VERCEL_GIT_COMMIT_REF===GUIDED_PREVIEW.gitBranch?GUIDED_PREVIEW:null;
+  }
   if(!binding||env.VERCEL_PROJECT_ID!==binding.vercelProjectId)throw new Error('Database unavailable');
   return binding;
  }
@@ -58,4 +68,4 @@ function bindingForEnvironment(env,role){
 function parsePilotUrl(value,role=PILOT.role,env=process.env){
  try{const binding=bindingForEnvironment(env,role);if(typeof value!=='string'||!value.trim())throw Error();const u=new URL(value.trim());const allowedRole=role===binding.role||(binding===PILOT&&role===PILOT.owner);if(!['postgres:','postgresql:'].includes(u.protocol)||![binding.directHost,binding.pooledHost].includes(u.hostname)||u.username!==role||!allowedRole||!u.password||u.pathname!=='/'+binding.database||u.hash||(u.port&&u.port!=='5432'))throw Error();if(!['require','verify-ca','verify-full'].includes(u.searchParams.get('sslmode'))||u.searchParams.getAll('sslmode').length!==1)throw Error();for(const key of u.searchParams.keys())if(!['sslmode','channel_binding'].includes(key)||u.searchParams.getAll(key).length!==1)throw Error();if(u.searchParams.has('channel_binding')&&!['require','prefer'].includes(u.searchParams.get('channel_binding')))throw Error();return u;}catch{throw new Error('Database unavailable');}
 }
-module.exports={PILOT,STRIPE_PREVIEW,PERFORMANCE_PREVIEW,GUIDED_PREVIEW,RUNTIME_HEALTH_SQL,parsePilotUrl};
+module.exports={PILOT,STRIPE_PREVIEW,PERFORMANCE_PREVIEW,GUIDED_PREVIEW,ISOLATED_GUIDED_PREVIEW,RUNTIME_HEALTH_SQL,parsePilotUrl};
