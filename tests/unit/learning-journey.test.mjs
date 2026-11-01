@@ -13,6 +13,11 @@ function journey(now) {
     }, resume: { activeLessonId: null, lessons: {} } },
     save() { saves++; }
   };
+  const sessionItems = new Map();
+  box.sandbox.sessionStorage = {
+    getItem(key) { return sessionItems.has(key) ? sessionItems.get(key) : null; },
+    setItem(key, value) { sessionItems.set(key, String(value)); }
+  };
   box.run("assets/js/learning-journey.js");
   return { api: box.sandbox.LearningJourney, core: box.sandbox.Core, saves: () => saves };
 }
@@ -78,6 +83,40 @@ describe("personalized learning state", () => {
     next.api.recordLessonCompletion("a1-u01-l2", "A1");
     assert.equal(next.api.profile().meaningfulSessions, 1);
     assert.equal(core.state.learningProfile.meaningfulSessions, 1);
+  });
+
+  test("resume metrics distinguish current, answered and remaining exercises without inferring correctness", () => {
+    const { api } = journey();
+    const entry = { exerciseIndex: 4, answers: [true, false, null, null, null, null, null, null, null] };
+    assert.deepEqual(JSON.parse(JSON.stringify(api.resumeMetrics(entry, 9))), { current: 5, total: 9, answered: 2, remaining: 7, pct: 22 });
+    assert.equal(api.resumeMetrics({ ...entry, exerciseIndex: 9 }, 9), null);
+    assert.equal(api.resumeMetrics({ ...entry, answers: ["written answer"] }, 9), null);
+    assert.equal(api.resumeMetrics(entry, 8), null);
+  });
+
+  test("exercise guidance follows interaction type and fades across the first seven meaningful sessions", () => {
+    const { api } = journey();
+    assert.equal(api.exerciseGuidance({ t: "mcq" }, 0), "journey.hintChoice");
+    assert.equal(api.exerciseGuidance({ t: "mcq" }, 3), null);
+    assert.equal(api.exerciseGuidance({ t: "listen" }, 3), "journey.hintListenBrief");
+    assert.equal(api.exerciseGuidance({ t: "dialogue" }, 3), "journey.hintDialogueBrief");
+    assert.equal(api.exerciseGuidance({ t: "minpair" }, 0), "journey.hintListen");
+    assert.equal(api.exerciseGuidance({ t: "cloze" }, 0), "journey.hintWrite");
+    assert.equal(api.exerciseGuidance({ t: "trans", dir: "toIt" }, 4), "journey.hintToItalianBrief");
+    assert.equal(api.exerciseGuidance({ t: "trans", dir: "toAr" }, 5), null);
+    assert.equal(api.exerciseGuidance({ t: "trans", dir: "toIt" }, 5), "journey.hintToItalianLight");
+    assert.equal(api.exerciseGuidance({ t: "speak" }, 6), "journey.hintSpeakLight");
+    assert.equal(api.exerciseGuidance({ t: "speak" }, 7), null);
+  });
+
+  test("dismissing guidance is session-only and does not mutate learner progress", () => {
+    const { api, core, saves } = journey();
+    assert.equal(api.guidanceDismissed("lesson-a1-u01-l1"), false);
+    assert.equal(api.dismissGuidance("lesson-a1-u01-l1"), true);
+    assert.equal(api.guidanceDismissed("lesson-a1-u01-l1"), true);
+    assert.equal(api.dismissGuidance("bad id"), false);
+    assert.equal(saves(), 0);
+    assert.equal(core.state.resume.lessons["a1-u01-l1"], undefined);
   });
 
   test("goal focus copies its tags and absence is based on learning activity, not a streak", () => {

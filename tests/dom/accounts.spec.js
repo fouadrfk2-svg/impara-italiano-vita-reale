@@ -82,6 +82,23 @@ for(const width of [390,1440])test.describe('Integrated Arabic pilot accounts '+
    await page.locator('.js-logout').click();await expect(page.locator('.guest-page')).toBeVisible();expect(await page.evaluate(()=>Core.state.writing['w-a2-giornata'].text)).toBe('Versione anonima.');
   }finally{await context.close();await adminContext.close();}
  });
+ test('a restored session does not overwrite a route with a hashchange still pending',async({browser})=>{
+  const adminContext=await browser.newContext({viewport:{width,height:920}}),context=await browser.newContext({viewport:{width,height:920}}),admin=await adminContext.newPage(),page=await context.newPage();
+  try{
+   await adminLogin(admin);const code=await issue(admin);await login(page,code);await page.evaluate(()=>LearningJourney.markOnboarded());await saved(page);
+   const fixture=await page.evaluate(async()=>({session:await fetch('/api/auth/session',{credentials:'same-origin'}).then(r=>r.json()),progress:await Account.request('progress')}));
+   await context.setOffline(true);await page.waitForFunction(()=>Account.snapshot().status==='offline'&&location.hash==='#/home'&&Router.current.route==='home');await page.reload();
+   await page.waitForFunction(()=>window.Account&&window.Core&&Account.snapshot().checked&&!Account.snapshot().authenticated&&location.hash==='#/home'&&Router.current.route==='home');
+   const result=await page.evaluate(({session,progress})=>{
+    const nativeFetch=window.fetch;
+    function jsonResponse(value){return Promise.resolve({ok:true,status:200,json:function(){return Promise.resolve(value);}});}
+    window.fetch=function(input,init){const url=new URL(typeof input==='string'?input:input.url,location.href),method=(init&&init.method||'GET').toUpperCase();if(url.pathname==='/api/auth/session'&&method==='GET')return jsonResponse(session);if(url.pathname==='/api/progress'&&method==='GET')return jsonResponse(progress);return nativeFetch.apply(this,arguments);};
+    window.dispatchEvent(new Event('online'));App.go('account');
+    return Account.refresh().then(()=>new Promise(resolve=>setTimeout(resolve,10))).then(()=>{window.fetch=nativeFetch;return{route:Router.current.route,hash:location.hash,status:Account.snapshot().status};},error=>{window.fetch=nativeFetch;throw error;});
+   },fixture);
+   expect(result).toEqual({route:'account',hash:'#/account',status:'saved'});await expect(page.locator('[data-account-status]')).toContainText('تم حفظ');await audit(page);
+  }finally{await context.close();await adminContext.close();}
+ });
  test('conflicting drafts keep the newer account version and a recoverable local backup',async({browser})=>{
   const contexts=[];async function page(){const c=await browser.newContext({viewport:{width,height:920}});contexts.push(c);return await c.newPage();}
   const admin=await page(),a=await page(),b=await page();

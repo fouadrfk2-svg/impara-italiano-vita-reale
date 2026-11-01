@@ -45,40 +45,55 @@
         esc(level.code + (level.name ? " · " + level.name : "")) + "</option>";
     }).join("");
   }
+  function stepMarkers(current) {
+    return '<div class="journey-step-markers" aria-hidden="true">' + [1, 2, 3, 4, 5].map(function (n) {
+      return '<span class="journey-step-marker' + (n < current ? ' is-done' : n === current ? ' is-current' : '') + '"></span>';
+    }).join('') + '</div>';
+  }
   function head(current, title, body) {
     return '<header class="journey-head"><p class="journey-eyebrow">' + esc(t("welcome.wizardKicker")) +
       " · " + esc(t("welcome.wizardStep", { i: current, n: 5 })) + "</p><h1>" + esc(title) +
       "</h1><p>" + esc(body) + '</p><div class="journey-track" role="progressbar" aria-label="' +
       esc(t("welcome.wizardProgress")) + '" aria-valuemin="1" aria-valuemax="5" aria-valuenow="' + current +
-      '"><i style="width:' + (current * 20) + '%"></i></div></header>';
+      '"><i style="width:' + (current * 20) + '%"></i></div>' + stepMarkers(current) + '</header>';
   }
-  function render() {
+  function routePanel() {
+    var items = ["welcome.routeNotice", "welcome.routeUnderstand", "welcome.routeTry"];
+    return '<aside class="journey-route" aria-labelledby="journeyRouteTitle"><p class="journey-route__title" id="journeyRouteTitle">' +
+      esc(t("welcome.routeTitle")) + '</p><ol>' + items.map(function (key, index) {
+        return '<li><span class="journey-route__index" aria-hidden="true">0' + (index + 1) + '</span><span>' +
+          esc(t(key)) + '</span></li>';
+      }).join('') + '</ol></aside>';
+  }
+  function stepActions(disabled) {
+    return '<div class="journey-actions"><button type="button" class="btn btn--primary js-step-next" ' +
+      (disabled ? 'disabled ' : '') + '>' + esc(t("welcome.wizardContinue")) + '</button><button type="button" class="btn btn--quiet js-step-back">' +
+      esc(t("welcome.wizardBack")) + '</button></div>';
+  }
+  function render(focusHeading) {
     var p = profile();
     step = p.onboardingStep;
-    var html = '<section class="journey-wizard" dir="rtl">';
+    var html = '<section class="journey-wizard" dir="rtl" data-step="' + step + '">';
     if (step === 1) {
-      html += head(1, t("welcome.wizardWelcomeTitle"), t("welcome.wizardWelcomeText")) +
+      html += '<div class="journey-welcome-grid"><div class="journey-welcome-copy">' +
+        head(1, t("welcome.wizardWelcomeTitle"), t("welcome.wizardWelcomeText")) +
         '<div class="journey-card"><p>' + esc(t("welcome.wizardApproach")) + '</p></div>' +
-        '<button type="button" class="btn btn--primary js-step-next">' + esc(t("welcome.wizardContinue")) + "</button>";
+        '<button type="button" class="btn btn--primary js-step-next">' + esc(t("welcome.wizardContinue")) + "</button></div>" + routePanel() + '</div>';
     } else if (step === 2) {
       html += head(2, t("welcome.wizardLevelTitle"), t("welcome.wizardLevelText")) +
         '<fieldset class="journey-options"><legend class="sr-only">' + esc(t("welcome.wizardLevelTitle")) + "</legend>" +
         startOptions(p.startMode) + '</fieldset><div class="journey-level" ' +
         (p.startMode === "known" ? "" : "hidden") + '><label for="journeyLevel">' + esc(t("welcome.selectLevel")) +
-        '</label><select id="journeyLevel">' + levelOptions(p.startingLevel || "A1") +
-        '</select></div><button type="button" class="btn btn--primary js-step-next" ' +
-        (p.startMode ? "" : "disabled") + ">" + esc(t("welcome.wizardContinue")) + "</button>";
+        '</label><select id="journeyLevel">' + levelOptions(p.startingLevel || "A1") + '</select></div>' + stepActions(!p.startMode);
     } else if (step === 3) {
       html += head(3, t("welcome.wizardGoalTitle"), t("welcome.wizardGoalText")) +
         '<fieldset class="journey-options"><legend class="sr-only">' + esc(t("welcome.wizardGoalTitle")) +
-        "</legend>" + goalOptions(p.goal) + '</fieldset><button type="button" class="btn btn--primary js-step-next">' +
-        esc(t("welcome.wizardContinue")) + "</button>";
+        "</legend>" + goalOptions(p.goal) + '</fieldset>' + stepActions(false);
     } else if (step === 4) {
       html += head(4, t("welcome.wizardTimeTitle"), t("welcome.wizardTimeText")) +
         '<fieldset class="journey-options journey-options--minutes"><legend class="sr-only">' +
         esc(t("welcome.wizardTimeTitle")) + "</legend>" + minuteOptions(p.dailyMinutes) +
-        '</fieldset><p class="journey-note">' + esc(t("welcome.wizardNoSchedule")) +
-        '</p><button type="button" class="btn btn--primary js-step-next">' + esc(t("welcome.wizardContinue")) + "</button>";
+        '</fieldset><p class="journey-note">' + esc(t("welcome.wizardNoSchedule")) + '</p>' + stepActions(false);
     } else {
       var secondary = p.startMode === "zero"
         ? '<button type="button" class="btn btn--quiet js-start-direct">' + esc(t("welcome.startLessonDirect")) + "</button>"
@@ -86,11 +101,18 @@
       html += head(5, t("welcome.wizardReadyTitle"), recommendation(p)) +
         '<div class="journey-card journey-card--summary"><b>' + esc(t("welcome.goalLabel")) + "</b><span>" +
         esc(t("welcome.goal." + p.goal)) + "</span><b>" + esc(t("welcome.minutesLabel")) +
-        "</b><span>" + esc(String(p.dailyMinutes)) + "</span></div>" +
-        '<button type="button" class="btn btn--primary js-start-journey">' + esc(t("welcome.startJourney")) + "</button>" + secondary;
+        "</b><span>" + esc(String(p.dailyMinutes)) + '</span></div>' +
+        '<div class="journey-actions"><button type="button" class="btn btn--primary js-start-journey">' +
+        esc(t("welcome.startJourney")) + '</button><button type="button" class="btn btn--quiet js-step-back">' +
+        esc(t("welcome.wizardBack")) + '</button></div>' + secondary;
     }
     html += "</section>";
     set(html);
+    var heading = focusHeading && el().querySelector(".journey-head h1");
+    if (heading) {
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+    }
     wire(p);
   }
   function recommendation(p) {
@@ -101,10 +123,15 @@
   function advance(changes) {
     changes.onboardingStep = step + 1;
     LearningJourney.updateProfile(changes);
-    render();
+    render(true);
   }
   function wire(p) {
     var next = el().querySelector(".js-step-next");
+    var back = el().querySelector(".js-step-back");
+    if (back) back.addEventListener("click", function () {
+      LearningJourney.updateProfile({ onboardingStep: Math.max(1, step - 1) });
+      render(true);
+    });
     if (step === 2) {
       el().querySelectorAll('[name="journey-start"]').forEach(function (radio) {
         radio.addEventListener("change", function () {

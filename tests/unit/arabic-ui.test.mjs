@@ -16,12 +16,12 @@ const tags=s=>s.match(/<\/?[a-z][^>]*>/gi)||[];
 const plain=v=>JSON.parse(JSON.stringify(v));
 function engine(){const b=loadEngine({files:[...CORE,'assets/js/i18n.js','assets/js/i18n-merge.js',...['en','ar'].map(l=>'data/i18n/ui-'+l+'.js')]});b.Core.load();return b;}
 
-test('Arabic UI covers all 1045 English keys with no missing, extra or duplicate declarations',()=>{
- assert.equal(Object.keys(en).length,1045);assert.equal(Object.keys(ar).length,1045);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
- const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,1045);assert.equal(new Set(declared).size,1045);
+test('Arabic UI covers all 1089 English keys with no missing, extra or duplicate declarations',()=>{
+ assert.equal(Object.keys(en).length,1089);assert.equal(Object.keys(ar).length,1089);assert.deepEqual(Object.keys(ar).sort(),Object.keys(en).sort());
+ const source=readFileSync(join(ROOT,'data/i18n/ui-ar.js'),'utf8');const declared=[...source.matchAll(/^\s*"([^"\n]+)":/gm)].map(m=>m[1]);assert.equal(declared.length,1089);assert.equal(new Set(declared).size,1089);
 });
 test('all previously committed Arabic and English UI values remain unchanged',()=>{
- for(const lang of ['ar','en']){const before=committedDictionary(lang),after=lang==='ar'?ar:en;for(const[key,value]of Object.entries(before))assert.deepEqual(after[key],value,`${lang}.${key} changed`);assert.equal(Object.keys(after).length,Object.keys(before).length+82,`${lang} must add exactly the guided-journey interface keys`);}
+ for(const lang of ['ar','en']){const before=committedDictionary(lang),after=lang==='ar'?ar:en;for(const[key,value]of Object.entries(before))assert.deepEqual(after[key],value,`${lang}.${key} changed`);assert.equal(Object.keys(after).length,Object.keys(before).length+44,`${lang} must add exactly the guided-journey interface keys`);}
 });
 test('all 230 original translations are preserved except explicitly reviewed copy corrections',()=>{assert.equal(Object.keys(original).length,230);for(const[k,v]of Object.entries(original))assert.deepEqual(ar[k],corrections[k]?.after??v,k);for(const[k,v]of Object.entries(corrections)){if(k in original)assert.deepEqual(v.before,original[k],k+' original snapshot');assert.deepEqual(ar[k],v.after,k+' exact reviewed correction');}});
 

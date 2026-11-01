@@ -458,7 +458,17 @@
       var authenticated = global.Account.snapshot().authenticated;
       var previous = hadSession; hadSession = authenticated;
       if (previous && !authenticated) closeCourse();
-      else if (!previous && authenticated && (courseReady || accessStarted) && Router.current.route === "home") App.enterCourse();
+      else if (!previous && authenticated && (courseReady || accessStarted) && (!courseReady || Router.current.route === "home")) {
+        // A hash change is delivered after the current task. During reconnect,
+        // a fast session refresh can finish while Router.current still says
+        // "home", even though the learner has already chosen another public
+        // destination such as Account. Preserve that destination while opening
+        // the authenticated shell instead of replacing it with Today/onboarding.
+        var destination = Router.decode(global.location.hash);
+        var keepPublic = publicRoute(destination.route) && destination.route !== "home" &&
+          !(destination.route === "billing" && destination.params.signin === "1") ? destination : null;
+        App.enterCourse(keepPublic);
+      }
     });
     // Clean legacy cache entries while the server checks the session.
     // Wait for both before any protected learner content is displayed.

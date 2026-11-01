@@ -46,6 +46,15 @@ test("a returning learner keeps their selected starting level as the next-step f
   await expect(page).toHaveURL(new RegExp("#/lezione\\?id=" + result.id));
 });
 
+test("legacy completed lessons remain the starting point for the next recommendation", async ({ page }) => {
+  await profil(page, zdane(["a1-u01-l1"]));
+  await oggi(page);
+  const nextId = await page.evaluate(() => window.Core.nextOpenLesson().lesson.id);
+  expect(nextId).not.toBe("a1-u01-l1");
+  await expect(page.locator(".journey-today .journey-lesson-title"))
+    .toContainText(await page.evaluate(id => window.Core.getLesson(id).lesson.titleIt, nextId));
+});
+
 /** Creates n mistake cards with a due date in the past. */
 async function zalegleBledy(page, n) {
   return page.evaluate(ile => {
@@ -140,7 +149,9 @@ test("a lesson resumes at its exact saved exercise without restoring typed text 
 
   await page.evaluate(() => window.App.go("oggi"));
   await expect(page.locator(".js-resume").first()).toBeVisible();
-  await expect(page.locator(".journey-today")).toContainText(await page.evaluate(() => I18n.t("journey.exercisePosition", { i: 5, n: 9 })));
+  await expect(page.locator(".journey-activity-progress__head b")).toHaveText("5/9");
+  await expect(page.locator(".journey-activity-progress p")).toContainText(await page.evaluate(() =>
+    I18n.t("journey.answeredProgress", { done: 2, total: 9, remaining: 7 })));
   const storage = await page.evaluate(() => Object.keys(localStorage).map(k => localStorage.getItem(k) || "").join("\\n"));
   expect(storage).not.toContain(privateAnswer);
 
@@ -148,7 +159,9 @@ test("a lesson resumes at its exact saved exercise without restoring typed text 
   await page.waitForTimeout(300);
   await page.reload();
   await expect(page.locator(".js-resume").first()).toBeVisible();
-  await expect(page.locator(".journey-today")).toContainText(await page.evaluate(() => I18n.t("journey.exercisePosition", { i: 5, n: 9 })));
+  await expect(page.locator(".journey-activity-progress__head b")).toHaveText("5/9");
+  await expect(page.locator(".journey-activity-progress p")).toContainText(await page.evaluate(() =>
+    I18n.t("journey.answeredProgress", { done: 2, total: 9, remaining: 7 })));
 
   await page.locator(".js-resume").first().click();
   await expect(page).toHaveURL(/#\/lezione\?id=a1-u01-l1/);
@@ -355,7 +368,7 @@ test("goal-focused drills choose the most repeated error within the learner's go
   expect(selectedTag).toBe("g-presente");
 });
 
-test("after an absence with due review, the dashboard offers review and keeps the exact resume available", async ({ page }) => {
+test("after an absence with due review, exact resume stays primary and review stays optional", async ({ page }) => {
   const away = Date.now() - 4 * 86400000;
   await profil(page, zdane([], { learningProfile: { lastMeaningfulInteractionAt: away } }));
   await oggi(page);
@@ -368,9 +381,54 @@ test("after an absence with due review, the dashboard offers review and keeps th
     return new Promise(resolve => setTimeout(resolve, 300));
   }, away);
   await page.reload();
-  await expect(page.locator(".journey-today h2")).toHaveText(await page.evaluate(() => window.I18n.t("journey.returnReview")));
-  await expect(page.locator(".journey-today h2 + p")).toContainText(await page.evaluate(() => window.I18n.t("journey.returnWhy")));
-  await expect(page.locator(".js-resume")).toContainText(await page.evaluate(() => window.I18n.t("journey.resumeSecondary", { i: 3, n: 9 })));
+  const journey = page.locator(".journey-today");
+  await expect(journey.locator("h2")).toHaveText(await page.evaluate(() => window.I18n.t("journey.resume")));
+  await expect(journey.locator("h2 + p")).toContainText(await page.evaluate(() =>
+    window.I18n.t("journey.resumeReturnWhy", { i: 3, n: 9 })));
+  await expect(journey.locator(".js-resume")).toContainText(await page.evaluate(() => window.I18n.t("journey.resumeCta")));
+  await expect(journey.locator(".journey-activity-progress__head b")).toHaveText("3/9");
+  await expect(journey.locator(".journey-activity-progress p")).toContainText(await page.evaluate(() =>
+    window.I18n.t("journey.answeredProgress", { done: 2, total: 9, remaining: 7 })));
+  await expect(journey.locator(".js-start")).toContainText(await page.evaluate(() => window.I18n.t("journey.optionalReview", { n: 4 })));
+});
+
+test("dashboard keeps current-lesson effort separate from unit and level completion", async ({ page }) => {
+  await profil(page, zdane([], { learningProfile: { startMode: "zero", startingLevel: "A1", dailyMinutes: 20,
+    goal: "general", onboardingStep: 5, meaningfulSessions: 1, lastMeaningfulInteractionAt: Date.now(),
+    lastCompletedLessonId: null, lastCompletedLevel: null, activitySession: null } }));
+  await oggi(page);
+  await page.evaluate(() => window.LearningJourney.saveResume("a1-u01-l1", 4,
+    [true, false, null, null, null, null, null, null, null]));
+  await page.reload();
+
+  const activity = page.locator(".journey-activity-progress");
+  await expect(activity.locator(".journey-activity-progress__head b")).toHaveText("5/9");
+  await expect(activity.locator("p")).toContainText(await page.evaluate(() =>
+    window.I18n.t("journey.answeredProgress", { done: 2, total: 9, remaining: 7 })));
+  await expect(page.locator(".journey-unit-progress")).toContainText("0/4");
+  await expect(page.locator(".journey-level-progress")).toContainText("0/50");
+  await expect(page.locator(".js-resume")).toBeVisible();
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "horizontal overflow at " + width).toBe(true);
+  }
+});
+
+test("a recent first lesson milestone uses saved completion state and can be dismissed without progress writes", async ({ page }) => {
+  const now = Date.now();
+  await profil(page, zdane(["a1-u01-l1"], { learningProfile: { startMode: "zero", startingLevel: "A1", dailyMinutes: 20,
+    goal: "everyday", onboardingStep: 5, meaningfulSessions: 1, lastMeaningfulInteractionAt: now,
+    lastCompletedLessonId: "a1-u01-l1", lastCompletedLevel: "A1", activitySession: null } }));
+  await oggi(page);
+  const message = await page.evaluate(() => window.I18n.t("journey.milestoneFirstLesson"));
+  await expect(page.locator(".journey-companion")).toContainText(message);
+  const before = await page.evaluate(() => JSON.stringify(window.Core.state));
+  await page.locator(".js-dismiss-journey").click();
+  await expect(page.locator(".journey-companion")).toHaveCount(0);
+  expect(await page.evaluate(() => JSON.stringify(window.Core.state))).toBe(before);
+  await page.evaluate(() => { window.App.go("percorso"); window.App.go("oggi"); });
+  await expect(page.locator(".journey-companion")).toHaveCount(0);
 });
 
 test("legacy streak data does not drive or pressure the learning recommendation", async ({ page }) => {

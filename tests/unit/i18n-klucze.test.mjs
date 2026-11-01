@@ -29,9 +29,9 @@ describe("Arabic-only interface key coverage", () => {
   const en = dictionary("en");
   const files = readdirSync(join(ROOT, "assets", "js")).filter(file => file.endsWith(".js")).sort();
 
-  test("Arabic covers all 1045 keys in the English interface dictionary", () => {
-    assert.equal(Object.keys(en).length, 1045);
-    assert.equal(Object.keys(ar).length, 1045);
+  test("Arabic covers all 1089 keys in the English interface dictionary", () => {
+    assert.equal(Object.keys(en).length, 1089);
+    assert.equal(Object.keys(ar).length, 1089);
     assert.deepEqual(Object.keys(ar).sort(), Object.keys(en).sort());
   });
 

@@ -94,12 +94,103 @@ test("numbered chips show what is still open and lead to it", async ({ page }) =
   await expect(page.locator(".js-ex-open")).toContainText(String(ile));
 });
 
+test("rapid mobile exercise navigation keeps chips clear of the fixed menu", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 920 });
+  await lezione(page, "a1-u04-l4");
+  await page.evaluate(() => new Promise(resolve => window.Core.setLanguage("ar", resolve)));
+  await page.evaluate(() => window.LearningJourney.saveResume("a1-u04-l4", 5,
+    [false, true, true, true, true, true, null, null, null, null]));
+  await page.reload();
+  await lezione(page, "a1-u04-l4");
+  for (let index = 0; index < 6; index++) {
+    await page.locator('.ex-chip[data-go="' + index + '"]').click();
+    await expect(page.locator(".exq:visible .journey-answer")).toBeVisible();
+  }
+  await page.locator('.ex-chip[data-go="6"]').click();
+  const active = page.locator(".exq:visible");
+  await expect(active).toHaveAttribute("data-idx", "6");
+  await active.locator(".js-gap").nth(0).fill("i");
+  await active.locator(".js-gap").nth(1).fill("o");
+  await active.locator(".js-check").click();
+  await expect(active).toHaveClass(/exq--ok/);
+  await page.waitForFunction(() => new Promise(resolve => {
+    let last = window.scrollY, stableFrames = 0;
+    function sample() {
+      const current = window.scrollY;
+      stableFrames = Math.abs(current - last) < 1 ? stableFrames + 1 : 0;
+      last = current;
+      if (stableFrames >= 3) resolve(true);
+      else requestAnimationFrame(sample);
+    }
+    requestAnimationFrame(sample);
+  }));
+
+  const nextChip = page.locator('.ex-chip[data-go="7"]');
+  const hitTest = await nextChip.evaluate(chip => {
+    const rect = chip.getBoundingClientRect();
+    const toggle = document.getElementById("railToggle");
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const target = document.elementFromPoint(x, y);
+    return { x, y, menuBottom: toggle.getBoundingClientRect().bottom, blocked: target !== chip && !chip.contains(target) };
+  });
+  expect(hitTest.y, "the next exercise chip stays below the fixed menu").toBeGreaterThan(hitTest.menuBottom);
+  expect(hitTest.blocked, "the next exercise chip receives pointer events").toBe(false);
+  await nextChip.click();
+  await expect(page.locator(".exq:visible")).toHaveAttribute("data-idx", "7");
+});
+
 test("the sections of a lesson can be jumped to", async ({ page }) => {
   await lezione(page, PROSTA);
   const kroki = page.locator(".lesson-steps [data-step]");
   expect(await kroki.count()).toBeGreaterThanOrEqual(3);
   await page.locator('.lesson-steps [data-step="ex"]').click();
   await expect(page.locator("#step-ex")).toBeInViewport();
+});
+
+test("exercise guidance matches the task, and progress counts answers rather than visits", async ({ page }) => {
+  await lezione(page, "a1-u01-l1");
+  const active = page.locator(".exq:visible");
+  const type = await page.evaluate(() => window.Core.getLesson("a1-u01-l1").lesson.exercises[0].t);
+  const expectedHint = await page.evaluate(taskType => {
+    const key = window.LearningJourney.exerciseGuidance({ t: taskType }, window.LearningJourney.profile().meaningfulSessions);
+    return key && window.I18n.t(key);
+  }, type);
+  if (expectedHint) {
+    await expect(page.locator(".journey-ex-guidance")).toBeVisible();
+    await expect(page.locator(".journey-ex-guidance__text")).toHaveText(expectedHint);
+  } else {
+    await expect(page.locator(".journey-ex-guidance")).toBeHidden();
+  }
+  await expect(page.locator(".js-ex-answered")).toContainText(await page.evaluate(() =>
+    window.I18n.t("journey.answeredProgress", { done: 0, total: 9, remaining: 9 })));
+
+  await active.locator(".opt").first().click();
+  await active.locator(".js-check").click();
+  await expect(active.locator(".fb")).toBeVisible();
+  await expect(page.locator(".lesson-top__bar")).toHaveAttribute("aria-valuenow", "1");
+  await expect(page.locator(".js-ex-answered")).toContainText(await page.evaluate(() =>
+    window.I18n.t("journey.answeredProgress", { done: 1, total: 9, remaining: 8 })));
+  await expect(page.locator('.ex-chip[aria-current="step"]')).toHaveAttribute("data-go", "0");
+});
+
+test("lesson navigation stays readable and touchable across phone, tablet, and desktop widths", async ({ page }) => {
+  await lezione(page, "a1-u01-l1");
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "lesson has no horizontal page overflow at " + width).toBe(true);
+    const targets = await page.locator(".lesson-steps__btn, .ex-chip, .ex-foot .btn").evaluateAll(nodes =>
+      nodes.map(node => {
+        const rect = node.getBoundingClientRect();
+        return { name: node.className, width: rect.width, height: rect.height };
+      }));
+    expect(targets.length, "lesson navigation controls exist at " + width).toBeGreaterThan(0);
+    for (const target of targets) {
+      expect(target.width, target.name + " width at " + width).toBeGreaterThanOrEqual(44);
+      expect(target.height, target.name + " height at " + width).toBeGreaterThanOrEqual(44);
+    }
+  }
 });
 
 /** An A1 lesson whose exercises all answer through a field or a choice. */

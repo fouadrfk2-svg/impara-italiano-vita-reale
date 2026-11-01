@@ -107,6 +107,15 @@
     return { lessonId: id, exerciseIndex: entry.exerciseIndex, answers: entry.answers.slice(),
       startedAt: entry.startedAt, updatedAt: entry.updatedAt };
   }
+  function resumeMetrics(entry, total) {
+    if (!plain(entry) || !Array.isArray(entry.answers)) return null;
+    total = Number.isSafeInteger(total) ? total : entry.answers.length;
+    if (total < 1 || total > 1000 || !validAnswers(entry.answers, total) ||
+      !Number.isInteger(entry.exerciseIndex) || entry.exerciseIndex < 0 || entry.exerciseIndex >= total) return null;
+    var answered = entry.answers.filter(function (answer) { return answer !== null; }).length;
+    return { current: entry.exerciseIndex + 1, total: total, answered: answered,
+      remaining: total - answered, pct: Math.round(answered / total * 100) };
+  }
   function saveResume(id, index, answers) {
     if (typeof id !== "string" || !LESSON_ID.test(id) || !Array.isArray(answers) ||
       answers.length < 1 || answers.length > 1000 || !Number.isInteger(index) || index < 0 || index >= answers.length) return false;
@@ -129,6 +138,47 @@
     global.Core.save();
   }
   function goalTags(goal) { return (GOAL_TAGS[GOALS.indexOf(goal) >= 0 ? goal : "general"] || []).slice(); }
+  function exerciseGuidance(exercise, sessions) {
+    if (!plain(exercise)) return null;
+    sessions = Number.isSafeInteger(sessions) && sessions >= 0 ? sessions : 0;
+    if (sessions >= 7) return null;
+    var type = exercise.t, detailed = {
+      choice: "journey.hintChoice", briefChoice: "journey.hintChoiceBrief",
+      write: "journey.hintWrite", briefWrite: "journey.hintWriteBrief",
+      order: "journey.hintOrder", briefOrder: "journey.hintOrderBrief",
+      match: "journey.hintMatch", briefMatch: "journey.hintMatchBrief",
+      listen: "journey.hintListen", briefListen: "journey.hintListenBrief", lightListen: "journey.hintListenLight",
+      dialogue: "journey.hintDialogue", briefDialogue: "journey.hintDialogueBrief",
+      speak: "journey.hintSpeak", briefSpeak: "journey.hintSpeakBrief", lightSpeak: "journey.hintSpeakLight",
+      toItalian: "journey.hintToItalian", briefToItalian: "journey.hintToItalianBrief", lightToItalian: "journey.hintToItalianLight",
+      toArabic: "journey.hintToArabic", briefToArabic: "journey.hintToArabicBrief",
+      general: "journey.hintGeneral", briefGeneral: "journey.hintGeneralBrief"
+    };
+    var key = type === "mcq" || type === "truefalse" || type === "multi" || type === "gender" || type === "minpair" ?
+      (type === "minpair" ? "listen" : "choice")
+      : type === "fill" || type === "cloze" || type === "conj" ? "write"
+        : type === "trans" ? (exercise.dir === "toIt" ? "toItalian" : "toArabic")
+          : type === "order" ? "order" : type === "match" ? "match"
+            : type === "listen" ? "listen" : type === "speak" ? "speak"
+              : type === "dialogue" ? "dialogue" : "general";
+    var demanding = ["toItalian", "toArabic", "write", "listen", "speak", "dialogue"].indexOf(key) >= 0;
+    if (sessions >= 5 && ["toItalian", "listen", "speak"].indexOf(key) < 0) return null;
+    if (sessions >= 3 && !demanding) return null;
+    var tier = sessions >= 5 ? "light" : sessions >= 3 ? "brief" : "full";
+    var result = tier === "full" ? detailed[key]
+      : tier === "brief" ? detailed["brief" + key.charAt(0).toUpperCase() + key.slice(1)]
+        : detailed["light" + key.charAt(0).toUpperCase() + key.slice(1)];
+    return result || detailed[key] || detailed.general;
+  }
+  function guidanceDismissed(id) {
+    try { return global.sessionStorage.getItem("vita.journey.dismiss." + id) === "1"; }
+    catch (error) { return false; }
+  }
+  function dismissGuidance(id) {
+    if (typeof id !== "string" || !/^[a-z0-9:-]{1,100}$/i.test(id)) return false;
+    try { global.sessionStorage.setItem("vita.journey.dismiss." + id, "1"); return true; }
+    catch (error) { return false; }
+  }
   function completedCount(state) {
     state = state || global.Core.state;
     return Object.keys(state.lessons || {}).filter(function (id) { return !!(state.lessons[id] && state.lessons[id].done); }).length;
@@ -184,7 +234,8 @@
     GOALS: GOALS.slice(), STARTS: STARTS.slice(), MINUTES: MINUTES.slice(),
     profile: profile, hasPriorActivity: hasPriorActivity, shouldOnboard: shouldOnboard,
     updateProfile: updateProfile, markOnboarded: markOnboarded, resumeFor: resumeFor,
-    activeResume: activeResume, saveResume: saveResume, clearResume: clearResume,
+    activeResume: activeResume, resumeMetrics: resumeMetrics, saveResume: saveResume, clearResume: clearResume,
+    exerciseGuidance: exerciseGuidance, guidanceDismissed: guidanceDismissed, dismissGuidance: dismissGuidance,
     goalTags: goalTags, completedCount: completedCount, recordInteraction: recordInteraction,
     recordLessonCompletion: recordLessonCompletion, lastInteractionAt: lastInteractionAt,
     daysSinceInteraction: daysSinceInteraction,

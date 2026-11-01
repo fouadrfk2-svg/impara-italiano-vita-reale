@@ -23,6 +23,7 @@
      ═══════════════════════════════════════════════════════════ */
   var session = null;
   var run = null;       // LessonRun state: which exercise shows, which are answered
+  var activeExercises = [];
 
   /** The jump bar: the lesson stays one page, the sections are one tap away. */
   function steps(L) {
@@ -56,8 +57,9 @@
     var L = found.lesson, U = found.unit, LV = found.level;
 
     var savedResume = LearningJourney.resumeFor(L.id, (L.exercises || []).length);
+    activeExercises = L.exercises || [];
     session = {
-      id: L.id, total: (L.exercises || []).length, score: 0, answered: 0,
+      id: L.id, total: activeExercises.length, score: 0, answered: 0,
       started: savedResume ? savedResume.startedAt : Date.now()
     };
 
@@ -65,7 +67,7 @@
 
     parts.push('<div class="lesson-top">' +
       '<button class="btn btn--ghost btn--sm js-back">' + t("lesson.back") + "</button>" +
-      '<div class="lesson-top__bar"><i id="lessonBar" style="width:0%"></i></div>' +
+      '<div class="lesson-top__bar" role="progressbar" aria-label="' + esc(t("journey.lessonProgress")) + '" aria-valuemin="0" aria-valuemax="' + session.total + '" aria-valuenow="0" aria-valuetext="0/' + session.total + '"><i id="lessonBar" style="width:0%"></i></div>' +
       '<span class="lesson-top__hearts" id="lessonScore">0/' + session.total + "</span></div>");
 
     parts.push('<div class="meta-row">' +
@@ -75,12 +77,6 @@
       "</div>");
 
     parts.push('<header class="view-head"><h1 lang="it" dir="ltr">' + esc(L.titleIt) + "</h1><p>" + esc(L.title) + "</p></header>");
-    var journeyProfile = LearningJourney.profile();
-    var journeyCoach = journeyProfile.meaningfulSessions === 0 ? "journey.coachFirst"
-      : journeyProfile.meaningfulSessions < 3 ? "journey.coachEarly"
-      : journeyProfile.meaningfulSessions < 5 ? "journey.coachReview"
-      : journeyProfile.meaningfulSessions < 7 ? "journey.coachIndependent" : null;
-    if (journeyCoach) parts.push('<aside class="journey-coach" role="note">' + esc(t(journeyCoach)) + "</aside>");
     parts.push(steps(L));
 
     if (L.objectives && L.objectives.length) {
@@ -180,6 +176,10 @@
         L.exercises.map(function (e, i) {
           return '<button type="button" class="ex-chip" data-go="' + i + '">' + (i + 1) + "</button>";
         }).join("") + '</div><span class="ex-open js-ex-open"></span></div>' +
+        '<p class="journey-lesson-ex-progress js-ex-answered" aria-live="polite"></p>' +
+        '<aside class="journey-ex-guidance" role="note" hidden><div><b>' + esc(t("journey.exerciseHintLabel")) +
+        '</b><p class="journey-ex-guidance__text"></p></div><button type="button" class="journey-companion__dismiss js-dismiss-ex-guidance" aria-label="' +
+        esc(t("journey.dismissGuidance")) + '">×</button></aside>' +
         '<div id="exWrap"></div>' +
         '<div class="ex-foot"><button type="button" class="btn btn--ghost btn--sm js-ex-prev">' + esc(t("lesson.exPrev")) + "</button>" +
         '<span class="ex-foot__pos js-ex-pos"></span>' +
@@ -271,6 +271,11 @@
         });
       });
       Ex.wireSpeakers(wrap);
+      var dismissHint = el().querySelector(".js-dismiss-ex-guidance");
+      if (dismissHint) dismissHint.addEventListener("click", function () {
+        LearningJourney.dismissGuidance("lesson-" + L.id);
+        drawRun();
+      });
       el().querySelectorAll(".ex-chip").forEach(function (c) {
         c.addEventListener("click", function () { showEx(+c.getAttribute("data-go")); });
       });
@@ -287,14 +292,7 @@
         requestAnimationFrame(function () {
           var restoredExercise = wrap.querySelector(".exq:not([hidden])");
           if (!restoredExercise) return;
-          /* The root's smooth-scroll preference otherwise leaves the learner
-             looking at the lesson introduction while the saved exercise
-             animates from several screens away. Resume is a location change,
-             so place the active task immediately and preserve the preference. */
-          var root = document.documentElement, scrollBehavior = root.style.scrollBehavior;
-          root.style.scrollBehavior = "auto";
-          restoredExercise.scrollIntoView({ behavior: "auto", block: "center" });
-          root.style.scrollBehavior = scrollBehavior;
+          revealLessonExercise(restoredExercise, true);
         });
       }
     }
@@ -321,7 +319,36 @@
     if (session && run.answers.length) LearningJourney.saveResume(session.id, run.current, run.answers);
     drawRun();
     var cur = document.querySelectorAll("#exWrap .exq")[run.current];
-    if (cur) cur.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (cur) revealLessonExercise(cur, false);
+  }
+
+  /* On phones, the fixed menu button overlays the top-right corner. Scrolling
+     the active card into view could leave the exercise chips directly under
+     it, where taps were intercepted; smooth scrolling also fought Playwright
+     and rapid user taps while the chips moved. Keep the exercise navigation
+     just below that control and cancel any in-flight page scroll. */
+  function revealLessonExercise(node, isResume) {
+    var root = document.documentElement;
+    var previousBehavior = root.style.scrollBehavior;
+    var mobile = window.matchMedia && window.matchMedia("(max-width: 880px)").matches;
+    if (mobile) {
+      root.style.scrollBehavior = "auto";
+      var nav = document.querySelector(".ex-nav");
+      var toggle = document.getElementById("railToggle");
+      if (nav) {
+        var navTop = nav.getBoundingClientRect().top + window.pageYOffset;
+        var clearTop = toggle ? toggle.getBoundingClientRect().bottom + 10 : 72;
+        window.scrollTo(0, Math.max(0, navTop - clearTop));
+      } else {
+        node.scrollIntoView({ behavior: "auto", block: isResume ? "center" : "nearest" });
+      }
+    } else if (isResume) {
+      root.style.scrollBehavior = "auto";
+      node.scrollIntoView({ behavior: "auto", block: "center" });
+    } else {
+      node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    root.style.scrollBehavior = previousBehavior;
   }
 
   /** Draws the run: which exercise shows, the chips' states, the counters. */
@@ -329,8 +356,25 @@
     var n = run.answers.length;
     var answered = n - LessonRun.unanswered(run).length;
     var bar = document.getElementById("lessonBar"), score = document.getElementById("lessonScore");
+    var progressTrack = el().querySelector(".lesson-top__bar");
     if (bar) bar.style.width = pct(n ? answered / n : 0) + "%";
+    if (progressTrack) {
+      progressTrack.setAttribute("aria-valuenow", String(answered));
+      progressTrack.setAttribute("aria-valuetext", answered + "/" + n);
+    }
     if (score) score.textContent = run.answers.filter(function (answer) { return answer === true; }).length + "/" + n;
+    var answerSummary = el().querySelector(".js-ex-answered");
+    if (answerSummary) answerSummary.textContent = t("journey.answeredProgress", {
+      done: answered, total: n, remaining: n - answered
+    });
+    var hintPanel = el().querySelector(".journey-ex-guidance");
+    if (hintPanel) {
+      var hintKey = LearningJourney.exerciseGuidance(activeExercises[run.current], LearningJourney.profile().meaningfulSessions);
+      var hintHidden = LearningJourney.guidanceDismissed("lesson-" + session.id);
+      hintPanel.hidden = !hintKey || hintHidden;
+      var hintText = hintPanel.querySelector(".journey-ex-guidance__text");
+      if (hintText) hintText.textContent = hintKey ? t(hintKey) : "";
+    }
     document.querySelectorAll("#exWrap .exq").forEach(function (q, i) { q.hidden = i !== run.current; });
     document.querySelectorAll(".ex-chip").forEach(function (c, i) {
       var a = run.answers[i];
@@ -407,6 +451,10 @@
     var next = Core.nextLesson(LV);
     var levelProgress = Core.levelProgress(LV);
     var levelComplete = levelProgress.total > 0 && levelProgress.done === levelProgress.total;
+    var unitComplete = U.lessons && U.lessons.length > 0 && U.lessons.every(function (lesson) { return Core.isLessonDone(lesson.id); });
+    var completedLessons = LearningJourney.completedCount(Core.state);
+    var completionMessage = unitComplete ? t("journey.completeUnit", { unit: U.title })
+      : completedLessons === 1 ? t("journey.completeFirst") : "";
     var registryLevels = Core.registry.levels;
     var levelIndex = registryLevels.findIndex(function (level) { return level.code === LV.code; });
     var hasLaterLevel = levelIndex >= 0 && levelIndex + 1 < registryLevels.length;
@@ -425,6 +473,7 @@
     box.innerHTML = '<div class="summary">' +
       '<div class="summary__score">' + pct(p) + "%</div>" +
       '<p class="summary__msg">' + esc(msg) + " (" + res.score + "/" + res.total + ")</p>" +
+      (completionMessage ? '<aside class="journey-completion-note" lang="ar" dir="rtl">' + esc(completionMessage) + '</aside>' : "") +
       outcome +
       '<div class="summary__acts">' +
       '<button class="btn btn--ghost js-again">' + t("lesson.again") + "</button>" +

@@ -149,6 +149,64 @@ test("a learner who knows some Italian can choose a starting level", async ({ pa
   expect(await page.evaluate(() => window.Core.state.learningProfile.startingLevel)).toBe("B1");
 });
 
+test("onboarding back navigation preserves choices and all five steps fit mobile and desktop", async ({ page }) => {
+  await nowyUczen(page);
+  await page.goto("/index.html#/benvenuto");
+  await gotowe(page);
+  await expect(page.locator(".journey-step-markers .journey-step-marker")).toHaveCount(5);
+  await expect(page.locator(".journey-route")).toBeVisible();
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "horizontal overflow at welcome step 1, " + width).toBe(true);
+  }
+
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-start"][value="known"]').check();
+  await page.locator("#journeyLevel").selectOption("B1");
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "horizontal overflow at welcome step 2, " + width).toBe(true);
+  }
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-goal"][value="work"]').check();
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "horizontal overflow at welcome step 3, " + width).toBe(true);
+  }
+  await page.locator(".js-step-next").click();
+  await page.locator('[name="journey-minutes"][value="10"]').check();
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "horizontal overflow at welcome step 4, " + width).toBe(true);
+  }
+  await page.locator(".js-step-next").click();
+  await expect(page.locator(".journey-wizard")).toHaveAttribute("data-step", "5");
+  await expect(page.locator(".journey-head")).toContainText(await page.evaluate(() =>
+    window.I18n.t("welcome.recommendKnown", { level: "B1" })));
+  await expect(page.locator(".journey-card--summary")).toContainText(await page.evaluate(() => window.I18n.t("welcome.goal.work")));
+  await expect(page.locator(".journey-card--summary")).toContainText("10");
+  for (const width of [320, 360, 390, 430, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "horizontal overflow at welcome step 5, " + width).toBe(true);
+  }
+  await page.locator(".js-step-back").click();
+  await expect(page.locator('[name="journey-minutes"][value="10"]')).toBeChecked();
+  await page.locator(".js-step-back").click();
+  await expect(page.locator('[name="journey-goal"][value="work"]')).toBeChecked();
+  await page.locator(".js-step-back").click();
+  await expect(page.locator('[name="journey-start"][value="known"]')).toBeChecked();
+  await expect(page.locator("#journeyLevel")).toHaveValue("B1");
+  expect(await page.evaluate(() => ({ step: window.Core.state.learningProfile.onboardingStep,
+    mode: window.Core.state.learningProfile.startMode, level: window.Core.state.learningProfile.startingLevel,
+    goal: window.Core.state.learningProfile.goal, minutes: window.Core.state.learningProfile.dailyMinutes })))
+    .toEqual({ step: 2, mode: "known", level: "B1", goal: "work", minutes: 10 });
+});
+
 /* The same dependency on loading, but sharper: "from scratch" has to KNOW
    the id of the first lesson at the moment of the click, otherwise it
    quietly falls back to the list of levels — that is, it does the very thing
