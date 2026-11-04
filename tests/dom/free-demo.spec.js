@@ -1,0 +1,80 @@
+const { test, expect } = require("@playwright/test");
+const fs = require("node:fs");
+const AXE = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
+let server, base;
+test.beforeAll(async () => { const { serwer } = await import("../../scripts/serve.mjs"); server=serwer(); await new Promise(resolve=>server.listen(0,"localhost",resolve)); base="http://localhost:"+server.address().port; });
+test.afterAll(async () => { await new Promise(resolve=>server.close(resolve)); });
+async function open(browser,width,options={}) {
+ const context=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce",...options});await context.addInitScript(AXE);await context.addInitScript(()=>{window.__demoAudioPlayed=[];window.__demoAudioFail=false;window.Audio=class{constructor(src){this.src=new URL(src,location.href).href;window.__demoAudioPlayed.push(this.src);}play(){return window.__demoAudioFail?Promise.reject(new Error("synthetic audio failure")):Promise.resolve();}pause(){}};});
+ const page=await context.newPage(),billingWrites=[],errors=[];page.on("pageerror",error=>errors.push(error.message));
+ await page.route("**/api/auth/session",route=>route.fulfill({status:401,contentType:"application/json",body:'{"authenticated":false}'}));
+ await page.route("**/api/billing/**",route=>{const path=new URL(route.request().url()).pathname;if(path==="/api/billing/config")return route.fulfill({status:200,contentType:"application/json",body:'{"enabled":true,"amountCents":999,"currency":"eur","interval":"month","intervalCount":1}'});if(route.request().method()!=="GET"){billingWrites.push(path);return route.fulfill({status:503,contentType:"application/json",body:'{"error":"blocked_test_no_payment"}'});}return route.fulfill({status:401,contentType:"application/json",body:'{"error":"synthetic_unauthenticated"}'});});
+ await page.goto(base+"/index.html");await expect(page.locator("#guest-title")).toBeVisible();await expect(page.locator("#guest-demo")).toBeVisible();await page.waitForFunction(()=>window.Account.snapshot().checked);return {context,page,billingWrites,errors};
+}
+async function correctCurrentExercise(page,index) {
+ if(index===0){await page.locator(".guest-demo__choice").nth(1).click();await expect(page.locator(".guest-demo__status[role=alert]")).toBeVisible();await page.getByRole("button",{name:"حاول مرة أخرى"}).click();await page.locator(".guest-demo__choice").nth(0).click();}
+ if(index===1){await page.locator(".guest-demo__choice").nth(1).click();await expect(page.locator(".guest-demo__status[role=alert]")).toBeVisible();await page.getByRole("button",{name:"حاول مرة أخرى"}).click();await page.locator(".guest-demo__choice").nth(0).click();}
+ if(index===2){const order=["t-un-1","t-caffe","t-e","t-un-2","t-cornetto","t-per","t-favore"];for(const id of ["t-caffe","t-un-1","t-e","t-un-2","t-cornetto","t-per","t-favore"])await page.locator('.guest-demo__tokens [data-token-id="'+id+'"]').click();await page.locator(".guest-demo__token-actions .btn--primary").click();await expect(page.locator(".guest-demo__status[role=alert]")).toBeVisible();await page.getByRole("button",{name:"حاول مرة أخرى"}).click();for(const id of order)await page.locator('.guest-demo__tokens [data-token-id="'+id+'"]').click();await page.locator(".guest-demo__token-actions .btn--primary").click();}
+ await expect(page.locator(".guest-demo__status.is-correct")).toBeVisible();await page.getByRole("button",{name:index===2?"أكمل التجربة":"تابع إلى التمرين التالي"}).click();
+}
+for(const width of [390,1440])test("public demo completes its three exercises, preserves the paid boundary and adapts at "+width,async({browser,request})=>{
+ const {context,page,billingWrites,errors}=await open(browser,width);const requests=[];page.on("request",req=>requests.push({url:req.url(),method:req.method()}));
+ try{
+  const placement=await page.evaluate(()=>{const hero=document.querySelector(".guest-hero"),demo=document.querySelector(".guest-demo"),proof=document.querySelector(".guest-proof");return{insideBrandPage:!!demo.closest(".guest-page"),afterHero:hero.nextElementSibling===demo,beforeProof:demo.nextElementSibling===proof,officialLightLogo:document.querySelector('.guest-header .brand-logo--light').getAttribute("src"),officialDarkLogo:document.querySelector('.guest-header .brand-logo--dark').getAttribute("src"),sharedCoffeeIcon:!!demo.querySelector(".guest-demo__placeholder .vr-icon--coffee")};});
+  expect(placement).toEqual({insideBrandPage:true,afterHero:true,beforeProof:true,officialLightLogo:"assets/branding/header_public_light.svg",officialDarkLogo:"assets/branding/header_learning_dark.svg",sharedCoffeeIcon:true});
+  await expect(page.locator(".guest-demo__start")).toBeVisible();await expect(page.locator(".guest-demo__intro")).toContainText("ثلاثة تمارين");
+  const saved=await page.evaluate(()=>localStorage.getItem("linguai.italiano.v2"));await page.locator("[data-demo-start]").click();await expect(page.locator(".guest-demo__lesson")).toBeVisible();await expect(page.locator(".guest-demo__dialogue .guest-demo__line")).toHaveCount(5);await expect(page.locator(".guest-demo__choices")).toHaveCount(1);await expect(page.locator(".guest-demo__dialogue .guest-demo__italian").first()).toHaveAttribute("lang","it");await expect(page.locator(".guest-demo__dialogue .guest-demo__italian").first()).toHaveAttribute("dir","ltr");
+  for(let i=0;i<5;i++){const audio=await request.get(base+"/assets/marketing/demo-audio/line-"+(i+1)+".mp3");expect(audio.status()).toBe(200);expect(audio.headers()["content-type"]).toContain("audio/mpeg");}
+  await page.locator('[data-demo-audio="0"]').click();expect(await page.evaluate(()=>window.__demoAudioPlayed[0])).toBe(base+"/assets/marketing/demo-audio/line-1.mp3");await expect(page.locator("[data-audio-status]")).toContainText("جارٍ تشغيل");
+  for(let i=0;i<3;i++)await correctCurrentExercise(page,i);
+  await expect(page.locator("#guest-demo-complete-title")).toHaveText("كمّلت التجربة المجانية! 🎉");await expect(page.locator(".guest-demo__progress")).toHaveAttribute("value","3");
+  const subscribe=page.locator(".guest-demo-actions .guest-subscribe");await expect(subscribe).toHaveAttribute("href","#/billing");await expect(subscribe).toContainText("9.99€");expect(await subscribe.evaluate(el=>getComputedStyle(el).textDecorationLine)).toBe("none");await expect(page.locator(".guest-demo-actions .guest-whatsapp-link")).toBeVisible();const wa=new URL(await page.locator(".guest-demo-actions .guest-whatsapp-link").getAttribute("href"));expect(wa.origin+wa.pathname).toBe("https://wa.me/393517015376");
+  await context.route("https://wa.me/**",route=>route.fulfill({status:200,contentType:"text/html",body:"<!doctype html><title>Synthetic WhatsApp destination</title>"}));const popupPromise=page.waitForEvent("popup");await page.locator(".guest-demo-actions .guest-whatsapp-link").click();const popup=await popupPromise;expect(popup.url()).toContain("https://wa.me/393517015376");await popup.close();
+  expect(await page.evaluate(()=>localStorage.getItem("linguai.italiano.v2"))).toBe(saved);expect(billingWrites).toEqual([]);expect(requests.filter(r=>r.method!=="GET"&&r.url.includes("/api/billing/"))).toEqual([]);
+  expect(await page.locator(".guest-demo").evaluate(el=>getComputedStyle(el).direction)).toBe("rtl");expect(await page.locator(".guest-demo__italian").first().evaluate(el=>getComputedStyle(el).direction)).toBe("ltr");
+  const audit=await page.evaluate(async()=>window.axe.run(document.querySelector("#main"),{runOnly:{type:"tag",values:["wcag2a","wcag2aa","wcag21aa"]}}));expect(audit.violations.map(v=>({id:v.id,target:v.nodes.map(n=>n.target)}))).toEqual([]);expect(errors).toEqual([]);
+  await subscribe.click();await expect(page).toHaveURL(/#\/billing$/);await expect(page.locator("#billing-email")).toBeVisible();
+  await page.evaluate(()=>App.go("home"));await expect(page.locator("[data-demo-start]")).toBeVisible();await expect(page.locator(".guest-demo__lesson")).toHaveCount(0);await page.reload();await expect(page.locator("[data-demo-start]")).toBeVisible();await expect(page.locator(".guest-demo__lesson")).toHaveCount(0);expect(await page.evaluate(()=>localStorage.getItem("linguai.italiano.v2"))).toBe(saved);
+ }finally{await context.close();}
+});
+
+test("visitors can repeat the same demo and reload resets its in-memory progress",async({browser})=>{
+ const {context,page}=await open(browser,390);
+ try{const saved=await page.evaluate(()=>localStorage.getItem("linguai.italiano.v2"));await page.locator("[data-demo-start]").click();for(let n=0;n<3;n++)await correctCurrentExercise(page,n);await expect(page.locator("#guest-demo-complete-title")).toBeVisible();await page.locator(".guest-demo__repeat").click();await expect(page.locator("[data-demo-step]")).toHaveText("التمرين 1 من 3");await expect(page.locator(".guest-demo__progress")).toHaveAttribute("value","0");expect(await page.evaluate(()=>localStorage.getItem("linguai.italiano.v2"))).toBe(saved);await page.reload();await expect(page.locator("[data-demo-start]")).toBeVisible();await expect(page.locator(".guest-demo__lesson")).toHaveCount(0);expect(await page.evaluate(()=>localStorage.getItem("linguai.italiano.v2"))).toBe(saved);}finally{await context.close();}
+});
+
+test("demo audio failure is announced and does not block exercises; keyboard can answer",async({browser})=>{
+ const {context,page}=await open(browser,390);
+ try{await page.locator("[data-demo-start]").click();await page.locator('[data-demo-audio="0"]').evaluate(()=>window.__demoAudioFail=true);await page.locator('[data-demo-audio="0"]').click();await expect(page.locator("[data-audio-status]")).toHaveText("تعذّر تشغيل الصوت الآن. يمكنك متابعة الحوار والتمرين.");const first=page.locator(".guest-demo__choice").first();await first.focus();await page.keyboard.press("Enter");await expect(page.locator(".guest-demo__status.is-correct")).toBeVisible();await expect(page.getByRole("button",{name:"تابع إلى التمرين التالي"})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}finally{await context.close();}
+});
+
+test("demo uses landing-page green for actions and focus, reserving red for incorrect feedback",async({browser})=>{
+ for(const width of [390,1440]){const {context,page}=await open(browser,width);try{
+  await page.locator("[data-demo-start]").click();await expect(page.locator(".guest-demo__lesson")).toBeVisible();
+  const colors=await page.evaluate(()=>{const action=document.querySelector("[data-demo-start]"),focus=document.querySelector(".guest-demo__audio"),swatch=document.createElement("i");swatch.style.color="var(--salvia-deep)";swatch.style.borderColor="var(--rosa-deep)";document.body.append(swatch);focus.focus();const result={action:getComputedStyle(action).backgroundColor,focus:getComputedStyle(focus).outlineColor,green:getComputedStyle(swatch).color,red:getComputedStyle(swatch).borderColor};swatch.remove();return result;});
+  expect(colors.action).toBe(colors.green);expect(colors.focus).toBe(colors.green);expect(colors.focus).not.toBe(colors.red);
+  await page.locator(".guest-demo__choice").nth(1).click();await expect(page.locator(".guest-demo__status.is-incorrect")).toBeVisible();
+  const errorColor=await page.locator(".guest-demo__status.is-incorrect").evaluate(el=>getComputedStyle(el).borderInlineStartColor);expect(errorColor).toBe(colors.red);
+ }finally{await context.close();}}
+});
+
+test("real Chromium audio decodes the demo MP3 and advances playback after a user action",async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:900},reducedMotion:"reduce"});
+ await context.addInitScript(()=>{const NativeAudio=window.Audio;window.__realDemoAudio=[];window.Audio=function(src){const audio=new NativeAudio(src);window.__realDemoAudio.push(audio);return audio;};window.Audio.prototype=NativeAudio.prototype;});
+ const page=await context.newPage();
+ await page.route("**/api/auth/session",route=>route.fulfill({status:401,contentType:"application/json",body:'{"authenticated":false}'}));
+ await page.route("**/api/billing/**",route=>{const pathname=new URL(route.request().url()).pathname;if(pathname==="/api/billing/config")return route.fulfill({status:200,contentType:"application/json",body:'{"enabled":true,"amountCents":999,"currency":"eur","interval":"month","intervalCount":1}'});return route.fulfill({status:401,contentType:"application/json",body:'{"error":"synthetic_unauthenticated"}'});});
+ try{
+  await page.goto(base+"/index.html");await page.locator("[data-demo-start]").click();await expect(page.locator(".guest-demo__lesson")).toBeVisible();
+  const audioResponsePromise=page.waitForResponse(response=>response.url().includes("/assets/marketing/demo-audio/line-1.mp3"));
+  await page.locator('[data-demo-audio="0"]').click();const audioResponse=await audioResponsePromise;expect(audioResponse.status()).toBe(200);
+  await page.waitForFunction(()=>{const audio=window.__realDemoAudio[0];return audio&&audio.readyState>=HTMLMediaElement.HAVE_CURRENT_DATA&&audio.duration>0&&audio.played.length>0;},null,{timeout:15000});
+  const state=await page.evaluate(()=>{const audio=window.__realDemoAudio[0];return{duration:audio.duration,playedSeconds:audio.played.end(audio.played.length-1),paused:audio.paused,ended:audio.ended,readyState:audio.readyState};});
+  expect(state.readyState).toBeGreaterThanOrEqual(2);expect(state.duration).toBeGreaterThan(0);expect(state.playedSeconds).toBeGreaterThan(0);
+ }finally{await context.close();}
+});
+
+test("anonymous demo API stays separate from private lesson data, APIs and static server code",async({request})=>{
+ const demo=await request.get(base+"/api/demo");expect(demo.status()).toBe(200);const body=await demo.json();expect(body.exerciseCount).toBe(3);
+ expect((await request.get(base+"/data/core/a1-01.js")).status()).toBe(401);expect((await request.get(base+"/api/content?path=data/core/a1-01.js")).status()).toBe(401);expect((await request.get(base+"/server/public-demo.cjs")).status()).toBe(404);expect((await request.get(base+"/server/database.cjs")).status()).toBe(404);
+});

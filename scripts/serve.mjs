@@ -19,6 +19,7 @@ import { dirname, join, extname } from "node:path";
 import { resolvePublicPath } from "./public-files.mjs";
 import content from "../server/content-api.cjs";
 import contentPaths from "../server/content-path.cjs";
+import publicDemoModule from "../server/public-demo.cjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const STATIC_ROOT = process.env.VITA_STATIC_ROOT === "dist" ? join(ROOT, "dist") : ROOT;
@@ -66,9 +67,11 @@ export function serwer(opcje) {
   const podmiany = (opcje && opcje.podmiany) || {};
 
   const privateContent = content.createContentHandler({ root: ROOT, run: opcje && opcje.accountRun });
+  const publicDemo = publicDemoModule.createHandler();
   return createServer((req, res) => {
     let candidate; try { candidate = decodeURIComponent((req.url || "").split("?")[0]).slice(1); } catch { candidate = ""; }
     if (candidate === "api/content" || contentPaths.isPrivateContent(candidate)) { privateContent(req, res); return; }
+    if (candidate === "api/demo" || candidate.startsWith("api/demo/")) { publicDemo(req, res); return; }
     const adres = (req.url || "/").split("?")[0];
     const naglowki = { "Cache-Control": "no-store" };
 

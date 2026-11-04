@@ -14,7 +14,9 @@ test("public production bundles preserve exact classic script order and private 
   try {
     for(const name of ["index.html","sw.js"])copyFileSync(join(ROOT,name),join(tmp,name));
     const out=bundlePublic(ROOT,tmp);
-    assert.equal(out.shell,24);
+    assert.equal(out.shell,25);
+    const demoShell=out.paths.find(path=>readFileSync(join(tmp,path),"utf8").includes("/* assets/js/public-demo.js */"));
+    assert.ok(demoShell,"the public free-demo module must be included in the shell bundle");
     assert.ok(out.courseBundles>=15&&out.courseBundles<=45);
     assert.ok(out.privateModules>=10);
     assert.equal(out.bundledPublic+out.privateModules,out.courses);

@@ -6,10 +6,14 @@ import { resolve, relative, sep, extname, posix } from "node:path";
 export const PUBLIC_FILES = ["index.html", "404.html", "manifest.webmanifest", "sw.js", ".nojekyll",
   "LICENSE", "LICENSE-CONTENT", "README.md", "README.it.md", "SECURITY.md", "SECURITY.it.md"];
 export const PUBLIC_DIRS = ["assets", "data", "audio", "badges"];
+// The free landing-page demo may publish only these five original A1 bar-dialogue clips.
+export const PUBLIC_DEMO_AUDIO = [1, 2, 3, 4, 5].map(n => `assets/marketing/demo-audio/line-${n}.mp3`);
 const extensions = { assets: [".js", ".css", ".json", ".svg", ".png", ".ico", ".webp", ".jpg", ".jpeg", ".woff", ".woff2", ".ttf", ".txt"], data: [".js"], audio: [".mp3"], badges: [".json"] };
 
 export function isPublicPath(file) {
-  if (contentPaths.isPrivateContent(file) || file.startsWith("audio/") || (file.startsWith("data/") && !/^data\/i18n\/ui-(?:ar|en)\.js$/.test(file))) return false;
+  if (contentPaths.isPrivateContent(file)) return false;
+  if (PUBLIC_DEMO_AUDIO.includes(file)) return true;
+  if (file.startsWith("audio/") || (file.startsWith("data/") && !/^data\/i18n\/ui-(?:ar|en)\.js$/.test(file))) return false;
   if (PUBLIC_FILES.includes(file)) return true;
   if (file.includes("\\") || file.includes("\0")) return false;
   const parts = file.split("/");

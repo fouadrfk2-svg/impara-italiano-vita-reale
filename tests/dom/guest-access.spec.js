@@ -37,7 +37,7 @@ for(const width of [390,1440])test.describe('guest and learner at '+width,()=>{
    await guest(p);await expect(p.locator('#rail')).toBeHidden();await expect(p.locator('.bottom-nav')).toBeHidden();await expect(p.locator('#main')).not.toContainText('SYNTHETIC_PRIVATE_DRAFT');await audit(p);
    await p.evaluate(()=>App.go('privacy'));await expect(p.locator('#main h1')).toContainText('حسابك وخصوصيتك');await p.evaluate(()=>App.go('home'));
    for(const route of ['percorso','lezione?id=a1-u01-l1','ripasso','conversazione?id=bar-mattina','progressi','letture','scrittura','guida','unknown']){await p.evaluate(r=>{location.hash='#/'+r;},route);await expect(p.locator('.guest-page')).toBeVisible();await expect(p.locator('#rail')).toBeHidden();await expect(p.locator('.exq')).toHaveCount(0);}
-   await expect(p.locator('.js-guest-language,#langToggle,#langList')).toHaveCount(0);await p.evaluate(()=>App.applyLang('en'));await expect(p.locator('html')).toHaveAttribute('lang','ar');await expect(p.locator('html')).toHaveAttribute('dir','rtl');await expect(p.locator('#guest-title')).toContainText('تعلّم');await audit(p);
+   await expect(p.locator('.js-guest-language,#langToggle,#langList')).toHaveCount(0);await p.evaluate(()=>App.applyLang('en'));await expect(p.locator('html')).toHaveAttribute('lang','ar');await expect(p.locator('html')).toHaveAttribute('dir','rtl');await expect(p.locator('#guest-title')).toContainText('تعيش في إيطاليا');await audit(p);
    expect(requests.filter(s=>/^\/(data\/(?!i18n\/ui-)|audio\/)/.test(s))).toEqual([]);expect(errors).toEqual([]);expect(await p.evaluate(()=>Core.state.lessons['a1-u01-l1'].done)).toBe(true);
   }finally{await c.close();}
  });
