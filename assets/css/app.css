@@ -600,7 +600,7 @@ button{font:inherit;color:inherit;}
 .level-pill{
   flex:0 0 auto;min-width:132px;
   border:2px solid var(--line-strong);border-radius:var(--r-l);
-  background:var(--paper-2);padding:12px 16px;cursor:pointer;text-align:left;
+  background:var(--paper-2);padding:12px 16px;cursor:pointer;text-align:start;
   transition:border-color .16s, transform .16s;
 }
 .level-pill:hover{transform:translateY(-2px);border-color:var(--salvia-mid);}
@@ -612,6 +612,11 @@ button{font:inherit;color:inherit;}
 .level-pill__name{font-size:.74rem;color:var(--ink-soft);display:block;font-weight:600;}
 .level-pill__bar{height:6px;background:var(--paper-sunk);border-radius:var(--r-pill);margin-top:8px;overflow:hidden;}
 .level-pill__bar i{display:block;height:100%;background:var(--salvia-deep);border-radius:var(--r-pill);}
+
+@media (min-width:561px) and (max-width:1000px){
+  .level-strip{gap:8px;scroll-snap-type:x mandatory;scroll-padding-inline:4px;}
+  .level-pill{flex:0 0 calc((100% - 16px)/3);min-width:0;scroll-snap-align:start;}
+}
 
 .unit{
   position:relative;
@@ -784,8 +789,11 @@ table.gt .it{font-weight:700;color:var(--salvia-deep);}
    stay visible without a nested horizontal scroller on narrow phones. */
 .progress-chart{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;align-items:end;height:154px;min-width:0;}
 .progress-chart__day{display:flex;min-width:0;height:100%;flex-direction:column;align-items:stretch;justify-content:flex-end;text-align:center;}
+.progress-chart--empty{height:auto;}
+.progress-chart--empty .progress-chart__day{height:auto;}
 .progress-chart__bar{display:block;min-height:4px;border-radius:5px 5px 0 0;}
 .progress-chart__label{margin-top:5px;min-width:0;color:var(--ink-faint);font-size:.65rem;line-height:1.2;white-space:nowrap;}
+.progress-chart__date{display:none;}
 
 .ex-list{list-style:none;margin:16px 0 0;padding:0;}
 .ex-list li{
@@ -860,8 +868,9 @@ table.gt .it{font-weight:700;color:var(--salvia-deep);}
   border:2px solid var(--line);background:var(--paper-2);
   border-radius:var(--r-l);padding:22px 24px;margin-bottom:16px;
 }
-.exq--ok{border-color:var(--ok);}
-.exq--ko{border-color:var(--ko);}
+/* The selected answer and feedback block carry the result. Keep the outer
+   exercise surface neutral so the same status is not outlined three times. */
+.exq--ok,.exq--ko{border-color:var(--line);}
 .exq__num{
   font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   color:var(--lavanda-deep);margin:0 0 8px;display:flex;align-items:center;gap:10px;
@@ -1391,6 +1400,8 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
    native table structure and headers for assistive technology; the labels
    repeat each column heading visually only at the mobile breakpoint. */
 @media (max-width:560px){
+  .level-strip{gap:8px;scroll-snap-type:x mandatory;scroll-padding-inline:4px;}
+  .level-pill{flex:0 0 calc((100% - 8px)/2);min-width:0;scroll-snap-align:start;}
   .table-wrap[data-mobile-layout="records"]{overflow:visible;border:0;border-radius:0;}
   table.gt[data-mobile-layout="records"]{display:block;width:100%;min-width:0;border-collapse:separate;background:transparent;}
   table.gt[data-mobile-layout="records"] thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
@@ -1412,6 +1423,9 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   .cils-tab[data-mobile-layout="records"] tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--paper-2);}
   .cils-tab[data-mobile-layout="records"] th,.cils-tab[data-mobile-layout="records"] td{border:0;padding:0;text-align:start;}
   .progress-chart{gap:2px;height:132px;}
+  .progress-chart--empty{height:auto;}
+  .progress-chart__weekday{display:none;}
+  .progress-chart__date{display:inline;}
   .progress-chart__label{font-size:.58rem;letter-spacing:-.02em;}
 }
 
@@ -1519,3 +1533,135 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
 }
 @media(max-width:380px){.journey-progress-groups{grid-template-columns:minmax(0,1fr);}}
 @media(prefers-reduced-motion:reduce){.journey-track i,.journey-step-marker,.journey-progress-item progress::-webkit-progress-value,.journey-activity-progress progress::-webkit-progress-value{transition:none;}#exWrap .exq:not([hidden]){animation:none;}}
+
+
+/* ══════════════════ SHARED UI POLISH ══════════════════
+   Keep one measured type and spacing rhythm across learner routes. This is a
+   presentation-only layer: content, learning state and route behavior remain
+   owned by their existing components. */
+:root{
+  --type-caption:.8rem;
+  --type-label:.88rem;
+  --type-body:1rem;
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:20px;
+  --space-6:24px;
+  --space-8:32px;
+  --space-10:40px;
+  --space-card:24px;
+  --space-panel:clamp(18px,2vw,24px);
+  --space-page-section:clamp(26px,3vw,36px);
+  --touch-target:44px;
+}
+
+/* Secondary labels remain secondary, but stay readable in Arabic and Latin. */
+.rail__group-title,.rail__stat span,.rail__stats-go,.rail__badge,
+.view-head__kicker,.card-eyebrow,.chip,.level-pill__count,
+.unit__count span,.node__txt span,table.gt thead th,
+.progress-chart__label,.exq__num,.vocab-card__ex,.vocab-card__star,
+.journey-route__index,.cils-step,.sp-num{
+  font-size:var(--type-caption);
+}
+.rail__group-title,.rail__stat span,.view-head__kicker,.card-eyebrow,
+html[dir="rtl"] .rail__group-title,html[dir="rtl"] .view-head__kicker,
+html[dir="rtl"] .card-eyebrow{letter-spacing:normal;}
+.rail__stat span{line-height:1.35;text-transform:none;}
+.rail__theme{min-height:var(--touch-target);font-size:var(--type-label);}
+.view-head{margin-bottom:var(--space-6);}
+.view-head h1{line-height:1.2;}
+.view-head p{max-width:62ch;line-height:1.75;}
+.view-head__more,.unit__toggle,.guide-toc .btn{min-height:var(--touch-target);padding-inline:var(--space-2);}
+.card{padding:var(--space-panel);}
+.stack{gap:var(--space-4);}
+.grid-2{gap:var(--space-4);}
+.meta-row{gap:var(--space-2);}
+.divider{margin:var(--space-10) 0;}
+.bottom-nav__item{font-size:var(--type-caption);line-height:1.4;}
+.site-foot a{min-height:var(--touch-target);padding-block:9px;}
+.stat-card span,.today-next__progress{font-size:var(--type-label);}
+.progress-chart__label{line-height:1.35;}
+.level-pill__name,.unit__titles p,.list-row__main span,
+.ex-list .nb,.vocab-card__pl,.dlg__pl,.dlg-opt span,
+.exq__sub,.fb__why,.journey-progress-item,.journey-activity-progress>p{
+  font-size:var(--type-label);
+}
+.ex-list .nb,.vocab-card__ex{color:var(--ink-soft);}
+.say-btn{flex-basis:var(--touch-target);width:var(--touch-target);height:var(--touch-target);}
+.vocab-card__star,.tok{min-height:var(--touch-target);}
+.btn--sm,.btn--quiet{min-height:var(--touch-target);}
+.welcome-lang__opt,.guide-toc .btn{min-height:var(--touch-target);}
+.main :is(.card,.list-row,.exq,.callout,.summary,.unit__head,.vocab-card,.dlg__bubble){min-width:0;}
+.main :is(.btn,.opt,.dlg-opt,.match-btn){max-width:100%;white-space:normal;overflow-wrap:anywhere;}
+.path-resume__label{margin:0 0 var(--space-1);color:var(--salvia-deep);font-size:var(--type-caption);font-weight:700;line-height:1.4;letter-spacing:normal;text-transform:none;}
+
+/* The same visual grammar now carries the overview, learning and practice
+   surfaces: clear page rhythm, one quiet elevation level, and compact record
+   rows. Intentional color states remain owned by their existing components. */
+.main>.view-head{max-width:72ch;margin-inline-end:auto;margin-bottom:var(--space-page-section);}
+.main>.view-head h1{text-wrap:balance;}
+.main>:is(.card,.summary,.gram-box,.journey-today,.exq){border-width:1px;border-color:var(--line);box-shadow:var(--shadow-s);}
+.main>.card,.main>.journey-today{border-radius:var(--r-l);}
+.main .list-row,.main .stat-card,.main .vocab-card,.main .journey-progress-item,
+.main .journey-card,.main .journey-plan{border-width:1px;border-color:var(--line);border-radius:var(--r-m);}
+.main .step{margin-bottom:var(--space-page-section);}
+.main .step__label{margin-bottom:12px;line-height:1.35;}
+.main .prose{max-width:72ch;line-height:1.78;}
+.main .prose p{line-height:1.78;margin-block:.72em;}
+.main .prose li{line-height:1.7;}
+.main .journey-today{padding:var(--space-panel);}
+.journey-today__actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 2px;}
+.journey-today__actions .js-resume,.journey-today__actions .js-next-lesson,.journey-today__actions .js-start{min-height:50px;min-width:min(250px,100%);}
+.journey-today__actions .btn--ghost{min-height:46px;}
+.journey-today>.btn{width:auto;}
+.journey-progress-groups{gap:10px;margin-top:16px;}
+.journey-progress-item{min-height:68px;padding:11px 13px;}
+.journey-minutes{align-items:center;}
+.lesson-steps{align-items:center;gap:8px;margin-bottom:var(--space-page-section);}
+.lesson-steps__btn{flex:0 0 auto;border:1px solid var(--line-control);border-radius:var(--r-m);padding:8px 14px;line-height:1.3;white-space:nowrap;scroll-snap-align:start;}
+.exq{padding:clamp(18px,2.2vw,24px);border-radius:var(--r-l);}
+.exq__num{margin-bottom:10px;line-height:1.4;}
+.exq__prompt{font-size:1.08rem;line-height:1.55;}
+.opts{gap:8px;}
+.opt{min-height:52px;padding:12px 15px;border-width:1.5px;line-height:1.5;}
+.exq .js-check{display:flex;width:fit-content;margin-inline-end:auto;}
+.fb{padding:14px 16px;line-height:1.6;border-width:1.5px;}
+.fb__why{line-height:1.65;}
+.summary{padding:clamp(28px,4vw,40px) clamp(18px,3vw,30px);}
+.stat-card{display:grid;align-content:space-between;gap:9px;min-height:104px;padding:16px 18px;}
+.stat-card b{font-size:1.9rem;line-height:1.05;}
+.stat-card span{line-height:1.45;}
+.progress-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+.progress-level-row{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(116px,160px) auto;align-items:center;gap:10px 14px;}
+.progress-level-row>.chip:first-child{grid-column:1;grid-row:1;}
+.progress-level-row>.list-row__main{grid-column:2;grid-row:1;}
+.progress-level-row>span:nth-child(3){grid-column:3;grid-row:1;width:100%;min-width:0;flex:unset;}
+.progress-level-row>.chip:last-child{grid-column:4;grid-row:1;}
+.progress-level-row .level-pill__bar{display:block;width:100%;}
+.main .list-row.progress-level-row{padding:13px 16px;}
+.main .list-row:not(.progress-level-row){min-height:62px;}
+.main .card,.main .stat-card,.main .list-row,.main .journey-card,.main .journey-plan{transition:border-color .16s ease,box-shadow .16s ease;}
+
+@media(max-width:420px){
+  :root{--space-card:18px;--space-panel:16px;--space-page-section:26px;}
+  .card{padding:var(--space-card);}
+  .summary{padding:28px 18px;}
+  .stack,.grid-2{gap:var(--space-3);}
+  .progress-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .progress-stat-grid .stat-card{min-height:96px;padding:13px 14px;}
+  .progress-stat-grid .stat-card b{font-size:1.65rem;}
+  .journey-today__actions{display:grid;grid-template-columns:minmax(0,1fr);}
+  .journey-today__actions>.btn{width:100%;min-width:0;}
+  .progress-level-row{grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;}
+  .progress-level-row>.list-row__main{grid-column:2;grid-row:1;}
+  .progress-level-row>span:nth-child(3){grid-column:2;grid-row:2;}
+  .progress-level-row>.chip:last-child{grid-column:3;grid-row:1/3;}
+  .main .list-row.progress-level-row{padding:11px 12px;}
+  .lesson-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:2px 0 8px;}
+  .lesson-steps__btn{width:100%;min-height:44px;padding:8px 6px;font-size:.82rem;white-space:normal;text-align:center;}
+  .ex-chips{display:grid;grid-template-columns:repeat(5,44px);gap:6px;}
+}
+
+@media(min-width:421px) and (max-width:1000px){.progress-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}

@@ -9,6 +9,10 @@
     }
   },
   "functions": {
+    "api/demo.js": {
+      "maxDuration": 10,
+      "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**,server/database.cjs,server/account-api.cjs}"
+    },
     "api/health.js": {
       "maxDuration": 10,
       "excludeFiles": "{.env,.env.*,dist/**,audio/**,data/**,assets/**,tests/**,docs/**}"

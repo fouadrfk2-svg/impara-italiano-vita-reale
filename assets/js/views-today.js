@@ -173,7 +173,7 @@
       '<span class="journey-lesson-title" lang="it" dir="ltr">' + esc(lessonName || t("journey.noOpenLesson")) + "</span></div>" +
       activityMarkup +
       '<h2 id="journeyTodayTitle">' + esc(actionTitle) + "</h2><p>" + esc(actionWhy) + "</p>" +
-      primary + secondary +
+      '<div class="journey-today__actions">' + primary + secondary + '</div>' +
       (progressCards ? '<div class="journey-progress-groups">' + progressCards + '</div>' : "") + companionMarkup +
       '<p class="journey-focus">' + esc(t("journey.goalFocus", { goal: t("welcome.goal." + profile.goal) })) + "</p>" +
       '<div class="journey-minutes" role="group" aria-label="' + esc(t("journey.sessionLength")) + '">' + minutes + "</div>" +

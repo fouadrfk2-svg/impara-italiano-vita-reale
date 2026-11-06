@@ -47,6 +47,15 @@ for(const width of WIDTHS){
   const saved=await page.evaluate(()=>JSON.stringify({lessons:Core.state.lessons,writing:Core.state.writing,srs:Core.state.srs}));
   for(const [route,params] of ROUTES){
    await visit(page,route,params);await page.evaluate(()=>document.fonts.ready);await pageFits(page,route+(params?.id?`:${params.id}`:''));
+   if(route==='percorso'){
+    const partial=await page.locator('.level-strip').evaluate(strip=>{
+     const box=strip.getBoundingClientRect(),left=box.left+strip.clientLeft,right=left+strip.clientWidth;
+     return [...strip.querySelectorAll('.level-pill')].map(button=>button.getBoundingClientRect())
+      .filter(rect=>rect.left<right&&rect.right>left)
+      .filter(rect=>rect.left<left-1||rect.right>right+1).length;
+    });
+    expect(partial,`level selector shows a clipped card at ${width}px`).toBe(0);
+   }
    if(route==='lezione'){
     const record=page.locator('#step-gram table.gt[data-mobile-layout="records"]');
     await expect(record).toBeVisible();
@@ -60,7 +69,17 @@ for(const width of WIDTHS){
     await expect(wrap).toHaveAttribute('role','region');await expect(wrap).toHaveAttribute('tabindex','0');
     expect(await wrap.locator('table').getAttribute('data-mobile-layout')).toBe('scroll');
    }
-   if(route==='progressi'&&width===390){expect(await page.locator('.progress-chart__day').count()).toBe(14);await page.evaluate(()=>{const node=document.querySelector('.progress-chart');window.scrollTo(0,node.getBoundingClientRect().top+window.scrollY-24);});await capture(page,'progress-390');}
+   if(route==='progressi'){
+    await page.evaluate(()=>{Core.state.stats.days={};Views.progressi();});
+    expect(await page.locator('.progress-chart__day').count()).toBe(14);
+    const chart=await page.locator('.progress-chart').evaluate(node=>({empty:node.classList.contains('progress-chart--empty'),height:node.getBoundingClientRect().height}));
+    expect(chart.empty,`zero-activity chart should expose its honest empty state at ${width}px`).toBe(true);
+    expect(chart.height,`zero-activity chart should not reserve blank space at ${width}px`).toBeLessThan(50);
+    const labels=await page.locator('.progress-chart__day').first().evaluate(node=>({weekday:getComputedStyle(node.querySelector('.progress-chart__weekday')).display,date:getComputedStyle(node.querySelector('.progress-chart__date')).display}));
+    expect(labels.date,`compact date labels should be visible at ${width}px`).toBe(width<=560?'inline':'none');
+    expect(labels.weekday,`weekday labels should remain visible at ${width}px`).toBe(width<=560?'none':'inline');
+    if(width===390){await page.evaluate(()=>{const node=document.querySelector('.progress-chart');window.scrollTo(0,node.getBoundingClientRect().top+window.scrollY-24);});await capture(page,'progress-390');}
+   }
   }
   if(width===390){
    await visit(page,'coniugatore');await page.locator('.js-verb').fill('essere');await page.locator('.js-go').click();
@@ -81,6 +100,16 @@ for(const width of WIDTHS){
   expect(errors).toEqual([]);
  });
 }
+
+test('exercise feedback keeps the error cue in the answer and explanation, not the entire card',async({page})=>{
+ await page.setViewportSize({width:390,height:900});
+ await page.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,onboarded:true,settings:{lang:'ar',autoplay:false}})));
+ await page.goto('/index.html#/lezione?id=a1-u01-l1');await ready(page);await expect(page.locator('.exq:visible').first()).toBeVisible();
+ const exercise=page.locator('.exq:visible').first();await exercise.locator('input[type="radio"]').last().check();await exercise.locator('.js-check').click();
+ await expect(exercise.locator('.fb--ko.is-on')).toBeVisible();
+ const colors=await exercise.evaluate(node=>({outer:getComputedStyle(node).borderTopColor,feedback:getComputedStyle(node.querySelector('.fb')).borderTopColor,answer:getComputedStyle(node.querySelector('.opt.is-ko')).borderTopColor}));
+ expect(colors.feedback).not.toBe(colors.outer);expect(colors.answer).not.toBe(colors.outer);
+});
 
 test('CILS results keep skill labels and values readable as mobile records',async({page})=>{
  await page.setViewportSize({width:390,height:900});

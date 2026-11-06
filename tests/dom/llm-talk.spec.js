@@ -201,6 +201,7 @@ test.describe("the order of the providers", () => {
     await page.addInitScript(() => {
       window.localStorage.setItem("linguai.italiano.v2", JSON.stringify({
         schema: 2,
+        onboarded: true,
         settings: { lang: "pl", llmOrder: ["mistral", "openai", "openai", "__proto__"] }
       }));
     });

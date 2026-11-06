@@ -128,7 +128,7 @@
     }
     return '<div class="card" style="margin-bottom:26px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;border-color:var(--salvia-mid)">' +
       '<div style="flex:1;min-width:220px">' +
-      '<p style="font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--salvia-deep);margin:0 0 4px">' + t("path.continue") + "</p>" +
+      '<p class="path-resume__label">' + t("path.continue") + "</p>" +
       "<h3 style=\"margin:0 0 2px\">" + esc(next.lesson.titleIt) + "</h3>" +
       '<p style="margin:0;color:var(--ink-soft);font-size:.9rem">' + esc(next.unit.title) + " · " + esc(next.lesson.title) + "</p></div>" +
       '<button class="btn btn--primary" data-lesson="' + esc(next.lesson.id) + '">' + t("path.start") + "</button></div>";

@@ -36,6 +36,219 @@
     });
   }
 
+  function mountHeroPreview(root, onStart) {
+    if (!root || root.dataset.heroPreviewMounted === "1") return;
+    root.dataset.heroPreviewMounted = "1";
+
+    var figure = root.closest(".guest-hero-product");
+    var title = figure && figure.querySelector("[data-hero-preview-title]");
+    var lesson = null, selected = null, loading = false, currentAudio = null;
+
+    function setAudioStatus(text, bad) {
+      var status = root.querySelector("[data-hero-audio-status]");
+      if (!status) return;
+      status.textContent = text;
+      status.setAttribute("role", bad ? "alert" : "status");
+    }
+
+    function stopAudio() {
+      if (!currentAudio) return;
+      currentAudio.pause();
+      currentAudio = null;
+      root.querySelectorAll("[data-hero-preview-audio]").forEach(function (button) {
+        button.setAttribute("aria-pressed", "false");
+      });
+    }
+
+    function renderError() {
+      if (!root.isConnected) return;
+      root.setAttribute("aria-busy", "false");
+      root.replaceChildren();
+      var message = node("p", "guest-hero-preview__status", copy.loadError, { role: "alert" });
+      var retry = node("button", "btn btn--ghost guest-hero-preview__load-retry", copy.retry, { type: "button" });
+      retry.addEventListener("click", load);
+      root.append(message, retry);
+    }
+
+    function appendMixedPrompt(target, prompt) {
+      var phrase = "Dica pure";
+      var phraseAt = prompt.indexOf(phrase);
+      if (phraseAt < 0) {
+        target.textContent = prompt;
+        return;
+      }
+      target.append(document.createTextNode(prompt.slice(0, phraseAt)));
+      target.append(node("bdi", "", phrase, { lang: "it", dir: "ltr" }));
+      target.append(document.createTextNode(prompt.slice(phraseAt + phrase.length)));
+    }
+
+    function render() {
+      if (!root.isConnected || !lesson) return;
+      stopAudio();
+      root.setAttribute("aria-busy", "false");
+      if (title) title.textContent = lesson.subtitle;
+      root.replaceChildren();
+
+      var preview = node("div", "guest-hero-preview");
+      var dialogue = node("ol", "guest-hero-preview__dialogue", null, { "aria-label": "مقتطف من الحوار" });
+      lesson.dialogue.slice(0, 2).forEach(function (line, index) {
+        var row = node("li", "guest-hero-preview__line" + (index === 0 ? " guest-hero-preview__line--barista" : " guest-hero-preview__line--customer"));
+        var speaker = node("span", "guest-hero-preview__speaker", index === 0 ? "الباريستا" : "الزبون");
+        var words = node("div", "guest-hero-preview__line-copy");
+        words.append(node("bdi", "guest-hero-preview__italian", line.italian, { lang: "it", dir: "ltr" }));
+        words.append(node("span", "guest-hero-preview__arabic", line.arabic, { lang: "ar", dir: "rtl" }));
+
+        var play = node("button", "guest-hero-preview__audio", null, {
+          type: "button",
+          "aria-label": "استمع إلى الجملة " + (index + 1) + " بالإيطالية",
+          "aria-pressed": "false",
+          "data-hero-preview-audio": String(index)
+        });
+        var icon = node("img", "guest-hero-preview__audio-icon", null, {
+          src: "assets/icons/phosphor/regular/speaker-high.svg",
+          alt: "",
+          "aria-hidden": "true",
+          width: "20",
+          height: "20"
+        });
+        play.append(icon, node("span", "visually-hidden", "استمع"));
+        play.addEventListener("click", async function () {
+          stopAudio();
+          play.setAttribute("aria-pressed", "true");
+          setAudioStatus(copy.audioPlaying, false);
+          try {
+            currentAudio = new global.Audio(line.audio);
+            currentAudio.onended = function () {
+              play.setAttribute("aria-pressed", "false");
+              currentAudio = null;
+              setAudioStatus(copy.audioReady, false);
+            };
+            currentAudio.onerror = function () {
+              play.setAttribute("aria-pressed", "false");
+              currentAudio = null;
+              setAudioStatus(copy.audioError, true);
+            };
+            await currentAudio.play();
+          } catch (_) {
+            play.setAttribute("aria-pressed", "false");
+            currentAudio = null;
+            setAudioStatus(copy.audioError, true);
+          }
+        });
+        row.append(speaker, words, play);
+        dialogue.append(row);
+      });
+      preview.append(dialogue);
+      preview.append(node("p", "guest-hero-preview__audio-status", copy.audioReady, { "data-hero-audio-status": "", role: "status" }));
+
+      var exercise = lesson.exercises[0];
+      var section = node("section", "guest-hero-preview__exercise", null, { "aria-labelledby": "guest-hero-preview-question" });
+      section.append(node("p", "guest-hero-preview__exercise-label", "جرّب بنفسك"));
+      var form = node("form", "guest-hero-preview__form");
+      var fieldset = node("fieldset", "guest-hero-preview__fieldset");
+      var prompt = node("legend", "guest-hero-preview__prompt", null, { id: "guest-hero-preview-question", lang: "ar", dir: "rtl" });
+      appendMixedPrompt(prompt, exercise.prompt);
+      fieldset.append(prompt);
+
+      var options = node("div", "guest-hero-preview__options");
+      exercise.options.forEach(function (option, index) {
+        var label = node("label", "guest-hero-preview__option");
+        var radio = node("input", "", null, {
+          type: "radio",
+          name: "hero-preview-answer",
+          value: option.id,
+          "data-hero-preview-choice": String(index)
+        });
+        var value = node("bdi", "guest-hero-preview__option-copy", option.text, {
+          lang: option.lang,
+          dir: option.lang === "it" ? "ltr" : "rtl"
+        });
+        radio.addEventListener("change", function () {
+          selected = option.id;
+          options.querySelectorAll(".guest-hero-preview__option").forEach(function (item) { item.classList.remove("is-selected"); });
+          label.classList.add("is-selected");
+          submit.disabled = false;
+        });
+        label.append(radio, value);
+        options.append(label);
+      });
+      fieldset.append(options);
+
+      var feedback = node("p", "guest-hero-preview__feedback", "", { "data-hero-preview-feedback": "", dir: "auto", hidden: "" });
+      var actions = node("div", "guest-hero-preview__actions");
+      var submit = node("button", "btn btn--primary guest-hero-preview__submit", copy.check, { type: "submit", disabled: "" });
+      actions.append(submit);
+      form.append(fieldset, feedback, actions);
+      section.append(form);
+      preview.append(section);
+      root.append(preview);
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (!selected || loading) return;
+        loading = true;
+        root.setAttribute("aria-busy", "true");
+        fieldset.disabled = true;
+        submit.disabled = true;
+        feedback.classList.remove("is-correct", "is-incorrect");
+        feedback.hidden = true;
+        request(API, "POST", { exerciseId: exercise.id, answer: selected }).then(function (result) {
+          if (!root.isConnected) return;
+          loading = false;
+          root.setAttribute("aria-busy", "false");
+          feedback.textContent = result.feedback;
+          feedback.hidden = false;
+          feedback.classList.add(result.correct ? "is-correct" : "is-incorrect");
+          feedback.setAttribute("role", result.correct ? "status" : "alert");
+          submit.hidden = true;
+
+          if (result.correct) {
+            var start = node("button", "btn btn--primary guest-hero-preview__start", "ابدأ التجربة المجانية", { type: "button" });
+            start.addEventListener("click", function () {
+              if (typeof onStart === "function") onStart();
+            });
+            actions.append(start);
+          } else {
+            var retry = node("button", "btn btn--ghost guest-hero-preview__retry", copy.retry, { type: "button" });
+            retry.addEventListener("click", render);
+            actions.append(retry);
+          }
+        }).catch(function () {
+          if (!root.isConnected) return;
+          loading = false;
+          root.setAttribute("aria-busy", "false");
+          fieldset.disabled = false;
+          submit.disabled = !selected;
+          submit.hidden = false;
+          feedback.textContent = "تعذّر التحقّق من الإجابة. حاول مجددًا.";
+          feedback.hidden = false;
+          feedback.classList.add("is-incorrect");
+          feedback.setAttribute("role", "alert");
+        });
+      });
+    }
+
+    function load() {
+      if (loading) return;
+      loading = true;
+      root.setAttribute("aria-busy", "true");
+      root.replaceChildren(node("p", "guest-hero-preview__status", "جارٍ تحميل معاينة الدرس…", { role: "status" }));
+      request(API, "GET").then(function (data) {
+        var first = data && Array.isArray(data.exercises) && data.exercises[0];
+        var valid = data && data.exerciseCount === 3 && Array.isArray(data.dialogue) && data.dialogue.length === 5 && first && first.type === "choice" && Array.isArray(first.options) && first.options.length === 3;
+        if (!valid) throw Error("invalid_demo_preview");
+        lesson = data;
+        loading = false;
+        render();
+      }).catch(function () {
+        loading = false;
+        renderError();
+      });
+    }
+
+    load();
+  }
+
   function mount(root) {
     if (!root || root.dataset.demoMounted === "1") return;
     root.dataset.demoMounted = "1";
@@ -398,5 +611,5 @@
     if (start) start.addEventListener("click", begin);
   }
 
-  global.PublicDemo = Object.freeze({ mount: mount });
+  global.PublicDemo = Object.freeze({ mount: mount, mountHeroPreview: mountHeroPreview });
 })(window);

@@ -26,34 +26,36 @@
 
     // the day abbreviations come from Intl, not from an array: otherwise every language needs its own
     var weekday = new Intl.DateTimeFormat(I18n.locale(), { weekday: "short" });
+    var dayNumber = new Intl.DateTimeFormat(I18n.locale(), { day: "numeric" });
     var days = [];
     for (var d = 13; d >= 0; d--) {
       var dt = new Date(Date.now() - d * 86400000);
       var key = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
-      days.push({ key: key, v: s.stats.days[key] || 0, label: weekday.format(dt) });
+      days.push({ key: key, v: s.stats.days[key] || 0, label: weekday.format(dt), dateLabel: dayNumber.format(dt) });
     }
     var max = Math.max.apply(null, days.map(function (x) { return x.v; }).concat([1]));
+    var hasActivity = days.some(function (x) { return x.v > 0; });
 
     set(pageHead(t("prog.kicker"), t("prog.title"), t("prog.intro")) +
-      '<div class="grid-2" style="margin-bottom:28px">' +
+      '<div class="grid-2 progress-stat-grid" style="margin-bottom:28px">' +
       '<div class="stat-card"><b>' + s.streak.count + "</b><span>" + esc(t("prog.streak", { best: s.streak.best })) + "</span></div>" +
       '<div class="stat-card"><b>' + s.stats.lessonsDone + "</b><span>" + esc(t("prog.lessonsDone")) + "</span></div>" +
       '<div class="stat-card"><b>' + acc + "%</b><span>" + esc(t("prog.accuracy")) + "</span></div>" +
       '<div class="stat-card"><b>' + s.xp + "</b><span>" + esc(t("prog.points")) + "</span></div></div>" +
 
       '<h2 style="font-size:1.2rem;margin-bottom:12px">' + t("prog.lastTwoWeeks") + "</h2>" +
-      '<div class="card" style="margin-bottom:28px"><div class="progress-chart" role="list" aria-label="' + esc(t("prog.lastTwoWeeks")) + '">' +
+      '<div class="card" style="margin-bottom:28px"><div class="progress-chart' + (hasActivity ? '' : ' progress-chart--empty') + '" role="list" aria-label="' + esc(t("prog.lastTwoWeeks")) + '">' +
       days.map(function (x) {
         var h = Math.max(4, Math.round(100 * x.v / max));
         return '<div class="progress-chart__day" role="listitem" aria-label="' + esc(x.label + ": " + t("prog.answers", { n: x.v })) + '">' +
           '<span class="progress-chart__bar" aria-hidden="true" style="height:' + h + 'px;background:' + (x.v ? "var(--salvia-deep)" : "var(--line)") + '"></span>' +
-          '<span class="progress-chart__label">' + x.label + "</span></div>";
+          '<span class="progress-chart__label"><span class="progress-chart__weekday">' + esc(x.label) + '</span><span class="progress-chart__date" aria-hidden="true">' + esc(x.dateLabel) + "</span></span></div>";
       }).join("") + "</div></div>" +
 
       '<h2 style="font-size:1.2rem;margin-bottom:12px">' + t("prog.levels") + '</h2><div class="stack">' +
       Core.registry.levels.map(function (lv) {
         var p = Core.levelProgress(lv);
-        return '<div class="list-row"><span class="chip chip--cefr">' + esc(lv.code) + "</span>" +
+        return '<div class="list-row progress-level-row"><span class="chip chip--cefr">' + esc(lv.code) + "</span>" +
           '<span class="list-row__main"><b>' + esc(lv.name) + "</b><span>" + esc(t("prog.ofLessons", { done: p.done, total: p.total })) + "</span></span>" +
           '<span style="flex:0 0 120px"><span class="level-pill__bar"><i style="width:' + pct(p.pct) + '%"></i></span></span>' +
           '<span class="chip">' + pct(p.pct) + "%</span></div>";
