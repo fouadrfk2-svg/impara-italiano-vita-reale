@@ -26,6 +26,8 @@ async function lesson(page){
  await page.evaluate(()=>App.go('lezione',{id:'a1-u01-l1'}));await page.waitForFunction(()=>window.Core.registry.loaded.A1===true&&document.querySelector('.exq'));
  await page.evaluate(()=>{Core.state.settings.autoplay=false;Core.save();});
  for(let i=0;i<9;i++){
+  const exerciseMenu=page.locator('.js-ex-menu');
+  if(await exerciseMenu.isVisible()&&await exerciseMenu.getAttribute('aria-expanded')!=='true')await exerciseMenu.click();
   await page.locator('.ex-chip[data-go="'+i+'"]').click();const current=page.locator('.exq:not([hidden])');
   if(i<2)await current.locator('[data-orig="1"]').click();
   if(i===2){const forms=['sono','sei','è','siamo','siete','sono'];for(let p=0;p<forms.length;p++)await current.locator('.js-cell').nth(p).fill(forms[p]);}

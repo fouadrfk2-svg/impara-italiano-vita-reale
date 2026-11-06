@@ -172,14 +172,21 @@
       /* One exercise at a time: nine open at once were answered out of order
          and one skipped while scrolling kept the lesson from ever closing. */
       parts.push('<section class="step step--ex" id="step-ex"><h2 class="step__label">' + t("lesson.exercises") + "</h2>" +
-        '<div class="ex-nav"><div class="ex-chips" role="group" aria-label="' + esc(t("lesson.exercises")) + '">' +
+        '<div class="ex-nav">' +
+        '<button type="button" class="ex-nav__toggle js-ex-menu" aria-expanded="false" aria-controls="lessonExerciseList">' +
+        '<span class="sr-only">' + esc(t("lesson.exercises")) + '</span>' +
+        '<span class="ex-nav__current js-ex-current"></span>' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>' +
+        '<div class="ex-nav__progress" role="progressbar" aria-label="' + esc(t("journey.lessonProgress")) + '" aria-valuemin="0" aria-valuemax="' + session.total + '" aria-valuenow="0" aria-valuetext="0/' + session.total + '"><i class="js-ex-progress" style="width:0%"></i></div>' +
+        '<div id="lessonExerciseList" class="ex-chips" role="group" aria-label="' + esc(t("lesson.exercises")) + '">' +
         L.exercises.map(function (e, i) {
           return '<button type="button" class="ex-chip" data-go="' + i + '">' + (i + 1) + "</button>";
         }).join("") + '</div><span class="ex-open js-ex-open"></span></div>' +
         '<p class="journey-lesson-ex-progress js-ex-answered" aria-live="polite"></p>' +
-        '<aside class="journey-ex-guidance" role="note" hidden><div><b>' + esc(t("journey.exerciseHintLabel")) +
-        '</b><p class="journey-ex-guidance__text"></p></div><button type="button" class="journey-companion__dismiss js-dismiss-ex-guidance" aria-label="' +
-        esc(t("journey.dismissGuidance")) + '">×</button></aside>' +
+        '<details class="journey-ex-guidance" hidden><summary><b>' + esc(t("journey.exerciseHintLabel")) +
+        '</b><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></summary>' +
+        '<div class="journey-ex-guidance__content"><p class="journey-ex-guidance__text"></p><button type="button" class="journey-companion__dismiss js-dismiss-ex-guidance" aria-label="' +
+        esc(t("journey.dismissGuidance")) + '">×</button></div></details>' +
         '<div id="exWrap"></div>' +
         '<div class="ex-foot"><button type="button" class="btn btn--ghost btn--sm js-ex-prev">' + esc(t("lesson.exPrev")) + "</button>" +
         '<span class="ex-foot__pos js-ex-pos"></span>' +
@@ -236,6 +243,10 @@
 
     /* --- exercises: mounting --- */
     var wrap = document.getElementById("exWrap");
+    if (wrap) {
+      wrap.addEventListener("focusin", scheduleFocusedLessonFieldClear);
+      wrap.addEventListener("focusout", cancelFocusedLessonFieldClear);
+    }
     if (wrap && L.exercises) {
       var built = L.exercises.map(function (ex, i) { return Ex.build(ex, i, L.id); });
       wrap.innerHTML = built.map(function (b) { return b.html; }).join("");
@@ -268,16 +279,26 @@
           LearningJourney.recordInteraction(false);
           drawRun();
           onAnswer(ok, L, U, LV);
+          if (!LessonRun.isDone(run)) requestAnimationFrame(keepLessonActionsClear);
         });
       });
       Ex.wireSpeakers(wrap);
+      var guidancePanel = el().querySelector(".journey-ex-guidance");
+      if (guidancePanel) guidancePanel.open = !window.matchMedia("(max-width: 430px)").matches;
+      var exerciseMenu = el().querySelector(".js-ex-menu");
+      if (exerciseMenu) {
+        setExerciseNavExpanded(false, false);
+        exerciseMenu.addEventListener("click", function () {
+          setExerciseNavExpanded(exerciseMenu.getAttribute("aria-expanded") !== "true", false);
+        });
+      }
       var dismissHint = el().querySelector(".js-dismiss-ex-guidance");
       if (dismissHint) dismissHint.addEventListener("click", function () {
         LearningJourney.dismissGuidance("lesson-" + L.id);
         drawRun();
       });
       el().querySelectorAll(".ex-chip").forEach(function (c) {
-        c.addEventListener("click", function () { showEx(+c.getAttribute("data-go")); });
+        c.addEventListener("click", function () { showEx(+c.getAttribute("data-go"), true); });
       });
       el().querySelector(".js-ex-prev").addEventListener("click", function () { showEx(run.current - 1); });
       el().querySelector(".js-ex-next").addEventListener("click", function () {
@@ -314,7 +335,10 @@
     });
   };
 
-  function showEx(i) {
+  function showEx(i, returnFocus) {
+    setExerciseNavExpanded(false, !!returnFocus);
+    var hint = el().querySelector(".journey-ex-guidance");
+    if (hint && window.matchMedia("(max-width: 430px)").matches) hint.open = false;
     run = LessonRun.go(run, i);
     if (session && run.answers.length) LearningJourney.saveResume(session.id, run.current, run.answers);
     drawRun();
@@ -322,11 +346,67 @@
     if (cur) revealLessonExercise(cur, false);
   }
 
-  /* On phones, the fixed menu button overlays the top-right corner. Scrolling
-     the active card into view could leave the exercise chips directly under
-     it, where taps were intercepted; smooth scrolling also fought Playwright
-     and rapid user taps while the chips moved. Keep the exercise navigation
-     just below that control and cancel any in-flight page scroll. */
+  function setExerciseNavExpanded(open, returnFocus) {
+    var nav = el().querySelector(".ex-nav");
+    var toggle = el().querySelector(".js-ex-menu");
+    if (!nav || !toggle) return;
+    var mobile = window.matchMedia && window.matchMedia("(max-width: 430px)").matches;
+    var expanded = mobile ? !!open : true;
+    nav.classList.toggle("is-expanded", expanded);
+    toggle.setAttribute("aria-expanded", String(expanded));
+    if (returnFocus && mobile) toggle.focus({ preventScroll: true });
+  }
+
+  function keepLessonActionsClear() {
+    if (!window.matchMedia || !window.matchMedia("(max-width: 880px)").matches) return;
+    var bottomBar = document.querySelector(".bottom-nav");
+    var actions = document.querySelector(".ex-foot");
+    if (!bottomBar || !actions) return;
+    /* Use the bar's untransformed height: it may be animating back in after
+       an answer field loses focus, but its final safe area is still reserved. */
+    var availableBottom = window.innerHeight - bottomBar.getBoundingClientRect().height - 12;
+    var actionsBottom = actions.getBoundingClientRect().bottom;
+    if (actionsBottom > availableBottom) window.scrollBy(0, actionsBottom - availableBottom);
+  }
+
+  function keepFocusedLessonFieldClear() {
+    if (!window.matchMedia || !window.matchMedia("(max-width: 880px)").matches) return;
+    var field = document.activeElement;
+    if (!field || !el().contains(field) || !field.matches("input,textarea,select")) return;
+    var viewport = window.visualViewport;
+    var visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+    var fieldBottom = field.getBoundingClientRect().bottom;
+    var safeBottom = visibleBottom - 12;
+    if (fieldBottom > safeBottom) {
+      var root = document.documentElement;
+      var previousBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollBy(0, fieldBottom - safeBottom);
+      root.style.scrollBehavior = previousBehavior;
+    }
+  }
+
+  var focusViewportResize = null;
+  function scheduleFocusedLessonFieldClear() {
+    requestAnimationFrame(keepFocusedLessonFieldClear);
+    var viewport = window.visualViewport;
+    if (!viewport) return;
+    if (focusViewportResize) viewport.removeEventListener("resize", focusViewportResize);
+    focusViewportResize = function () {
+      viewport.removeEventListener("resize", focusViewportResize);
+      focusViewportResize = null;
+      requestAnimationFrame(keepFocusedLessonFieldClear);
+    };
+    viewport.addEventListener("resize", focusViewportResize, { once: true, passive: true });
+  }
+  function cancelFocusedLessonFieldClear() {
+    var viewport = window.visualViewport;
+    if (viewport && focusViewportResize) viewport.removeEventListener("resize", focusViewportResize);
+    focusViewportResize = null;
+  }
+  /* On phones the menu shortcut scrolls away with the page, and the exercise
+     shortcuts are in normal document flow. Place the task navigator near the
+     top of the viewport without reserving space for a fixed overlay. */
   function revealLessonExercise(node, isResume) {
     var root = document.documentElement;
     var previousBehavior = root.style.scrollBehavior;
@@ -334,14 +414,14 @@
     if (mobile) {
       root.style.scrollBehavior = "auto";
       var nav = document.querySelector(".ex-nav");
-      var toggle = document.getElementById("railToggle");
       if (nav) {
         var navTop = nav.getBoundingClientRect().top + window.pageYOffset;
-        var clearTop = toggle ? toggle.getBoundingClientRect().bottom + 10 : 72;
-        window.scrollTo(0, Math.max(0, navTop - clearTop));
+        window.scrollTo(0, Math.max(0, navTop - 16));
       } else {
         node.scrollIntoView({ behavior: "auto", block: isResume ? "center" : "nearest" });
       }
+      /* A tall task can leave Previous/Next underneath the persistent bar. */
+      keepLessonActionsClear();
     } else if (isResume) {
       root.style.scrollBehavior = "auto";
       node.scrollIntoView({ behavior: "auto", block: "center" });
@@ -363,6 +443,15 @@
       progressTrack.setAttribute("aria-valuetext", answered + "/" + n);
     }
     if (score) score.textContent = run.answers.filter(function (answer) { return answer === true; }).length + "/" + n;
+    var navProgress = el().querySelector(".ex-nav__progress");
+    var navProgressFill = el().querySelector(".js-ex-progress");
+    if (navProgress) {
+      navProgress.setAttribute("aria-valuenow", String(answered));
+      navProgress.setAttribute("aria-valuetext", t("journey.answeredProgress", {
+        done: answered, total: n, remaining: n - answered
+      }));
+    }
+    if (navProgressFill) navProgressFill.style.width = pct(n ? answered / n : 0) + "%";
     var answerSummary = el().querySelector(".js-ex-answered");
     if (answerSummary) answerSummary.textContent = t("journey.answeredProgress", {
       done: answered, total: n, remaining: n - answered
@@ -384,7 +473,10 @@
     });
     var open = LessonRun.unanswered(run).length;
     el().querySelector(".js-ex-open").textContent = open ? t("lesson.exOpen", { n: open }) : "";
-    el().querySelector(".js-ex-pos").textContent = t("lesson.exOf", { i: run.current + 1, n: n });
+    var currentExercise = t("lesson.exOf", { i: run.current + 1, n: n });
+    var currentLabel = el().querySelector(".js-ex-current");
+    if (currentLabel) currentLabel.textContent = currentExercise;
+    el().querySelector(".js-ex-pos").textContent = currentExercise;
     el().querySelector(".js-ex-prev").disabled = run.current === 0;
     el().querySelector(".js-ex-next").disabled = LessonRun.next(run) === null && !LessonRun.isDone(run);
   }

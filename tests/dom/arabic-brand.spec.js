@@ -26,7 +26,7 @@ for(const width of [390,1440])test('Arabic tables, vocabulary, dialogue and answ
  await page.setViewportSize({width,height:920});await page.addInitScript(AXE);await page.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,onboarded:true,settings:{lang:'ar',autoplay:false}})));await page.goto('/index.html#/lezione?id=a1-u01-l1');await ready(page);
  for(const id of ['step-gram','step-vocab','step-dlg']){await page.locator('#'+id).scrollIntoViewIfNeeded();await audit(page);await shot(page,id+'-'+width);}
  const current=page.locator('.exq:not([hidden])');await current.locator('[data-orig="1"]').click();await current.locator('.js-check').click();await expect(current).toHaveClass(/exq--ok/);await audit(page);await shot(page,'feedback-correct-'+width);
- await page.locator('.ex-chip[data-go="1"]').click();await current.locator('[data-orig="0"]').click();await current.locator('.js-check').click();await expect(current).toHaveClass(/exq--ko/);await expect(current.locator('.fb')).toContainText('«\u2068Buongiorno!\u2069»');await audit(page);await shot(page,'feedback-incorrect-'+width);
+ if(width<=430)await page.locator('.js-ex-menu').click();await page.locator('.ex-chip[data-go="1"]').click();await current.locator('[data-orig="0"]').click();await current.locator('.js-check').click();await expect(current).toHaveClass(/exq--ko/);await expect(current.locator('.fb')).toContainText('«\u2068Buongiorno!\u2069»');await audit(page);await shot(page,'feedback-incorrect-'+width);
 });
 
 test.describe('Arabic learner brand with touch input',()=>{

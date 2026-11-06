@@ -9,6 +9,12 @@ async function lezione(page, id) {
   await page.waitForSelector(".step");
 }
 
+async function chooseExercise(page, index) {
+  const menu = page.locator(".js-ex-menu");
+  if (await menu.isVisible() && await menu.getAttribute("aria-expanded") !== "true") await menu.click();
+  await page.locator('.ex-chip[data-go="' + index + '"]').click();
+}
+
 /* A theory block may carry a heading AND a list ({h, list}). The renderer
    used to leave at the heading branch, so the list was never drawn and the
    rule it held (il -> i, lo -> gli) vanished, with the heading still there
@@ -94,7 +100,7 @@ test("numbered chips show what is still open and lead to it", async ({ page }) =
   await expect(page.locator(".js-ex-open")).toContainText(String(ile));
 });
 
-test("rapid mobile exercise navigation keeps chips clear of the fixed menu", async ({ page }) => {
+test("mobile exercises keep progress in flow and the Next control clear of the menu", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 920 });
   await lezione(page, "a1-u04-l4");
   await page.evaluate(() => new Promise(resolve => window.Core.setLanguage("ar", resolve)));
@@ -103,10 +109,10 @@ test("rapid mobile exercise navigation keeps chips clear of the fixed menu", asy
   await page.reload();
   await lezione(page, "a1-u04-l4");
   for (let index = 0; index < 6; index++) {
-    await page.locator('.ex-chip[data-go="' + index + '"]').click();
+    await chooseExercise(page, index);
     await expect(page.locator(".exq:visible .journey-answer")).toBeVisible();
   }
-  await page.locator('.ex-chip[data-go="6"]').click();
+  await chooseExercise(page, 6);
   const active = page.locator(".exq:visible");
   await expect(active).toHaveAttribute("data-idx", "6");
   await active.locator(".js-gap").nth(0).fill("i");
@@ -125,18 +131,22 @@ test("rapid mobile exercise navigation keeps chips clear of the fixed menu", asy
     requestAnimationFrame(sample);
   }));
 
-  const nextChip = page.locator('.ex-chip[data-go="7"]');
-  const hitTest = await nextChip.evaluate(chip => {
-    const rect = chip.getBoundingClientRect();
+  const nextButton = page.locator(".js-ex-next");
+  await expect(nextButton).toBeVisible();
+  await nextButton.scrollIntoViewIfNeeded();
+  const hitTest = await nextButton.evaluate(button => {
+    const rect = button.getBoundingClientRect();
     const toggle = document.getElementById("railToggle");
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const target = document.elementFromPoint(x, y);
-    return { x, y, menuBottom: toggle.getBoundingClientRect().bottom, blocked: target !== chip && !chip.contains(target) };
+    return { x, y, menuBottom: toggle.getBoundingClientRect().bottom,
+      menuPosition: getComputedStyle(toggle).position, blocked: target !== button && !button.contains(target) };
   });
-  expect(hitTest.y, "the next exercise chip stays below the fixed menu").toBeGreaterThan(hitTest.menuBottom);
-  expect(hitTest.blocked, "the next exercise chip receives pointer events").toBe(false);
-  await nextChip.click();
+  expect(hitTest.menuPosition, "the top menu shortcut scrolls away instead of covering lesson content").toBe("absolute");
+  expect(hitTest.menuBottom, "the top menu shortcut is no longer over the exercise area").toBeLessThanOrEqual(0);
+  expect(hitTest.blocked, "the Next control receives pointer events when the learner moves through a task").toBe(false);
+  await nextButton.click();
   await expect(page.locator(".exq:visible")).toHaveAttribute("data-idx", "7");
 });
 

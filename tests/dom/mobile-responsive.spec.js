@@ -111,6 +111,189 @@ test('exercise feedback keeps the error cue in the answer and explanation, not t
  expect(colors.feedback).not.toBe(colors.outer);expect(colors.answer).not.toBe(colors.outer);
 });
 
+test('mobile lesson menu and exercise navigation stay out of the learning content',async({page})=>{
+ await page.addInitScript(AXE);
+ let firstVisit=true;
+ for(const width of [320,360,390,430]){
+  await page.setViewportSize({width,height:844});
+  if(firstVisit){await page.goto('/index.html#/lezione?id=a1-u01-l1');firstVisit=false;}else{await page.reload();}
+  await ready(page);
+  const menu=page.locator('#railToggle');
+  await expect(menu).toBeVisible();
+  expect(await menu.evaluate(e=>getComputedStyle(e).position),`menu shortcut must scroll with the page at ${width}px`).toBe('absolute');
+  await page.locator('.lesson-steps [data-step="ex"]').click();
+  const picker=page.locator('.js-ex-menu');
+  await expect(picker).toBeVisible();
+  await expect(picker).toHaveAttribute('aria-controls','lessonExerciseList');
+  await expect(picker).toHaveAttribute('aria-expanded','false');
+  await expect(page.locator('.ex-chips')).toBeHidden();
+  await expect(page.locator('.ex-nav__progress')).toHaveAttribute('aria-valuemax','9');
+  await expect(page.locator('.js-ex-current')).toContainText('1');
+  await expect(page.locator('.js-ex-open')).toBeHidden();
+  await expect(page.locator('.js-ex-answered')).toBeHidden();
+  const nav=page.locator('.ex-nav');
+  await expect(nav).toBeVisible();
+  expect(await nav.evaluate(e=>getComputedStyle(e).position),`exercise shortcuts must not pin over the task at ${width}px`).toBe('static');
+  await picker.click();await expect(picker).toHaveAttribute('aria-expanded','true');await expect(page.locator('.ex-chips')).toBeVisible();
+  await expect(page.locator('.ex-chip')).toHaveCount(9);
+  await expect(page.locator('.ex-chip[aria-current="step"]')).toHaveCount(1);
+  await expect(page.locator('.js-ex-pos')).toContainText('9');
+  const geometry=await page.evaluate(()=>{
+   const menu=document.querySelector('#railToggle').getBoundingClientRect();
+   const nav=document.querySelector('.ex-nav').getBoundingClientRect();
+   const chip=document.querySelector('.ex-chip').getBoundingClientRect();
+   return {menuBottom:menu.bottom,navTop:nav.top,chipWidth:chip.width,scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
+  });
+  expect(geometry.scrollWidth,`lesson overflow at ${width}px`).toBeLessThanOrEqual(geometry.viewport+1);
+  expect(geometry.navTop,`exercise navigator should be brought into view at ${width}px`).toBeGreaterThanOrEqual(0);
+  expect(geometry.chipWidth,`exercise shortcut should retain a touch-sized target at ${width}px`).toBeGreaterThanOrEqual(44);
+  if(width===390){
+   const isMenuOffContent=await page.evaluate(()=>document.querySelector('#railToggle').getBoundingClientRect().bottom<=0);
+   expect(isMenuOffContent,'top menu shortcut should scroll away; bottom More navigation remains persistent').toBe(true);
+   const accessibility=await page.evaluate(async()=>window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));
+   expect(accessibility.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);
+   const pickerForFill=page.locator('.js-ex-menu');
+   if(await pickerForFill.isVisible()&&await pickerForFill.getAttribute('aria-expanded')!=='true')await pickerForFill.click();
+   await page.locator('.ex-chip[data-go="3"]').click();
+   await page.setViewportSize({width:390,height:520});
+   const answer=page.locator('.exq[data-idx="3"] .js-in');await answer.focus();await expect(page.locator('body')).toHaveClass(/is-mobile-field-focused/);
+   await page.waitForFunction(()=>document.querySelector('.bottom-nav').getBoundingClientRect().top>innerHeight-1);
+   const keyboardGeometry=await page.evaluate(()=>({input:document.querySelector('.exq[data-idx="3"] .js-in').getBoundingClientRect(),nav:document.querySelector('.bottom-nav').getBoundingClientRect(),width:document.documentElement.scrollWidth,viewport:innerWidth,height:innerHeight}));
+   expect(keyboardGeometry.input.bottom,`focused answer must clear the bottom bar when keyboard space is reduced`).toBeLessThanOrEqual(keyboardGeometry.nav.top);
+   expect(keyboardGeometry.nav.top).toBeGreaterThan(keyboardGeometry.height-1);
+   expect(keyboardGeometry.width).toBeLessThanOrEqual(keyboardGeometry.viewport+1);
+   await answer.fill('sono');await page.locator('.exq[data-idx="3"] .js-check').click();await expect(page.locator('.exq[data-idx="3"] .fb.is-on')).toBeVisible();
+   await expect(page.locator('body')).not.toHaveClass(/is-mobile-field-focused/);
+  }
+  await page.evaluate(()=>LearningJourney.clearResume('a1-u01-l1'));
+ }
+});
+
+test('mobile exercise picker traverses all nine and restores answer feedback',async({page})=>{
+ await page.addInitScript(AXE);
+ await page.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,onboarded:true,settings:{lang:'ar',autoplay:false}})));
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/index.html#/lezione?id=a1-u01-l1');await ready(page);
+ await page.locator('.lesson-steps [data-step="ex"]').click();
+ const picker=page.locator('.js-ex-menu');
+ await expect(picker).toHaveAttribute('aria-expanded','false');
+ await expect(page.locator('.ex-nav__progress')).toHaveAttribute('aria-valuenow','0');
+ await expect(page.locator('.js-ex-open')).toBeHidden();
+ await expect(page.locator('.js-ex-answered')).toBeHidden();
+ const hint=page.locator('.journey-ex-guidance');
+ if(await hint.isVisible()){
+  expect(await hint.evaluate(node=>node.open)).toBe(false);
+  await hint.locator('summary').click();await expect(hint.locator('.journey-ex-guidance__text')).toBeVisible();
+  await hint.locator('summary').click();await expect(hint.locator('.journey-ex-guidance__text')).toBeHidden();
+ }
+ const collapsedAudit=await page.evaluate(async()=>window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));
+ expect(collapsedAudit.violations.map(v=>v.id)).toEqual([]);
+ for(let index=0;index<9;index++){
+  if(await picker.getAttribute('aria-expanded')!=='true')await picker.click();
+  const chip=page.locator('.ex-chip[data-go="'+index+'"]').first();
+  await expect(chip).toBeVisible();await expect(page.locator('.ex-chip')).toHaveCount(9);
+  await chip.click();
+  await expect(picker).toHaveAttribute('aria-expanded','false');
+  await expect(page.locator('.exq:visible')).toHaveAttribute('data-idx',String(index));
+  await expect(page.locator('.js-ex-current')).toContainText(String(index+1));
+  if(index===0){
+   const first=page.locator('.exq[data-idx="0"]:visible');
+   await first.locator('.opt[data-orig="0"]').click();await first.locator('.js-check').click();
+   await expect(first.locator('.fb--ko.is-on')).toBeVisible();
+  }
+  if(index===3){
+   const fill=page.locator('.exq[data-idx="3"]:visible');
+   await fill.locator('.js-in').fill('sono');await fill.locator('.js-check').click();
+   await expect(fill.locator('.fb--ok.is-on')).toBeVisible();
+  }
+ }
+ await expect(page.locator('.ex-nav__progress')).toHaveAttribute('aria-valuenow','2');
+ await page.reload();await ready(page);
+ await expect(page.locator('.exq:visible')).toHaveAttribute('data-idx','8');
+ await expect(page.locator('.js-ex-current')).toContainText('9');
+ await expect(page.locator('.ex-nav__progress')).toHaveAttribute('aria-valuenow','2');
+ await picker.click();
+ await expect(page.locator('.ex-chip[data-go="0"]')).toHaveClass(/is-ko/);
+ await expect(page.locator('.ex-chip[data-go="3"]')).toHaveClass(/is-ok/);
+ const expandedAudit=await page.evaluate(async()=>window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));
+ expect(expandedAudit.violations.map(v=>v.id)).toEqual([]);
+ await page.locator('.ex-chip[data-go="0"]').click();
+ await expect(page.locator('.exq[data-idx="0"]:visible .journey-answer')).toBeVisible();
+ await expect(page.locator('.exq[data-idx="0"] .js-check')).toHaveCount(0);
+ await expect(page.locator('.ex-nav__progress')).toHaveAttribute('aria-valuenow','2');
+});
+test('mobile lesson footer keeps legal links compact and clear of the fixed navigation',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,onboarded:true,settings:{lang:'ar',autoplay:false}})));
+ for(const width of [320,360,390,430]){
+  await page.setViewportSize({width,height:844});
+  await page.goto('/index.html#/lezione?id=a1-u01-l1');await ready(page);
+  await expect(page.locator('body')).toHaveClass(/is-lesson-screen/);
+  const footer=page.locator('.site-foot');
+  await expect(footer.locator('.site-foot__brand')).toBeHidden();
+  const privacy=footer.locator('a[href="#/privacy"]');
+  const attribution=footer.locator('a[href="https://github.com/AndreaBonn"]');
+  await expect(privacy).toBeVisible();await expect(attribution).toBeVisible();
+  const compact=await page.evaluate(()=>({
+   mainBottom:getComputedStyle(document.querySelector('#main')).paddingBottom,
+   width:document.documentElement.scrollWidth,viewport:innerWidth
+  }));
+  expect(parseFloat(compact.mainBottom),`lesson should not reserve the oversized shared footer gap at ${width}px`).toBeLessThanOrEqual(40);
+  expect(compact.width,`lesson footer causes page overflow at ${width}px`).toBeLessThanOrEqual(compact.viewport+1);
+  await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
+  const footerGeometry=await page.evaluate(()=>{
+   const privacy=document.querySelector('.site-foot a[href="#/privacy"]').getBoundingClientRect();
+   const attribution=document.querySelector('.site-foot a[href="https://github.com/AndreaBonn"]').getBoundingClientRect();
+   const nav=document.querySelector('.bottom-nav').getBoundingClientRect();
+   return {privacyBottom:privacy.bottom,attributionBottom:attribution.bottom,navTop:nav.top,footerHeight:document.querySelector('.site-foot').getBoundingClientRect().height};
+  });
+  expect(footerGeometry.privacyBottom,`privacy link is covered by the bottom navigation at ${width}px`).toBeLessThan(footerGeometry.navTop);
+  expect(footerGeometry.attributionBottom,`attribution is covered by the bottom navigation at ${width}px`).toBeLessThan(footerGeometry.navTop);
+  expect(footerGeometry.footerHeight,`lesson should use a compact legal footer at ${width}px`).toBeLessThan(140);
+ }
+ await page.locator('.site-foot a[href="#/privacy"]').click();
+ await expect(page).toHaveURL(/#\/privacy$/);
+ await expect(page.locator('body')).not.toHaveClass(/is-lesson-screen/);
+ await expect(page.locator('.site-foot__brand')).toBeVisible();
+});
+
+test('mobile exercise types retain clear task cards, answer feedback and adjacent controls',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,onboarded:true,settings:{lang:'ar',autoplay:false}})));
+ const exercises=[[0,'.opt'],[3,'.js-in'],[4,'.js-in'],[5,'.js-bank .tok'],[6,'.match-btn'],[7,'.js-play'],[8,'.voice-target']];
+ for(const width of [320,390,430]){
+  await page.setViewportSize({width,height:844});
+  await page.goto('/index.html#/lezione?id=a1-u01-l1');await ready(page);
+  await page.locator('.lesson-steps [data-step="ex"]').click();
+  for(const [index,selector] of exercises){
+   const pickerEach=page.locator('.js-ex-menu');
+   if(await pickerEach.isVisible()&&await pickerEach.getAttribute('aria-expanded')!=='true')await pickerEach.click();
+   await page.locator('.ex-chip[data-go="'+index+'"]').click();
+   const active=page.locator('.exq:visible');await expect(active).toHaveAttribute('data-idx',String(index));
+   await expect(active.locator(selector).first()).toBeVisible();
+   const previous=page.locator('.js-ex-prev'),next=page.locator('.js-ex-next');
+   await expect(previous).toBeVisible();await expect(next).toBeVisible();
+   for(const button of [previous,next]){
+    const size=await button.boundingBox();expect(size.height,`navigation touch target at ${width}px`).toBeGreaterThanOrEqual(44);
+    await button.scrollIntoViewIfNeeded();
+    const geometry=await button.evaluate(element=>{const r=element.getBoundingClientRect(),bar=document.querySelector('.bottom-nav').getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height,barTop:bar.top,inView:r.top>=0&&r.bottom<=innerHeight,overlap:r.bottom>bar.top&&r.top<bar.bottom};});
+    expect(geometry.inView,`lesson action should be fully reachable at ${width}px: ${JSON.stringify(geometry)}`).toBe(true);
+    expect(geometry.overlap,`bottom navigation must not cover lesson actions at ${width}px: ${JSON.stringify(geometry)}`).toBe(false);
+   }
+  }
+  if(width===390){
+   const pickerForFill=page.locator('.js-ex-menu');
+   if(await pickerForFill.isVisible()&&await pickerForFill.getAttribute('aria-expanded')!=='true')await pickerForFill.click();
+   await page.locator('.ex-chip[data-go="3"]').click();
+   const fill=page.locator('.exq[data-idx="3"]:visible');await fill.locator('.js-in').fill('sono');await fill.locator('.js-check').click();
+   await expect(fill).toHaveClass(/exq--ok/);await expect(fill.locator('.fb--ok.is-on')).toBeVisible();
+   await page.waitForFunction(()=>!document.body.classList.contains('is-mobile-field-focused'));
+   const feedbackGeometry=await page.evaluate(()=>({feedback:document.querySelector('.exq[data-idx="3"]:not([hidden])').getBoundingClientRect(),barHeight:document.querySelector('.bottom-nav').getBoundingClientRect().height,height:innerHeight}));
+   expect(feedbackGeometry.feedback.bottom,`answer feedback must clear the bottom bar`).toBeLessThanOrEqual(feedbackGeometry.height-feedbackGeometry.barHeight);
+   await page.locator('.js-ex-next').click();await expect(page.locator('.exq:visible')).toHaveAttribute('data-idx','4');
+   await page.locator('.js-ex-prev').click();await expect(page.locator('.exq:visible')).toHaveAttribute('data-idx','3');
+  }
+ }
+});
+
 test('CILS results keep skill labels and values readable as mobile records',async({page})=>{
  await page.setViewportSize({width:390,height:900});
  await page.addInitScript(()=>localStorage.setItem('linguai.italiano.v2',JSON.stringify({schema:2,onboarded:true,settings:{lang:'ar',autoplay:false}})));

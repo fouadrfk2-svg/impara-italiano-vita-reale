@@ -742,6 +742,10 @@ button{font:inherit;color:inherit;}
   padding:6px 14px;min-height:44px;font:inherit;font-size:.86rem;font-weight:700;color:var(--ink);cursor:pointer;}
 .step{scroll-margin-top:80px;}
 .ex-nav{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px;}
+.ex-nav__toggle{display:none;align-items:center;justify-content:space-between;gap:10px;min-height:48px;width:100%;padding:8px 12px;border:1px solid var(--line-strong);border-radius:var(--r-m);background:var(--paper-2);color:var(--ink);font:inherit;font-weight:700;text-align:start;cursor:pointer;}
+.ex-nav__toggle svg,.journey-ex-guidance summary svg{width:18px;height:18px;flex:0 0 18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease;}
+.ex-nav__toggle:focus-visible,.journey-ex-guidance summary:focus-visible{outline:3px solid var(--salvia-deep);outline-offset:2px;}
+.ex-nav__progress{display:none;}
 .ex-chips{display:flex;flex-wrap:wrap;gap:6px;}
 .ex-chip{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line-strong);background:var(--paper-2);
   font:inherit;font-size:.85rem;font-weight:700;color:var(--ink);cursor:pointer;}
@@ -1159,7 +1163,10 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   /* Chowanie zasłony obsługuje teraz globalna reguła [hidden] na górze pliku. */
   .rail__scrim{display:block;position:fixed;inset:0;background:oklch(0.211 0.007 67 / .50);z-index:35;}
   .rail-toggle{
-    display:grid;place-items:center;position:fixed;top:14px;left:14px;z-index:45;
+    /* The persistent bottom navigation already contains an accessible menu
+       entry. Keep this shortcut at the top of the document rather than
+       pinning it over lesson text as the learner scrolls. */
+    display:grid;place-items:center;position:absolute;top:calc(14px + env(safe-area-inset-top));left:14px;z-index:45;
     width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
     background:var(--salvia-deep);color:var(--on-primary);box-shadow:var(--shadow-m);
   }
@@ -1183,16 +1190,18 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   .bottom-nav{
     display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;
     background:var(--paper-2);border-top:1px solid var(--line);box-shadow:0 -2px 10px oklch(0.211 0.007 67 / .08);
-    padding:4px 4px calc(4px + env(safe-area-inset-bottom));
+    padding:4px 4px calc(4px + env(safe-area-inset-bottom));transition:transform .18s ease,opacity .18s ease,visibility .18s;
   }
+  body.is-mobile-field-focused .bottom-nav{transform:translateY(calc(100% + env(safe-area-inset-bottom)));opacity:0;visibility:hidden;pointer-events:none;}
   .bottom-nav__item{
     flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:52px;justify-content:center;
     background:none;border:0;border-radius:var(--r-m);font:inherit;font-size:.72rem;font-weight:700;color:var(--ink-soft);cursor:pointer;
   }
   .bottom-nav__item[aria-current="page"]{color:var(--salvia-deep);background:var(--salvia);}
-  /* Keep exercise shortcuts below the fixed menu toggle while the learner
-     works lower on the page; otherwise the last RTL chips sit under it. */
-  .ex-nav{position:sticky;top:72px;z-index:28;padding:8px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--paper-2);box-shadow:0 4px 10px oklch(0.211 0.007 67 / .08);}
+  /* Exercise shortcuts stay in document flow. The pinned panel used to
+     occupy the top of the phone while reading feedback and could collide
+     with the floating menu; previous/next remain available below each task. */
+  .ex-nav{position:static;z-index:auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
   .toast-stack{bottom:84px;}
   /* Title and sample take the full first line; level, status and button wrap below. */
   .train-row{flex-wrap:wrap;}
@@ -1207,6 +1216,36 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   .exq{padding:18px 16px;}
   .card{padding:18px 18px;}
   .today-next__progress{grid-template-columns:auto minmax(90px,1fr);width:100%}
+}
+
+/* Keep the lesson focused on practice at phone widths. The legal notice and
+   attribution remain directly after the lesson, but the repeated logo and
+   roomy site footer do not interrupt the exercise-to-next rhythm. */
+@media (max-width: 430px){
+  body.is-lesson-screen .main{padding-bottom:40px;}
+  body.is-lesson-screen .site-foot{
+    padding:4px 12px calc(68px + env(safe-area-inset-bottom));
+    font-size:.74rem;line-height:1.35;
+  }
+  html[data-access="learner"] body.is-lesson-screen .site-foot__brand{display:none;}
+  body.is-lesson-screen .site-foot a{
+    display:inline-flex;align-items:center;min-height:44px;padding:0 4px;vertical-align:middle;
+  }
+  body.is-lesson-screen .step--ex .ex-nav{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;margin:0 0 8px;}
+  body.is-lesson-screen .step--ex .ex-nav__toggle{display:flex;}
+  body.is-lesson-screen .step--ex .ex-nav__current{min-width:0;flex:1;}
+  body.is-lesson-screen .step--ex .ex-nav.is-expanded .ex-nav__toggle svg{transform:rotate(180deg);}
+  body.is-lesson-screen .step--ex .ex-nav__progress{display:block;height:4px;margin:0 2px;overflow:hidden;border-radius:var(--r-pill);background:var(--line);}
+  body.is-lesson-screen .step--ex .ex-nav__progress i{display:block;width:0;height:100%;border-radius:inherit;background:var(--salvia-deep);transition:width .2s ease;}
+  body.is-lesson-screen .step--ex .ex-nav:not(.is-expanded) .ex-chips{display:none;}
+  body.is-lesson-screen .step--ex .ex-nav.is-expanded .ex-chips{padding:2px 0 1px;}
+  body.is-lesson-screen .step--ex .ex-open,
+  body.is-lesson-screen .journey-lesson-ex-progress,
+  body.is-lesson-screen .ex-foot__pos{display:none;}
+  body.is-lesson-screen .journey-ex-guidance{margin:0 0 8px;padding:4px 10px;}
+  body.is-lesson-screen .journey-ex-guidance summary{min-height:44px;}
+  body.is-lesson-screen .journey-ex-guidance__content{padding:0 0 6px;}
+  body.is-lesson-screen .ex-foot{gap:8px;margin-top:12px;}
 }
 
 @media print{
@@ -1506,11 +1545,14 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
 .journey-plan{margin:12px 0 18px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--paper-2);}
 .journey-plan summary{min-height:28px;font-weight:700;cursor:pointer;}
 .journey-lesson-ex-progress{margin:0 0 12px;color:var(--ink-soft);font-size:.86rem;line-height:1.5;}
-.journey-ex-guidance{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line-mint);border-radius:var(--r-m);background:var(--mint-wash);}
+.journey-ex-guidance{display:block;margin:0 0 14px;padding:6px 10px;border:1px solid var(--line-mint);border-radius:var(--r-m);background:var(--mint-wash);}
 .journey-ex-guidance[hidden]{display:none;}
-.journey-ex-guidance>div{min-width:0;}
-.journey-ex-guidance b{color:var(--salvia-deep);font-size:.8rem;}
-.journey-ex-guidance p{margin:2px 0 0;color:var(--ink);font-size:.9rem;line-height:1.55;}
+.journey-ex-guidance summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;cursor:pointer;list-style:none;}
+.journey-ex-guidance summary::-webkit-details-marker{display:none;}
+.journey-ex-guidance summary b{color:var(--salvia-deep);font-size:.8rem;}
+.journey-ex-guidance[open] summary svg{transform:rotate(180deg);}
+.journey-ex-guidance__content{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0;}
+.journey-ex-guidance__content>p{flex:1;min-width:0;margin:2px 0 8px;color:var(--ink);font-size:.9rem;line-height:1.55;}
 @keyframes journey-exercise-in{from{transform:translateY(4px);}to{transform:translateY(0);}}
 #exWrap .exq:not([hidden]){animation:journey-exercise-in .16s ease-out both;}
 .journey-completion-note{margin:14px 0;padding:13px 16px;border-inline-start:3px solid var(--salvia-deep);border-radius:var(--r-s);background:var(--mint-wash);line-height:1.65;}

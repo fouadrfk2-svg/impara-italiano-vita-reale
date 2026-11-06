@@ -50,6 +50,7 @@
   /* The shell after every render: highlighting the rail entry and closing
      the drawer on a narrow screen. The router does not know these elements. */
   Router.onRender = function (route) {
+    document.body.classList.toggle("is-lesson-screen", route === "lezione");
     markRail(route);
     closeRail();
     if (courseReady && !publicRoute(route)) startBackgroundServices();
@@ -162,6 +163,23 @@
       App.go("oggi");
     });
     document.querySelector(".bottom-nav .js-more").addEventListener("click", openRail);
+    /* On phones the keyboard and fixed bottom navigation compete for the
+       same viewport. Yield the bottom bar while a learner edits an answer;
+       it returns as soon as focus leaves the field. */
+    function syncMobileFieldNav(target) {
+      var main = document.getElementById("main");
+      var focusedField = !!(target && main && main.contains(target) &&
+        target.matches && target.matches("input,textarea,select"));
+      document.body.classList.toggle("is-mobile-field-focused",
+        focusedField && window.matchMedia("(max-width: 880px)").matches);
+    }
+    document.addEventListener("focusin", function (event) { syncMobileFieldNav(event.target); });
+    document.addEventListener("focusout", function () {
+      requestAnimationFrame(function () { syncMobileFieldNav(document.activeElement); });
+    });
+    window.addEventListener("resize", function () {
+      syncMobileFieldNav(document.activeElement);
+    }, { passive: true });
     document.getElementById("railStats").addEventListener("click", function () { App.go("progressi"); });
     document.getElementById("railToggle").addEventListener("click", function () {
       document.getElementById("rail").classList.contains("is-open") ? closeRail() : openRail();
