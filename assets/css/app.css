@@ -620,18 +620,18 @@ button{font:inherit;color:inherit;}
 
 .unit{
   position:relative;
-  margin-bottom:34px;padding:0 0 4px;
+  margin-bottom:28px;padding:0 0 4px;
 }
 .unit__head{
-  display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;
-  padding:16px 20px;border-radius:var(--r-l);
-  background:linear-gradient(100deg, var(--paper-3), var(--paper-2) 70%);
-  border:1.5px solid var(--line);
+  display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;
+  padding:14px 18px;border-radius:var(--r-l);
+  background:var(--paper-3);
+  border:1px solid var(--line);
 }
 .unit__badge{
-  flex:0 0 52px;height:52px;border-radius:var(--r-l);
-  display:grid;place-items:center;font-size:1.5rem;
-  background:var(--paper-2);border:2px solid var(--line-strong);
+  flex:0 0 48px;height:48px;border-radius:var(--r-m);
+  display:grid;place-items:center;font-size:1.35rem;
+  background:var(--paper-2);border:1px solid var(--line-strong);
 }
 .unit__titles h3{font-size:1.16rem;margin:0 0 2px;}
 .unit__titles p{margin:0;font-size:.86rem;color:var(--ink-soft);}
@@ -645,7 +645,7 @@ button{font:inherit;color:inherit;}
   content:"";position:absolute;left:50%;top:0;bottom:0;width:0;
   border-left:3px dashed var(--line-strong);transform:translateX(-50%);
 }
-.node{position:relative;display:flex;margin-bottom:14px;}
+.node{position:relative;display:flex;margin-bottom:12px;}
 .node:nth-child(4n+1){padding-left:6%;}
 .node:nth-child(4n+2){padding-left:26%;}
 .node:nth-child(4n+3){padding-left:46%;}
@@ -653,23 +653,23 @@ button{font:inherit;color:inherit;}
 
 .node__btn{
   position:relative;display:flex;align-items:center;gap:12px;
-  background:var(--paper-2);border:2.5px solid var(--line-strong);
-  border-radius:var(--r-l);padding:12px 18px 12px 12px;cursor:pointer;
-  min-height:64px;min-width:230px;max-width:300px;text-align:left;
+  background:var(--paper-2);border:1px solid var(--line-strong);
+  border-radius:var(--r-l);padding:10px 15px;cursor:pointer;
+  min-height:62px;min-width:230px;max-width:300px;text-align:left;
   box-shadow:var(--shadow-s);
   transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
 }
 .node__btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:var(--shadow-m);border-color:var(--salvia-mid);}
 .node__btn:disabled{opacity:.55;cursor:not-allowed;filter:saturate(.4);}
 .node__dot{
-  flex:0 0 42px;height:42px;border-radius:50%;display:grid;place-items:center;
-  background:var(--paper-3);border:2px solid var(--line-strong);font-size:1.1rem;
+  flex:0 0 40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:var(--paper-3);border:1px solid var(--line-strong);font-size:1.1rem;
 }
 .node__txt b{display:block;font-size:.94rem;font-weight:600;line-height:1.28;}
 .node__txt span{display:block;font-size:.76rem;color:var(--ink-soft);}
 .node--done .node__btn{border-color:var(--salvia-deep);background:var(--salvia);}
 .node--done .node__dot{background:var(--salvia-deep);border-color:var(--salvia-deep);color:var(--on-primary);}
-.node--current .node__btn{border-color:var(--salvia-deep);box-shadow:0 0 0 5px oklch(var(--glow-primary) / .18);}
+.node--current .node__btn{border-width:2px;border-color:var(--salvia-deep);box-shadow:0 0 0 3px oklch(var(--glow-primary) / .16);}
 .node--test .node__dot{background:var(--oro);border-color:var(--oro-deep);}
 .node--locked .node__dot{background:var(--paper-sunk);border-color:var(--line);color:var(--ink-faint);}
 
@@ -710,17 +710,17 @@ button{font:inherit;color:inherit;}
 .prose li{margin-bottom:5px;}
 
 .callout{
-  border-left:5px solid var(--oro-deep);
+  border-inline-start:4px solid var(--oro-deep);
   background:var(--oro-soft);
-  border-radius:0 var(--r-m) var(--r-m) 0;
-  padding:14px 20px;margin:18px 0;font-size:.94rem;
+  border-radius:var(--r-m);
+  padding:14px 18px;margin:18px 0;font-size:.94rem;
 }
 .callout b{color:var(--oro-deep);}
 /* The three soft fills flip with the theme now, so a callout needs one rule
    instead of a light one plus a dark correction underneath it. */
-.callout--trap{border-left-color:var(--rosa-deep);background:var(--rosa);}
+.callout--trap{border-inline-start-color:var(--rosa-deep);background:var(--rosa);}
 .callout--trap b{color:var(--rosa-deep);}
-.callout--pl{border-left-color:var(--lavanda-deep);background:var(--lavanda);}
+.callout--pl{border-inline-start-color:var(--lavanda-deep);background:var(--lavanda);}
 /* Plain information (a feature needs a key, what the simulator scores): the
    red trap callout made it read as a failure. */
 /* A small uppercase label above a card's title, the same voice as the path's
@@ -842,7 +842,7 @@ table.gt .it{font-weight:700;color:var(--salvia-deep);}
 }
 .dlg__line--b .dlg__who{background:var(--salvia);}
 .dlg__bubble{
-  background:var(--paper-2);border:1.5px solid var(--line);
+  background:var(--paper-2);border:1px solid var(--line);
   border-radius:var(--r-m);padding:10px 15px;
 }
 .dlg__line--b .dlg__bubble{background:var(--paper-3);}
@@ -865,7 +865,7 @@ table.gt .it{font-weight:700;color:var(--salvia-deep);}
 
 /* ══════════════════ ĆWICZENIA ══════════════════ */
 .exq{
-  border:2px solid var(--line);background:var(--paper-2);
+  border:1px solid var(--line);background:var(--paper-2);
   border-radius:var(--r-l);padding:22px 24px;margin-bottom:16px;
 }
 /* The selected answer and feedback block carry the result. Keep the outer
@@ -1079,7 +1079,7 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
 /* Uwaga „w twoim języku jest inaczej" — najcenniejsza treść kursu wobec
    aplikacji, które uczą wszystkich tak samo. Wyróżniona lewą krawędzią,
    nie tłem: tło zmieniłoby kontrast tekstu, krawędź nie. */
-.card--contrast{border-left:5px solid var(--salvia-deep);}
+.card--contrast{border-inline-start:4px solid var(--salvia-deep);}
 
 /* ══════════════════ ZAKŁADKI ══════════════════ */
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
@@ -1426,7 +1426,7 @@ mark{background:var(--oro);color:var(--on-oro);border-radius:3px;padding:0 2px;}
   .progress-chart--empty{height:auto;}
   .progress-chart__weekday{display:none;}
   .progress-chart__date{display:inline;}
-  .progress-chart__label{font-size:.58rem;letter-spacing:-.02em;}
+  .progress-chart__label{font-size:.68rem;letter-spacing:0;}
 }
 
 /* Guided learning: reuse the Vita Reale surface and accent tokens. */
