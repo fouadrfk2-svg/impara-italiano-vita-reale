@@ -2,7 +2,7 @@ const { test, expect, expectAudioResponse } = require("../helpers/learner-fixtur
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const { assertSavedWrongIsReadOnly, waitForSavedWrongAnswer } = require("../helpers/lesson-resume.cjs");
+const { assertSavedWrongIsReadOnly, goToExercise, waitForSavedWrongAnswer } = require("../helpers/lesson-resume.cjs");
 let arabicUI;
 vm.runInNewContext(readFileSync(path.join(__dirname, "../../data/i18n/ui-ar.js"), "utf8"), { LINGUAI: { addUI(_lang, data) { arabicUI = data; } } });
 function courseOverlay(lang){let entries;vm.runInNewContext(readFileSync(path.join(__dirname,"../../data/i18n",lang,"a1-01.js"),"utf8"),{LINGUAI:{addStrings:(_l,map)=>entries=JSON.parse(JSON.stringify(map))}});return entries;}
@@ -34,7 +34,7 @@ async function shot(page, info, name) {
   await info.attach(name, { path: target, contentType: "image/png" });
 }
 
-for (const width of [1440, 390]) {
+for (const width of [1440, 390, 320]) {
   test.describe("Complete Arabic first lesson at " + width + "px", () => {
     test.use({ viewport: { width, height: 920 }, locale: "ar-MA" });
     test.beforeEach(async ({ page }, info) => {
@@ -88,7 +88,7 @@ for (const width of [1440, 390]) {
         window.SpeechRecognition = function SyntheticSpeechRecognition() {};
       });
       await page.goto("/index.html#/lezione?id=" + id); await ready(page);
-      await page.locator('.ex-chip[data-go="8"]').click();
+      await goToExercise(page, 8);
       const current = page.locator(active);
       await current.locator(".js-mic").click();
       await expect(page.locator("#sttConsentTitle")).toHaveText("سيُرسل صوتك خارج المتصفّح");
@@ -113,6 +113,12 @@ for (const width of [1440, 390]) {
       await page.locator(active + " .js-check").click();
       await expect(page.locator(active)).toHaveClass(/exq--ko/);
       await expect(page.locator(active + " .fb__why")).toContainText("نقول");
+      const expectedCorrectAnswer = await page.evaluate(lessonId => {
+        const exercise = window.Core.getLesson(lessonId).lesson.exercises[0];
+        return exercise.opts[exercise.a].replace(/<[^>]*>/g, "");
+      }, id);
+      const feedbackText = await page.locator(active + " .fb").textContent();
+      expect(feedbackText).toContain("الإجابة الصحيحة: «" + String.fromCharCode(0x2068) + expectedCorrectAnswer + String.fromCharCode(0x2069) + "»");
       await audit(page);
       await waitForSavedWrongAnswer(page, id, 0);
       await page.reload(); await ready(page);
@@ -130,7 +136,7 @@ for (const width of [1440, 390]) {
       const expectedScore = 8 / 9;
       await assertSavedWrongIsReadOnly(page, id, 0, active);
       for (let i = 0; i < 9; i++) {
-        await page.locator('.ex-chip[data-go="' + i + '"]').click();
+        await goToExercise(page, i);
         const current = page.locator(active);
         if (i === 0) {
           await expect(current.locator(".journey-answer")).toBeVisible();

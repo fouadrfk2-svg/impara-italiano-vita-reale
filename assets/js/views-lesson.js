@@ -194,9 +194,8 @@
       parts.push('<div id="lessonEnd"></div>');
     }
 
-    set(parts.join(""));
     var contentLang = LINGUAI.lessonLanguage(I18n.lang, L.id);
-    el().setAttribute("data-lesson-language", contentLang);
+    set(parts.join(""), false, contentLang);
 
     /* --- wiring --- */
     el().querySelector(".js-back").addEventListener("click", function () { Audio2.stop(); App.go("percorso"); });

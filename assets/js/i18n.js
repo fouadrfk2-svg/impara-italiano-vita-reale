@@ -41,6 +41,7 @@
   var ui = {};          // lang -> key -> string or plural forms
   var absent = {};      // keys that were missing — for I18n.missing()
   var current = "ar";
+  var contentObserver = null;
 
   /** Registers an interface dictionary. Called by data/i18n/ui-<lang>.js */
   function addUI(lang, dict) {
@@ -192,13 +193,141 @@
 
   function markMeaning(node, text) { markLanguage(node, meaningLanguage(text)); }
 
-  /** Rich explanations can contain Italian examples and mixed-language tables. */
-  function isolateContent(root) {
-    root.querySelectorAll('[data-content-language="ar"] em,[data-content-language="ar"] i,[data-content-language="ar"] .gt th,[data-content-language="ar"] .gt td').forEach(function (node) {
-      markLanguage(node, /[\u0600-\u06ff]/.test(node.textContent) ? "ar" : "it");
-    });
+  /**
+   * Mixed Arabic/Italian text needs direction isolation at the run boundary,
+   * not only on the containing paragraph. Preserve existing <bdi> and Unicode
+   * isolates; wrap only bare Latin or numeric runs inside Arabic content.
+   */
+  function arabicScope(node) {
+    var element = node && node.nodeType === 1 ? node : node && node.parentElement;
+    if (!element) return false;
+    if (element.closest("bdi,[dir='ltr'],[lang]:not([lang='ar'])")) return false;
+    var content = element.closest("[data-content-language],[data-lesson-language]");
+    if (content) {
+      var language = content.getAttribute("data-content-language") || content.getAttribute("data-lesson-language");
+      if (language !== "ar") return false;
+    } else {
+      var main = element.closest("#main");
+      if (!main) return false;
+      if (main.hasAttribute("data-lesson-language")) {
+        if (main.getAttribute("data-lesson-language") !== "ar") return false;
+      } else if (main.getAttribute("data-view-language") !== "ar") return false;
+    }
+    var parent = node.nodeType === 1 ? node : node.parentElement;
+    if (!parent || parent.closest("script,style,noscript,textarea,input,select,option")) return false;
+    return global.getComputedStyle(parent).direction === "rtl";
   }
 
+  function splitExistingIsolates(text) {
+    var pieces = [], start = 0, isolateStart = -1, depth = 0;
+    for (var i = 0; i < text.length; i++) {
+      var code = text.charCodeAt(i);
+      if (code === 0x2066 || code === 0x2067 || code === 0x2068) {
+        if (depth === 0) {
+          if (i > start) pieces.push({ text: text.slice(start, i), isolated: false });
+          isolateStart = i;
+        }
+        depth++;
+      } else if (code === 0x2069 && depth > 0) {
+        depth--;
+        if (depth === 0) {
+          pieces.push({ text: text.slice(isolateStart, i + 1), isolated: true });
+          start = i + 1;
+        }
+      }
+    }
+    if (start < text.length) pieces.push({ text: text.slice(start), isolated: depth > 0 });
+    return pieces;
+  }
+
+  var LATIN_WORD = "[A-Za-z\\u00c0-\\u024f\\u1e00-\\u1eff0-9]+(?:[’'][A-Za-z\\u00c0-\\u024f\\u1e00-\\u1eff0-9]+)*(?:[/-][A-Za-z\\u00c0-\\u024f\\u1e00-\\u1eff0-9]+)*";
+  var LATIN_RUN_PATTERN = new RegExp("(?:€\\s*)?[0-9]+(?:[.,:/-][0-9]+)*(?:\\s?€)?|-?" + LATIN_WORD + "(?:[\\s\\u00a0/+]+" + LATIN_WORD + ")*-?", "g");
+
+  function appendIsolatedRuns(fragment, text) {
+    var parts = splitExistingIsolates(text), changed = false;
+    parts.forEach(function (part) {
+      if (part.isolated) {
+        fragment.appendChild(document.createTextNode(part.text));
+        return;
+      }
+      var source = part.text, cursor = 0, match;
+      LATIN_RUN_PATTERN.lastIndex = 0;
+      while ((match = LATIN_RUN_PATTERN.exec(source))) {
+        var value = match[0], from = match.index, to = from + value.length;
+        if (source.charAt(to) === ":" && /^\s+[\u0600-\u06ff]/.test(source.slice(to + 1))) to++;
+        var before = source.charAt(from - 1), after = source.charAt(to);
+        var closes = { "(": ")", "[": "]", "{": "}", "\"": "\"", "'": "'", "“": "”", "‘": "’", "«": "»" };
+        if (from > cursor && closes[before] === after) {
+          from--;
+          to++;
+        }
+        if (cursor < from) fragment.appendChild(document.createTextNode(source.slice(cursor, from)));
+        value = source.slice(from, to);
+        var bdi = document.createElement("bdi");
+        bdi.setAttribute("dir", "ltr");
+        bdi.setAttribute("lang", /[A-Za-z\u00c0-\u024f\u1e00-\u1eff]/.test(value) || value.indexOf("€") >= 0 ? "it" : "ar");
+        bdi.textContent = value;
+        fragment.appendChild(bdi);
+        cursor = to;
+        changed = true;
+      }
+      if (cursor < source.length) fragment.appendChild(document.createTextNode(source.slice(cursor)));
+    });
+    return changed;
+  }
+
+  function isolateTextNode(node) {
+    if (!node || node.nodeType !== 3 || !node.nodeValue || !arabicScope(node)) return;
+    var parent = node.parentElement;
+    if (!parent || parent.closest("bdi")) return;
+    var fragment = document.createDocumentFragment();
+    if (!appendIsolatedRuns(fragment, node.nodeValue)) return;
+    node.parentNode.replaceChild(fragment, node);
+  }
+
+  /** Isolate bare Latin/numeric runs in Arabic content and preserve marked LTR fields. */
+  function isolateContent(root) {
+    if (!root) return;
+    var selectors = '[data-content-language="ar"] em,[data-content-language="ar"] i,[data-content-language="ar"] .gt th,[data-content-language="ar"] .gt td,[data-lesson-language="ar"] em,[data-lesson-language="ar"] i,[data-lesson-language="ar"] .gt th,[data-lesson-language="ar"] .gt td';
+    if (root.nodeType === 1 && root.matches && root.matches(selectors)) {
+      var rootArabic = /[\u0600-\u06ff]/.test(root.textContent);
+      root.setAttribute("lang", rootArabic ? "ar" : "it");
+      root.setAttribute("dir", rootArabic ? "rtl" : "ltr");
+      root.setAttribute("data-content-language", rootArabic ? "ar" : "it");
+    }
+    if (root.querySelectorAll) {
+      root.querySelectorAll(selectors).forEach(function (node) {
+        var arabic = /[\u0600-\u06ff]/.test(node.textContent);
+        node.setAttribute("lang", arabic ? "ar" : "it");
+        node.setAttribute("dir", arabic ? "rtl" : "ltr");
+        node.setAttribute("data-content-language", arabic ? "ar" : "it");
+      });
+    }
+    if (root.nodeType === 3) {
+      isolateTextNode(root);
+      return;
+    }
+    if (!root.ownerDocument && root !== document) return;
+    var doc = root.nodeType === 9 ? root : root.ownerDocument;
+    var walker = doc.createTreeWalker(root, global.NodeFilter.SHOW_TEXT);
+    var nodes = [], textNode;
+    while ((textNode = walker.nextNode())) nodes.push(textNode);
+    nodes.forEach(isolateTextNode);
+  }
+
+  /** Keep text added by exercises, reviews, conversations and feedback consistent. */
+  function observeContent(root) {
+    if (!root || root.id !== "main" || contentObserver || !global.MutationObserver) return;
+    contentObserver = new global.MutationObserver(function (records) {
+      if (current !== "ar") return;
+      var added = new Set();
+      records.forEach(function (record) {
+        Array.prototype.forEach.call(record.addedNodes, function (node) { added.add(node); });
+      });
+      added.forEach(isolateContent);
+    });
+    contentObserver.observe(root, { childList: true, subtree: true });
+  }
   /**
    * First visits always use Arabic. This compatibility helper recognizes
    * Arabic browser preferences only; other locales do not become choices.
@@ -228,6 +357,7 @@
     markContent: markContent,
     markMeaning: markMeaning,
     isolateContent: isolateContent,
+    observeContent: observeContent,
     languageAttrs: languageAttrs,
     pickLang: pickLang,
     LANGS: LANGS,

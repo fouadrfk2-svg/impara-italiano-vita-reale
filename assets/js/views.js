@@ -31,12 +31,15 @@
 
   function el() { return mount || (mount = document.getElementById("main")); }
 
-  function set(html, publicSurface) {
+  function set(html, publicSurface, lessonLanguage) {
     // Late callbacks from a departed lesson must never replace the guest screen.
     var locked = global.Account && !global.Account.snapshot().authenticated;
     var m = locked && !publicSurface ? document.createElement("div") : el();
     m.removeAttribute("data-lesson-language");
+    m.removeAttribute("data-view-language");
     m.innerHTML = html;
+    m.setAttribute("data-view-language", I18n.lang);
+    if (lessonLanguage === "ar" || lessonLanguage === "en") m.setAttribute("data-lesson-language", lessonLanguage);
     I18n.isolateContent(m);
     prepareResponsiveTables(m);
     // Public routes use the same shell but intentionally do not load the
@@ -46,6 +49,7 @@
     wireIntro(m);
     m.scrollTop = 0;
     global.scrollTo(0, 0);
+    if (I18n.observeContent) I18n.observeContent(m);
     return m;
   }
 

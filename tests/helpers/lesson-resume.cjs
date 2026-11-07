@@ -10,9 +10,22 @@ async function waitForSavedWrongAnswer(page, lessonId, exerciseIndex) {
   }, { id: lessonId, index: exerciseIndex });
 }
 
+/** Navigate through the real compact exercise disclosure on small screens. */
+async function goToExercise(page, exerciseIndex) {
+  const chip = page.locator('.ex-chip[data-go="' + exerciseIndex + '"]');
+  if (!(await chip.isVisible())) {
+    const toggle = page.locator('.js-ex-menu');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(chip).toBeVisible();
+  }
+  await chip.scrollIntoViewIfNeeded();
+  await chip.click();
+}
+
 /** A saved incorrect response stays visible for review and cannot be re-graded. */
 async function assertSavedWrongIsReadOnly(page, lessonId, exerciseIndex, activeSelector) {
-  await page.locator('.ex-chip[data-go="' + exerciseIndex + '"]').click();
+  await goToExercise(page, exerciseIndex);
   const current = page.locator(activeSelector);
   await expect(current.locator('.journey-answer')).toBeVisible();
   await expect(current.locator('.journey-answer')).toContainText('للمراجعة');
@@ -22,4 +35,4 @@ async function assertSavedWrongIsReadOnly(page, lessonId, exerciseIndex, activeS
   await expect(current.locator('.js-check,.js-in,.js-cell,.js-gap,.js-sel,[data-orig]')).toHaveCount(0);
 }
 
-module.exports = { assertSavedWrongIsReadOnly, waitForSavedWrongAnswer };
+module.exports = { assertSavedWrongIsReadOnly, goToExercise, waitForSavedWrongAnswer };

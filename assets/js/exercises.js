@@ -160,6 +160,7 @@
           });
         });
       }
+      if (I18n.isolateContent) I18n.isolateContent(root);
       return wire.apply(this, arguments);
     };
     return built;
