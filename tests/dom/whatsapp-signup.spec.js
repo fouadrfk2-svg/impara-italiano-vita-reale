@@ -34,7 +34,7 @@ test("online signup retains its primary billing route and offers a separate What
   await expect.poll(()=>page.locator(".guest-whatsapp-marketing").count()).toBe(4);
   const primary=page.locator(".guest-subscribe").first(),option=page.locator(".guest-whatsapp-marketing").first(),link=option.locator(".guest-whatsapp-link");
   await expect(primary).toHaveAttribute("href","#/billing");
-  await expect(primary).toContainText("اشترك الآن");
+  await expect(primary).toHaveAccessibleName("سجّل الآن");
   await expect(option.locator(".guest-whatsapp-separator")).toHaveText("أو");
   await expectWhatsAppLink(link);
   const dimensions=await page.evaluate(()=>{const a=document.querySelector(".guest-subscribe"),o=a.nextElementSibling,r=o.getBoundingClientRect(),p=a.getBoundingClientRect(),icon=o.querySelector("svg").getBoundingClientRect();return {width:r.width,height:r.height,x:r.x,right:r.right,top:r.top,primaryBottom:p.bottom,scrollWidth:document.documentElement.scrollWidth,innerWidth,dir:document.querySelector(".guest-page").dir,iconWidth:icon.width,iconHeight:icon.height};});

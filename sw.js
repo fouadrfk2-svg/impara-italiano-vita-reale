@@ -1,7 +1,7 @@
 /* Public shell only. Private course data/audio are network-only and require
    a fresh server session. Downloaded copies from older releases cannot be
    remotely revoked; activation removes their legacy Cache Storage entries. */
-var SW_VERSION = "v37.ce8266fa9922";
+var SW_VERSION = "v37.34c659c3e765";
 var SHELL_CACHE = "linguai-shell-" + SW_VERSION;
 var PRECACHE = [
   "./assets/branding/header_public_light.svg",
@@ -157,7 +157,6 @@ var PRECACHE = [
   "./assets/fonts/jetbrainsmono-latin.woff2",
   "./assets/css/guest.css",
   "./assets/js/guest.js",
-  "./assets/js/public-demo.js"
 ];
 
 // Keep the public home page available offline without prefetching the entire
@@ -202,7 +201,6 @@ var FIRST_VISIT = new Set([
   "./assets/js/views-account.js",
   "./assets/js/billing.js",
   "./assets/js/guest.js",
-  "./assets/js/public-demo.js",
   "./assets/js/clarity.js",
   "./assets/js/learning-journey.js",
   "./assets/js/app.js",
